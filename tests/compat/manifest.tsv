@@ -1,0 +1,51 @@
+id	stego	cover	passphrase	payload	name	options
+format-win3x1_std	fixtures/format-win3x1_std.bmp	win3x1_std.bmp	steghide compat	rnd40	rnd40	
+format-win3x4_std	fixtures/format-win3x4_std.bmp	win3x4_std.bmp	steghide compat	rnd40	rnd40	
+format-win3x8_std	fixtures/format-win3x8_std.bmp	win3x8_std.bmp	steghide compat	rnd40	rnd40	
+format-win3x24_std	fixtures/format-win3x24_std.bmp	win3x24_std.bmp	steghide compat	rnd40	rnd40	
+format-os21x1_std	fixtures/format-os21x1_std.bmp	os21x1_std.bmp	steghide compat	rnd40	rnd40	
+format-os21x4_std	fixtures/format-os21x4_std.bmp	os21x4_std.bmp	steghide compat	rnd40	rnd40	
+format-os21x8_std	fixtures/format-os21x8_std.bmp	os21x8_std.bmp	steghide compat	rnd40	rnd40	
+format-os21x24_std	fixtures/format-os21x24_std.bmp	os21x24_std.bmp	steghide compat	rnd40	rnd40	
+format-std	fixtures/format-std.jpg	std.jpg	steghide compat	rnd40	rnd40	
+format-prog	fixtures/format-prog.jpg	prog.jpg	steghide compat	rnd40	rnd40	
+format-pcm8_std	fixtures/format-pcm8_std.wav	pcm8_std.wav	steghide compat	rnd40	rnd40	
+format-pcm16_std	fixtures/format-pcm16_std.wav	pcm16_std.wav	steghide compat	rnd40	rnd40	
+format-mulaw_std	fixtures/format-mulaw_std.au	mulaw_std.au	steghide compat	rnd40	rnd40	
+format-pcm8_std	fixtures/format-pcm8_std.au	pcm8_std.au	steghide compat	rnd40	rnd40	
+format-pcm16_std	fixtures/format-pcm16_std.au	pcm16_std.au	steghide compat	rnd40	rnd40	
+cipher-cast-128	fixtures/cipher-cast-128.bmp	win3x24_std.bmp	steghide compat	rnd100	rnd100	-e cast-128 cbc
+cipher-gost	fixtures/cipher-gost.bmp	win3x24_std.bmp	steghide compat	rnd100	rnd100	-e gost cbc
+cipher-rijndael-128	fixtures/cipher-rijndael-128.bmp	win3x24_std.bmp	steghide compat	rnd100	rnd100	-e rijndael-128 cbc
+cipher-twofish	fixtures/cipher-twofish.bmp	win3x24_std.bmp	steghide compat	rnd100	rnd100	-e twofish cbc
+cipher-arcfour	fixtures/cipher-arcfour.bmp	win3x24_std.bmp	steghide compat	rnd100	rnd100	-e arcfour stream
+cipher-cast-256	fixtures/cipher-cast-256.bmp	win3x24_std.bmp	steghide compat	rnd100	rnd100	-e cast-256 cbc
+cipher-loki97	fixtures/cipher-loki97.bmp	win3x24_std.bmp	steghide compat	rnd100	rnd100	-e loki97 cbc
+cipher-rijndael-192	fixtures/cipher-rijndael-192.bmp	win3x24_std.bmp	steghide compat	rnd100	rnd100	-e rijndael-192 cbc
+cipher-saferplus	fixtures/cipher-saferplus.bmp	win3x24_std.bmp	steghide compat	rnd100	rnd100	-e saferplus cbc
+cipher-wake	fixtures/cipher-wake.bmp	win3x24_std.bmp	steghide compat	rnd100	rnd100	-e wake stream
+cipher-des	fixtures/cipher-des.bmp	win3x24_std.bmp	steghide compat	rnd100	rnd100	-e des cbc
+cipher-rijndael-256	fixtures/cipher-rijndael-256.bmp	win3x24_std.bmp	steghide compat	rnd100	rnd100	-e rijndael-256 cbc
+cipher-serpent	fixtures/cipher-serpent.bmp	win3x24_std.bmp	steghide compat	rnd100	rnd100	-e serpent cbc
+cipher-xtea	fixtures/cipher-xtea.bmp	win3x24_std.bmp	steghide compat	rnd100	rnd100	-e xtea cbc
+cipher-blowfish	fixtures/cipher-blowfish.bmp	win3x24_std.bmp	steghide compat	rnd100	rnd100	-e blowfish cbc
+cipher-enigma	fixtures/cipher-enigma.bmp	win3x24_std.bmp	steghide compat	rnd100	rnd100	-e enigma stream
+cipher-rc2	fixtures/cipher-rc2.bmp	win3x24_std.bmp	steghide compat	rnd100	rnd100	-e rc2 cbc
+cipher-tripledes	fixtures/cipher-tripledes.bmp	win3x24_std.bmp	steghide compat	rnd100	rnd100	-e tripledes cbc
+mode-rijndael-128-cbc	fixtures/mode-rijndael-128-cbc.bmp	win3x24_std.bmp	steghide compat	rnd100	rnd100	-e rijndael-128 cbc
+mode-rijndael-128-cfb	fixtures/mode-rijndael-128-cfb.bmp	win3x24_std.bmp	steghide compat	rnd100	rnd100	-e rijndael-128 cfb
+mode-rijndael-128-ctr	fixtures/mode-rijndael-128-ctr.bmp	win3x24_std.bmp	steghide compat	rnd100	rnd100	-e rijndael-128 ctr
+mode-rijndael-128-ecb	fixtures/mode-rijndael-128-ecb.bmp	win3x24_std.bmp	steghide compat	rnd100	rnd100	-e rijndael-128 ecb
+mode-rijndael-128-ncfb	fixtures/mode-rijndael-128-ncfb.bmp	win3x24_std.bmp	steghide compat	rnd100	rnd100	-e rijndael-128 ncfb
+mode-rijndael-128-nofb	fixtures/mode-rijndael-128-nofb.bmp	win3x24_std.bmp	steghide compat	rnd100	rnd100	-e rijndael-128 nofb
+mode-rijndael-128-ofb	fixtures/mode-rijndael-128-ofb.bmp	win3x24_std.bmp	steghide compat	rnd100	rnd100	-e rijndael-128 ofb
+opt-no-encryption	fixtures/opt-no-encryption.bmp	win3x24_std.bmp	steghide compat	text.txt	text.txt	-e none
+opt-no-compression	fixtures/opt-no-compression.bmp	win3x24_std.bmp	steghide compat	text.txt	text.txt	-Z
+opt-compression-1	fixtures/opt-compression-1.bmp	win3x24_std.bmp	steghide compat	text.txt	text.txt	-z 1
+opt-compression-9	fixtures/opt-compression-9.bmp	win3x24_std.bmp	steghide compat	text.txt	text.txt	-z 9
+opt-no-checksum	fixtures/opt-no-checksum.bmp	win3x24_std.bmp	steghide compat	text.txt	text.txt	-K
+opt-no-name	fixtures/opt-no-name.bmp	win3x24_std.bmp	steghide compat	text.txt		-N
+opt-raw	fixtures/opt-raw.bmp	win3x24_std.bmp	steghide compat	rnd100		-e none -Z -K -N
+pass-empty	fixtures/pass-empty.bmp	win3x24_std.bmp		rnd100	rnd100	
+pass-unicode	fixtures/pass-unicode.bmp	win3x24_std.bmp	pässwörd ключ 🔑	rnd100	rnd100	
+pass-long	fixtures/pass-long.bmp	win3x24_std.bmp	long passphrase long passphrase long passphrase long passphrase long passphrase long passphrase long passphrase long passphrase long passphrase long passphrase long passphrase long passphrase long passphrase long passphrase long passphrase long passphrase long passphrase long passphrase long passphrase long passphrase 	rnd100	rnd100	

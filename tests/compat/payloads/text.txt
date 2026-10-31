@@ -1,0 +1,3 @@
+steghide compatibility payload. This text is compressible so that the
+compression cases embed something zlib can actually shrink: aaaaaaaaaaaaaaaa
+bbbbbbbbbbbbbbbb cccccccccccccccc.
