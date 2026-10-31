@@ -156,8 +156,8 @@ void Embedder::embed ()
 		else {
 			cvrstring = "\"" + Args.CvrFn.getValue() + "\"" ;
 		}
-		char buf[200] ;
-		sprintf (buf, _("embedding %s in %s..."), embstring.c_str(), cvrstring.c_str()) ;
+		char buf[1024] ;
+		snprintf (buf, sizeof(buf), _("embedding %s in %s..."), embstring.c_str(), cvrstring.c_str()) ;
 
 		prout = new ProgressOutput (std::string(buf)) ;
 	}
