@@ -1,7 +1,7 @@
 if USE_INTLDIR
-AM_CPPFLAGS = -I../intl -DLOCALEDIR=\"$(localedir)\"
+AM_CPPFLAGS = -g -fstack-protector-strong -Wformat -Werror=format-security -I../intl -DLOCALEDIR=\"$(localedir)\"
 else
-AM_CPPFLAGS = -DLOCALEDIR=\"$(localedir)\"
+AM_CPPFLAGS = -g -fstack-protector-strong -Wformat -Werror=format-security -DLOCALEDIR=\"$(localedir)\"
 endif
 bin_PROGRAMS = steghide
 noinst_HEADERS = \
