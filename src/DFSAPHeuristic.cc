@@ -72,6 +72,13 @@ void DFSAPHeuristic::reset (UWORD32 mne, EdgeIterator::ITERATIONMODE mo)
 
 void DFSAPHeuristic::run ()
 {
+	// The construction heuristics that ran since the constructor have erased and
+	// re-inserted the graph's sample occurences, so the positions the edge
+	// iterators took in the constructor may point to freed list nodes.
+	for (VertexLabel l = 0 ; l < TheGraph->getNumVertices() ; l++) {
+		EdgeIterators[l].reset (EdgeIterators[l].getMode()) ;
+	}
+
 	const Edge** path = new const Edge*[TheGraph->getNumVertices()] ;
 
 	const std::list<Vertex*> ExposedVertices = TheMatching->getExposedVertices() ;

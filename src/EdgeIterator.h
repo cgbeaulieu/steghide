@@ -101,6 +101,9 @@ class EdgeIterator {
 	bool isFinished (void) const
 		{ return Finished ; } ;
 
+	ITERATIONMODE getMode (void) const
+		{ return Mode ; } ;
+
 	/**
 	 * get the label of the partner vertex
 	 * \return the label of the vertex that builds the edge returned by operator* together with SrcVertex
