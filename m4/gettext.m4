@@ -574,10 +574,10 @@ AC_DEFUN([AM_MKINSTALLDIRS],
   dnl Try to locate is.
   MKINSTALLDIRS=
   if test -n "$ac_aux_dir"; then
-    MKINSTALLDIRS="$ac_aux_dir/mkinstalldirs"
+    MKINSTALLDIRS="$ac_aux_dir/install-sh"
   fi
   if test -z "$MKINSTALLDIRS"; then
-    MKINSTALLDIRS="\$(top_srcdir)/mkinstalldirs"
+    MKINSTALLDIRS="\$(top_srcdir)/install-sh"
   fi
   AC_SUBST(MKINSTALLDIRS)
 ])

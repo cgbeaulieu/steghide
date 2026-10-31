@@ -40,7 +40,7 @@ subdir = intl
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 MKINSTALLDIRS = @MKINSTALLDIRS@
-mkinstalldirs = $(SHELL) `case "$(MKINSTALLDIRS)" in /*) echo "$(MKINSTALLDIRS)" ;; *) echo "$(top_builddir)/$(MKINSTALLDIRS)" ;; esac`
+mkinstalldirs = $(SHELL) `case "$(MKINSTALLDIRS)" in /*) echo "$(MKINSTALLDIRS) -d" ;; *) echo "$(top_builddir)/$(MKINSTALLDIRS) -d" ;; esac`
 
 l = @INTL_LIBTOOL_SUFFIX_PREFIX@
 
