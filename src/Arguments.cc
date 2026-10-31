@@ -135,7 +135,7 @@ void Arguments::parse_Command (ArgIt& curarg)
 		++curarg ;
 
 		if (curarg == TheArguments.end()) {
-			throw ArgError (_("you have to suppy a filename to the \"%s\" command."), CommandString.c_str()) ;
+			throw ArgError (_("you have to supply a filename to the \"%s\" command."), CommandString.c_str()) ;
 		}
 		else {
 			parse_Passphrase (curarg) ; // try: maybe -p is first argument

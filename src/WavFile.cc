@@ -246,7 +246,7 @@ void WavFile::readdata (void)
 	catch (BinaryInputError e) {
 		switch (e.getType()) {
 			case BinaryInputError::FILE_ERR: {
-				throw SteghideError (_("an error occured while reading the audio data from the file \"%s\"."), getBinIO()->getName().c_str()) ;
+				throw SteghideError (_("an error occurred while reading the audio data from the file \"%s\"."), getBinIO()->getName().c_str()) ;
 			break ; }
 
 			case BinaryInputError::FILE_EOF: {
@@ -254,7 +254,7 @@ void WavFile::readdata (void)
 			break ; }
 
 			case BinaryInputError::STDIN_ERR: {
-				throw SteghideError (_("an error occured while reading the audio data from standard input.")) ;
+				throw SteghideError (_("an error occurred while reading the audio data from standard input.")) ;
 			break ; }
 
 			case BinaryInputError::STDIN_EOF: {
@@ -299,11 +299,11 @@ void WavFile::writedata (void)
 	catch (BinaryOutputError e) {
 		switch (e.getType()) {
 			case BinaryOutputError::FILE_ERR: {
-				throw SteghideError (_("an error occured while writing the audio data to the file \"%s\"."), getBinIO()->getName().c_str()) ;
+				throw SteghideError (_("an error occurred while writing the audio data to the file \"%s\"."), getBinIO()->getName().c_str()) ;
 			break ; }
 
 			case BinaryOutputError::STDOUT_ERR: {
-				throw SteghideError (_("an error occured while writing the audio data to standard output.")) ;
+				throw SteghideError (_("an error occurred while writing the audio data to standard output.")) ;
 			break ; }
 		}
 	}
@@ -343,7 +343,7 @@ void WavFile::readheaders ()
 		switch (e.getType()) {
 			case BinaryInputError::FILE_ERR:
 			{
-				throw SteghideError (_("an error occured while reading the wav headers from the file \"%s\"."), getBinIO()->getName().c_str()) ;
+				throw SteghideError (_("an error occurred while reading the wav headers from the file \"%s\"."), getBinIO()->getName().c_str()) ;
 				break ;
 			}
 
@@ -355,7 +355,7 @@ void WavFile::readheaders ()
 
 			case BinaryInputError::STDIN_ERR:
 			{
-				throw SteghideError (_("an error occured while reading the wav headers from standard input.")) ;
+				throw SteghideError (_("an error occurred while reading the wav headers from standard input.")) ;
 				break ;
 			}
 
@@ -391,13 +391,13 @@ void WavFile::writeheaders ()
 		switch (e.getType()) {
 			case BinaryOutputError::FILE_ERR:
 			{
-				throw SteghideError (_("an error occured while writing the wav headers to the file \"%s\"."), getBinIO()->getName().c_str()) ;
+				throw SteghideError (_("an error occurred while writing the wav headers to the file \"%s\"."), getBinIO()->getName().c_str()) ;
 				break ;
 			}
 
 			case BinaryOutputError::STDOUT_ERR:
 			{
-				throw SteghideError (_("an error occured while writing the wav headers to standard output.")) ;
+				throw SteghideError (_("an error occurred while writing the wav headers to standard output.")) ;
 				break ;
 			}
 		}

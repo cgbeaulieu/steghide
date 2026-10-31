@@ -24,7 +24,7 @@ data.
 Steghide uses a graph-theoretic approach to steganography. You do not need
 to know anything about graph theory to use steghide and you can safely skip the rest of this paragraph if you are 
 not interested in the technical details. The embedding algorithm roughly works as follows: At first, the secret data
-is compressed and encrypted. Then a sequence of postions of pixels in the cover file
+is compressed and encrypted. Then a sequence of positions of pixels in the cover file
 is created based on a pseudo-random number generator initialized with the
 passphrase (the secret data will be embedded in the pixels at these positions). Of these positions
 those that do not need to be changed (because they already contain the correct
@@ -173,7 +173,7 @@ process.
 
 .TP
 .B "-q, --quiet"
-Supress information messages.
+Suppress information messages.
 
 .TP
 .B "-f, --force"
@@ -230,7 +230,7 @@ yes you have to supply a passphrase. Steghide will then try to extract the embed
 with that passphrase and - if it succeeds - print some information about it.
 
 .SH RETURN VALUE
-Steghide returns 0 on success and 1 if a failure occured and it had to terminate
+Steghide returns 0 on success and 1 if a failure occurred and it had to terminate
 before completion of the requested operation. Warnings do not have an effect
 on the return value.
 

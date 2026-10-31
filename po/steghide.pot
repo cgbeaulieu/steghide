@@ -32,7 +32,7 @@ msgstr ""
 
 #: src/Arguments.cc:138
 #, c-format
-msgid "you have to suppy a filename to the \"%s\" command."
+msgid "you have to supply a filename to the \"%s\" command."
 msgstr ""
 
 #: src/Arguments.cc:159 src/Arguments.cc:166 src/Arguments.cc:173
@@ -232,7 +232,7 @@ msgstr ""
 
 #: src/AuFile.cc:94
 #, c-format
-msgid "the au file on standard input uses the unkown encoding %d."
+msgid "the au file on standard input uses the unknown encoding %d."
 msgstr ""
 
 #: src/AuFile.cc:97
@@ -242,7 +242,7 @@ msgstr ""
 
 #: src/AuFile.cc:107
 #, c-format
-msgid "an error occured while reading the au headers from the file \"%s\"."
+msgid "an error occurred while reading the au headers from the file \"%s\"."
 msgstr ""
 
 #: src/AuFile.cc:113
@@ -251,7 +251,7 @@ msgid "premature end of file \"%s\" while reading au headers."
 msgstr ""
 
 #: src/AuFile.cc:119
-msgid "an error occured while reading the au headers from standard input."
+msgid "an error occurred while reading the au headers from standard input."
 msgstr ""
 
 #: src/AuFile.cc:125
@@ -260,11 +260,11 @@ msgstr ""
 
 #: src/AuFile.cc:165
 #, c-format
-msgid "an error occured while writing the au headers to the file \"%s\"."
+msgid "an error occurred while writing the au headers to the file \"%s\"."
 msgstr ""
 
 #: src/AuFile.cc:171
-msgid "an error occured while writing the au headers to standard output."
+msgid "an error occurred while writing the au headers to standard output."
 msgstr ""
 
 #: src/AuFile.cc:188
@@ -281,7 +281,7 @@ msgstr ""
 
 #: src/AudioData.h:94 src/WavFile.cc:249
 #, c-format
-msgid "an error occured while reading the audio data from the file \"%s\"."
+msgid "an error occurred while reading the audio data from the file \"%s\"."
 msgstr ""
 
 #: src/AudioData.h:100 src/WavFile.cc:253
@@ -290,7 +290,7 @@ msgid "premature end of file \"%s\" while reading audio data."
 msgstr ""
 
 #: src/AudioData.h:106 src/WavFile.cc:257
-msgid "an error occured while reading the audio data from standard input."
+msgid "an error occurred while reading the audio data from standard input."
 msgstr ""
 
 #: src/AudioData.h:112 src/WavFile.cc:261
@@ -299,11 +299,11 @@ msgstr ""
 
 #: src/AudioData.h:134 src/WavFile.cc:302
 #, c-format
-msgid "an error occured while writing the audio data to the file \"%s\"."
+msgid "an error occurred while writing the audio data to the file \"%s\"."
 msgstr ""
 
 #: src/AudioData.h:140 src/WavFile.cc:306
-msgid "an error occured while writing the audio data to standard output."
+msgid "an error occurred while writing the audio data to standard output."
 msgstr ""
 
 #: src/BinaryIO.cc:67
@@ -367,7 +367,7 @@ msgstr ""
 
 #: src/BmpFile.cc:439
 #, c-format
-msgid "an error occured while reading the bmp headers from the file \"%s\"."
+msgid "an error occurred while reading the bmp headers from the file \"%s\"."
 msgstr ""
 
 #: src/BmpFile.cc:443
@@ -376,7 +376,7 @@ msgid "premature end of file \"%s\" while reading bmp headers."
 msgstr ""
 
 #: src/BmpFile.cc:447
-msgid "an error occured while reading the bmp headers from standard input."
+msgid "an error occurred while reading the bmp headers from standard input."
 msgstr ""
 
 #: src/BmpFile.cc:451
@@ -433,11 +433,11 @@ msgstr ""
 
 #: src/BmpFile.cc:669
 #, c-format
-msgid "an error occured while writing the bmp headers to the file \"%s\"."
+msgid "an error occurred while writing the bmp headers to the file \"%s\"."
 msgstr ""
 
 #: src/BmpFile.cc:673
-msgid "an error occured while writing the bmp headers to standard output."
+msgid "an error occurred while writing the bmp headers to standard output."
 msgstr ""
 
 #: src/BmpFile.cc:776
@@ -447,7 +447,7 @@ msgstr ""
 
 #: src/BmpFile.cc:790
 #, c-format
-msgid "an error occured while reading the bmp data from the file \"%s\"."
+msgid "an error occurred while reading the bmp data from the file \"%s\"."
 msgstr ""
 
 #: src/BmpFile.cc:794
@@ -456,7 +456,7 @@ msgid "premature end of file \"%s\" while reading bmp data."
 msgstr ""
 
 #: src/BmpFile.cc:798
-msgid "an error occured while reading the bmp data from standard input."
+msgid "an error occurred while reading the bmp data from standard input."
 msgstr ""
 
 #: src/BmpFile.cc:802
@@ -465,11 +465,11 @@ msgstr ""
 
 #: src/BmpFile.cc:840
 #, c-format
-msgid "an error occured while writing the bitmap data to the file \"%s\"."
+msgid "an error occurred while writing the bitmap data to the file \"%s\"."
 msgstr ""
 
 #: src/BmpFile.cc:844
-msgid "an error occured while writing the bitmap data to standard output."
+msgid "an error occurred while writing the bitmap data to standard output."
 msgstr ""
 
 #: src/CvrStgFile.cc:212
@@ -812,7 +812,7 @@ msgstr ""
 
 #: src/WavFile.cc:346
 #, c-format
-msgid "an error occured while reading the wav headers from the file \"%s\"."
+msgid "an error occurred while reading the wav headers from the file \"%s\"."
 msgstr ""
 
 #: src/WavFile.cc:352
@@ -821,7 +821,7 @@ msgid "premature end of file \"%s\" while reading wav headers."
 msgstr ""
 
 #: src/WavFile.cc:358
-msgid "an error occured while reading the wav headers from standard input."
+msgid "an error occurred while reading the wav headers from standard input."
 msgstr ""
 
 #: src/WavFile.cc:364
@@ -830,11 +830,11 @@ msgstr ""
 
 #: src/WavFile.cc:394
 #, c-format
-msgid "an error occured while writing the wav headers to the file \"%s\"."
+msgid "an error occurred while writing the wav headers to the file \"%s\"."
 msgstr ""
 
 #: src/WavFile.cc:400
-msgid "an error occured while writing the wav headers to standard output."
+msgid "an error occurred while writing the wav headers to standard output."
 msgstr ""
 
 #: src/WavFormatChunk.cc:31
@@ -883,21 +883,21 @@ msgid "premature end of file \"%s\"."
 msgstr ""
 
 #: src/error.cc:66
-msgid "an error occured while reading data from standard input."
+msgid "an error occurred while reading data from standard input."
 msgstr ""
 
 #: src/error.cc:70
 #, c-format
-msgid "an error occured while reading data from the file \"%s\"."
+msgid "an error occurred while reading data from the file \"%s\"."
 msgstr ""
 
 #: src/error.cc:93
-msgid "an error occured while writing data to standard output."
+msgid "an error occurred while writing data to standard output."
 msgstr ""
 
 #: src/error.cc:97
 #, c-format
-msgid "an error occured while writing data to the file \"%s\"."
+msgid "an error occurred while writing data to the file \"%s\"."
 msgstr ""
 
 #: src/error.cc:119

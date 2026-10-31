@@ -36,7 +36,7 @@ msgstr ""
 
 #: src/Arguments.cc:138
 #, c-format
-msgid "you have to suppy a filename to the \"%s\" command."
+msgid "you have to supply a filename to the \"%s\" command."
 msgstr "Das Kommando \"%s\" benötigt einen Dateinamen."
 
 #: src/Arguments.cc:159 src/Arguments.cc:166 src/Arguments.cc:173
@@ -258,7 +258,7 @@ msgstr "Zusicherung fehlgeschlagen in %s in Zeile %d."
 
 #: src/AuFile.cc:94
 #, c-format
-msgid "the au file on standard input uses the unkown encoding %d."
+msgid "the au file on standard input uses the unknown encoding %d."
 msgstr ""
 "Die au-Datei von der Standardeingabe verwendet die unbekannte Kodierung %d."
 
@@ -269,7 +269,7 @@ msgstr "Die au-Datei \"%s\" verwendet die unbekannte Kodierung %d."
 
 #: src/AuFile.cc:107
 #, c-format
-msgid "an error occured while reading the au headers from the file \"%s\"."
+msgid "an error occurred while reading the au headers from the file \"%s\"."
 msgstr ""
 "Beim Lesen der au-Header aus der Datei \"%s\" ist ein Fehler aufgetreten."
 
@@ -279,7 +279,7 @@ msgid "premature end of file \"%s\" while reading au headers."
 msgstr "Die au-Header aus der Datei \"%s\" sind unvollständig."
 
 #: src/AuFile.cc:119
-msgid "an error occured while reading the au headers from standard input."
+msgid "an error occurred while reading the au headers from standard input."
 msgstr ""
 "Beim Lesen der au-Header von der Standardeingabe ist ein Fehler aufgetreten."
 
@@ -289,12 +289,12 @@ msgstr "Die au-Header von der Standardeingabe sind unvollständig."
 
 #: src/AuFile.cc:165
 #, c-format
-msgid "an error occured while writing the au headers to the file \"%s\"."
+msgid "an error occurred while writing the au headers to the file \"%s\"."
 msgstr ""
 "Beim Schreiben der au-Header in die Datei \"%s\" ist ein Fehler aufgetreten."
 
 #: src/AuFile.cc:171
-msgid "an error occured while writing the au headers to standard output."
+msgid "an error occurred while writing the au headers to standard output."
 msgstr ""
 "Beim Schreiben der au-Header auf die Standardausgabe ist ein Fehler "
 "aufgetreten."
@@ -313,7 +313,7 @@ msgstr "Format"
 
 #: src/AudioData.h:94 src/WavFile.cc:249
 #, c-format
-msgid "an error occured while reading the audio data from the file \"%s\"."
+msgid "an error occurred while reading the audio data from the file \"%s\"."
 msgstr ""
 "Beim Lesen der Audiodaten aus der Datei \"%s\" ist ein Fehler aufgetreten."
 
@@ -323,7 +323,7 @@ msgid "premature end of file \"%s\" while reading audio data."
 msgstr "Die Audiodaten aus der Datei \"%s\" sind unvollständig."
 
 #: src/AudioData.h:106 src/WavFile.cc:257
-msgid "an error occured while reading the audio data from standard input."
+msgid "an error occurred while reading the audio data from standard input."
 msgstr ""
 "Beim Lesen der Audiodaten von der Standardeingabe ist ein Fehler aufgetreten."
 
@@ -333,12 +333,12 @@ msgstr "Die Audiodaten von der Standardeingabe sind unvollständig."
 
 #: src/AudioData.h:134 src/WavFile.cc:302
 #, c-format
-msgid "an error occured while writing the audio data to the file \"%s\"."
+msgid "an error occurred while writing the audio data to the file \"%s\"."
 msgstr ""
 "Beim Schreiben der Audiodaten in die Datei \"%s\" ist ein Fehler aufgetreten."
 
 #: src/AudioData.h:140 src/WavFile.cc:306
-msgid "an error occured while writing the audio data to standard output."
+msgid "an error occurred while writing the audio data to standard output."
 msgstr ""
 "Beim Schreiben der Audiodaten auf die Standardausgabe ist ein Fehler "
 "aufgetreten."
@@ -411,7 +411,7 @@ msgstr ""
 
 #: src/BmpFile.cc:439
 #, c-format
-msgid "an error occured while reading the bmp headers from the file \"%s\"."
+msgid "an error occurred while reading the bmp headers from the file \"%s\"."
 msgstr ""
 "Beim Lesen der bmp-Header aus der Datei \"%s\" ist ein Fehler aufgetreten."
 
@@ -421,7 +421,7 @@ msgid "premature end of file \"%s\" while reading bmp headers."
 msgstr "Die bmp-Header aus der Datei \"%s\" sind unvollständig."
 
 #: src/BmpFile.cc:447
-msgid "an error occured while reading the bmp headers from standard input."
+msgid "an error occurred while reading the bmp headers from standard input."
 msgstr ""
 "Beim Lesen der bmp-Header von der Standardeingabe ist ein Fehler aufgetreten."
 
@@ -493,12 +493,12 @@ msgstr ""
 
 #: src/BmpFile.cc:669
 #, c-format
-msgid "an error occured while writing the bmp headers to the file \"%s\"."
+msgid "an error occurred while writing the bmp headers to the file \"%s\"."
 msgstr ""
 "Beim Schreiben der bmp-Header in die Datei \"%s\" ist ein Fehler aufgetreten."
 
 #: src/BmpFile.cc:673
-msgid "an error occured while writing the bmp headers to standard output."
+msgid "an error occurred while writing the bmp headers to standard output."
 msgstr ""
 "Beim Schreiben der bmp-Header auf die Standardausgabe ist ein Fehler "
 "aufgetreten."
@@ -512,7 +512,7 @@ msgstr ""
 
 #: src/BmpFile.cc:790
 #, c-format
-msgid "an error occured while reading the bmp data from the file \"%s\"."
+msgid "an error occurred while reading the bmp data from the file \"%s\"."
 msgstr ""
 "Beim Lesen der Bilddaten aus der Datei \"%s\" ist ein Fehler aufgetreten."
 
@@ -522,7 +522,7 @@ msgid "premature end of file \"%s\" while reading bmp data."
 msgstr "Die Bilddaten aus der Datei \"%s\" sind unvollständig."
 
 #: src/BmpFile.cc:798
-msgid "an error occured while reading the bmp data from standard input."
+msgid "an error occurred while reading the bmp data from standard input."
 msgstr ""
 "Beim Lesen der Bilddaten von der Standardeingabe ist ein Fehler aufgetreten."
 
@@ -532,12 +532,12 @@ msgstr "Die bmp-Daten von der Standardeingabe sind unvollständig."
 
 #: src/BmpFile.cc:840
 #, c-format
-msgid "an error occured while writing the bitmap data to the file \"%s\"."
+msgid "an error occurred while writing the bitmap data to the file \"%s\"."
 msgstr ""
 "Beim Schreiben der Bilddaten in die Datei \"%s\" ist ein Fehler aufgetreten."
 
 #: src/BmpFile.cc:844
-msgid "an error occured while writing the bitmap data to standard output."
+msgid "an error occurred while writing the bitmap data to standard output."
 msgstr ""
 "Beim Schreiben der Bilddaten auf die Standardausgabe ist ein Fehler "
 "aufgetreten."
@@ -967,7 +967,7 @@ msgstr "Die Attribute des Terminals konnten nicht gesetzt werden."
 
 #: src/WavFile.cc:346
 #, c-format
-msgid "an error occured while reading the wav headers from the file \"%s\"."
+msgid "an error occurred while reading the wav headers from the file \"%s\"."
 msgstr ""
 "Beim Lesen der wav-Header aus der Datei \"%s\" ist ein Fehler aufgetreten."
 
@@ -977,7 +977,7 @@ msgid "premature end of file \"%s\" while reading wav headers."
 msgstr "Die wav-Header aus der Datei \"%s\" sind unvollständig."
 
 #: src/WavFile.cc:358
-msgid "an error occured while reading the wav headers from standard input."
+msgid "an error occurred while reading the wav headers from standard input."
 msgstr ""
 "Beim Lesen der wav-Header von der Standardeingabe ist ein Fehler aufgetreten."
 
@@ -987,12 +987,12 @@ msgstr "Die wav-Header von der Standardeingabe sind unvollständig."
 
 #: src/WavFile.cc:394
 #, c-format
-msgid "an error occured while writing the wav headers to the file \"%s\"."
+msgid "an error occurred while writing the wav headers to the file \"%s\"."
 msgstr ""
 "Beim Schreiben der wav-Header in die Datei \"%s\" ist ein Fehler aufgetreten."
 
 #: src/WavFile.cc:400
-msgid "an error occured while writing the wav headers to standard output."
+msgid "an error occurred while writing the wav headers to standard output."
 msgstr ""
 "Beim Schreiben der wav-Header auf die Standardausgabe ist ein Fehler "
 "aufgetreten."
@@ -1049,21 +1049,21 @@ msgid "premature end of file \"%s\"."
 msgstr "Die Datei \"%s\" ist unvollständig."
 
 #: src/error.cc:66
-msgid "an error occured while reading data from standard input."
+msgid "an error occurred while reading data from standard input."
 msgstr "Beim Lesen von der Standardeingabe ist ein Fehler aufgetreten."
 
 #: src/error.cc:70
 #, c-format
-msgid "an error occured while reading data from the file \"%s\"."
+msgid "an error occurred while reading data from the file \"%s\"."
 msgstr "Beim Lesen aus der Datei \"%s\" ist ein Fehler aufgetreten."
 
 #: src/error.cc:93
-msgid "an error occured while writing data to standard output."
+msgid "an error occurred while writing data to standard output."
 msgstr "Beim Schreiben auf die Standardausgabe ist ein Fehler aufgetreten."
 
 #: src/error.cc:97
 #, c-format
-msgid "an error occured while writing data to the file \"%s\"."
+msgid "an error occurred while writing data to the file \"%s\"."
 msgstr "Beim Schreiben in die Datei \"%s\" ist ein Fehler aufgetreten."
 
 #: src/error.cc:119
