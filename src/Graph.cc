@@ -34,6 +34,8 @@
 #include "msg.h"
 #include "wrapper_hash_set.h"
 
+#include <climits>
+
 Graph::Graph (CvrStgFile *cvr, const BitString& emb, Selector& sel)
 {
 	Globs.TheGraph = this ;

@@ -29,7 +29,7 @@
     namespace sgi { using ::hash ; using ::hash_map ; } ;
 # else
 #  include <ext/hash_map>
-#  if __GNUC_MINOR__ == 0
+#  if __GNUC__ == 3 &&  __GNUC_MINOR__ == 0
     namespace sgi = std ;			// GCC 3.0
 #  else
     namespace sgi = __gnu_cxx ;	// GCC 3.1 and later

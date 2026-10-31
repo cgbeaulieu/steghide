@@ -26,6 +26,7 @@
 #include "MCryptPP.h"
 #include "MHashPP.h"
 #include "common.h"
+#include "config.h"
 
 EmbData::EmbData (MODE m, std::string pp, std::string fn)
 	: Mode(m), Passphrase(pp), FileName(fn)
