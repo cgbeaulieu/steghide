@@ -1,4 +1,6 @@
 #!/usr/bin/perl -w
+use File::Basename;
+use lib dirname (__FILE__);
 use STSupport;
 
 use constant EMPTY => {e => "none", Z => "", K => "", "-check" => ""} ;
