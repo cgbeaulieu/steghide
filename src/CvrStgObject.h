@@ -39,6 +39,8 @@ class SampleValue ;
  **/
 class CvrStgObject {
 	public:
+	virtual ~CvrStgObject (void) {} ;
+
 	/**
 	 * get the number of samples in this CvrStgObject
 	 **/
