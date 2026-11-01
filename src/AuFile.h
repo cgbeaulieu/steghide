@@ -49,7 +49,7 @@ class AuFile : public CvrStgFile {
 	void replaceSample (const SamplePos pos, const SampleValue* s)
 		{ return Data->replaceSample(pos, s) ; } ;
 
-	SampleValue* getSampleValue (SamplePos pos) const
+	std::unique_ptr<SampleValue> getSampleValue (SamplePos pos) const
 		{ return Data->getSampleValue(pos) ; } ;
 
 	private:

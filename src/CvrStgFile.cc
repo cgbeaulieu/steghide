@@ -110,10 +110,7 @@ std::vector<MatchingAlgorithm*> CvrStgFile::getMatchingAlgorithms (Graph* g, Mat
 
 EmbValue CvrStgFile::getEmbeddedValue (const SamplePos pos) const
 {
-	SampleValue* sv = getSampleValue(pos) ;
-	EmbValue retval = sv->getEmbeddedValue() ;
-	delete sv ;
-	return retval ;
+	return getSampleValue(pos)->getEmbeddedValue() ;
 }
 
 unsigned long CvrStgFile::getCapacity () const
@@ -135,9 +132,7 @@ std::map<SampleKey,unsigned long>* CvrStgFile::getFrequencies ()
 	std::map<SampleKey,unsigned long>* table = new std::map<SampleKey,unsigned long> () ;
 
 	for (unsigned long pos = 0 ; pos < n ; pos++) {
-		SampleValue *sv = getSampleValue (pos) ;
-		(*table)[sv->getKey()]++ ;
-		delete sv ;
+		(*table)[getSampleValue (pos)->getKey()]++ ;
 	}
 
 	return table ;

@@ -34,7 +34,7 @@ class BmpPaletteSampleValue : public BmpSampleValue {
 	public:
 	BmpPaletteSampleValue (BYTE i) ;
 
-	SampleValue* getNearestTargetSampleValue (EmbValue t) const ;
+	std::unique_ptr<SampleValue> getNearestTargetSampleValue (EmbValue t) const ;
 	std::string getName (void) const ;
 
 	BYTE getIndex (void) const { return Index ; } ;

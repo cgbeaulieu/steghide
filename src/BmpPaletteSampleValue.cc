@@ -33,26 +33,22 @@ BmpPaletteSampleValue::BmpPaletteSampleValue (unsigned char i)
 	EValue = calcEValue(getIndex()) ;
 }
 
-SampleValue* BmpPaletteSampleValue::getNearestTargetSampleValue (EmbValue t) const
+std::unique_ptr<SampleValue> BmpPaletteSampleValue::getNearestTargetSampleValue (EmbValue t) const
 {
-	BmpPaletteSampleValue* sv_mindist = NULL ;
+	std::unique_ptr<BmpPaletteSampleValue> sv_mindist ;
 	UWORD32 mindist = UWORD32_MAX ;
 	for (unsigned int i = 0 ; i < Palette->getSize() ; i++) {
 		if (calcEValue(i) == t) {
-			BmpPaletteSampleValue* destsv = new BmpPaletteSampleValue (i) ;
-			UWORD32 curdist = calcDistance (destsv) ;
+			std::unique_ptr<BmpPaletteSampleValue> destsv = std::make_unique<BmpPaletteSampleValue> (i) ;
+			UWORD32 curdist = calcDistance (destsv.get()) ;
 			if (curdist < mindist) {
-				delete sv_mindist ;
-				sv_mindist = destsv ;
+				sv_mindist = std::move (destsv) ;
 				mindist = curdist ;
-			}
-			else {
-				delete destsv ;
 			}
 		}
 	}
-	myassert (sv_mindist != NULL) ;
-	return ((SampleValue*) sv_mindist) ;
+	myassert (sv_mindist) ;
+	return sv_mindist ;
 }
 
 std::string BmpPaletteSampleValue::getName () const

@@ -27,7 +27,7 @@ class JpegSampleValue : public SampleValue {
 	public:
 	JpegSampleValue (int c) ;
 
-	SampleValue* getNearestTargetSampleValue (EmbValue t) const ;
+	std::unique_ptr<SampleValue> getNearestTargetSampleValue (EmbValue t) const ;
 	UWORD32 calcDistance (const SampleValue *s) const ;
 	std::string getName (void) const ;
 

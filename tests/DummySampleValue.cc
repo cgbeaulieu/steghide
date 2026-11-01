@@ -37,7 +37,7 @@ bool DummySampleValue::isNeighbour (const SampleValue* s) const
 	return (*svam)[Value][sample->getValue()] ;
 }
 
-SampleValue* DummySampleValue::getNearestTargetSampleValue (EmbValue t) const
+std::unique_ptr<SampleValue> DummySampleValue::getNearestTargetSampleValue (EmbValue t) const
 {
 	UWORD16 n_value = 0 ;
 	if (Value == 0) {
@@ -55,12 +55,12 @@ SampleValue* DummySampleValue::getNearestTargetSampleValue (EmbValue t) const
 		}
 	}
 	myassert (n_value % 2 == t) ;
-	return ((SampleValue *) new DummySampleValue (n_value)) ;
+	return std::make_unique<DummySampleValue> (n_value) ;
 }
 
 std::string DummySampleValue::getName (void) const
 {
 	char buf[128] ;
-	sprintf (buf, "%d", Value) ;
+	snprintf (buf, sizeof (buf), "%d", Value) ;
 	return std::string (buf) ;
 }

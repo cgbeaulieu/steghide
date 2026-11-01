@@ -47,7 +47,7 @@ UWORD32 BmpRGBSampleValue::calcDistance (const SampleValue *s) const
 	return (UWORD32) (dr*dr + dg*dg + db*db) ;
 }
 
-SampleValue *BmpRGBSampleValue::getNearestTargetSampleValue (EmbValue t) const
+std::unique_ptr<SampleValue> BmpRGBSampleValue::getNearestTargetSampleValue (EmbValue t) const
 {
 	std::vector<RGBTriple> candidates ;
 
@@ -90,7 +90,7 @@ SampleValue *BmpRGBSampleValue::getNearestTargetSampleValue (EmbValue t) const
 	}
 
 	unsigned int rnd = (unsigned int) RndSrc.getValue (finalcandidates.size()) ;
-	return ((SampleValue*) new BmpRGBSampleValue (finalcandidates[rnd])) ;
+	return std::make_unique<BmpRGBSampleValue> (finalcandidates[rnd]) ;
 }
 
 void BmpRGBSampleValue::addNTSVCandidates (std::vector<RGBTriple>& cands, const BYTE cube[3][2], COLOR fc, DIRECTION fd, COLOR i1, COLOR i2, EmbValue t) const

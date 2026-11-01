@@ -145,25 +145,25 @@ void BmpFile::replaceSample (const SamplePos pos, const SampleValue* s)
 	}
 }
 
-SampleValue *BmpFile::getSampleValue (SamplePos pos) const
+std::unique_ptr<SampleValue> BmpFile::getSampleValue (SamplePos pos) const
 {
 	unsigned long index = 0 ;
 	unsigned short firstbit = 0 ;
 	calcIndex (pos, &index, &firstbit) ;
 
 	unsigned short bitcount = getBitCount() ;
-	SampleValue *retval = NULL ;
+	std::unique_ptr<SampleValue> retval ;
 	switch (bitcount) {
 		case 1: case 4: case 8: {
 			BYTE idx_pal = 0 ;
 			for (unsigned short i = 0 ; i < bitcount ; i++) {
 				idx_pal |= ((BitmapData[index] & (1 << (firstbit + i))) >> firstbit) ;
 			}
-			retval = (SampleValue*) new BmpPaletteSampleValue (idx_pal) ;
+			retval = std::make_unique<BmpPaletteSampleValue> (idx_pal) ;
 		break ; }
 
 		case 24: {
-			retval = (SampleValue*) new BmpRGBSampleValue (BitmapData[index + 2], BitmapData[index + 1], BitmapData[index]) ;
+			retval = std::make_unique<BmpRGBSampleValue> (BitmapData[index + 2], BitmapData[index + 1], BitmapData[index]) ;
 		break ; }
 	}
 	return retval ;

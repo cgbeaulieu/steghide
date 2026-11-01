@@ -21,6 +21,8 @@
 #ifndef SH_CVRSTGOBJECT_H
 #define SH_CVRSTGOBJECT_H
 
+#include <memory>
+
 #include "common.h"
 
 class SampleValue ;
@@ -51,10 +53,10 @@ class CvrStgObject {
 	 * \param pos the position of a sample (must be in 0...getNumSamples()-1)
 	 * \return the sample at the given position
 	 *
-	 * The sample object is created in this function and should be deleted by the caller.
+	 * The sample object is created in this function and owned by the caller.
 	 * The derived class should check the condition(s) given above in its Implementation of this function.
 	 **/
-	virtual SampleValue* getSampleValue (const SamplePos pos) const = 0 ;
+	virtual std::unique_ptr<SampleValue> getSampleValue (const SamplePos pos) const = 0 ;
 
 	/**
 	 * replace a sample thus (possibly) altering the value of the bit returned by SampleValue->getBit()

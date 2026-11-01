@@ -48,9 +48,9 @@ unsigned long DummyFile::getNumSamples () const
 	return Samples.size() ;
 }
 
-SampleValue* DummyFile::getSampleValue (const SamplePos pos) const
+std::unique_ptr<SampleValue> DummyFile::getSampleValue (const SamplePos pos) const
 {
-	return (SampleValue*) (new DummySampleValue (Samples[pos])) ;
+	return std::make_unique<DummySampleValue> (Samples[pos]) ;
 }
 
 void DummyFile::replaceSample (const SamplePos pos, const SampleValue* s)

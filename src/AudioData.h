@@ -57,7 +57,7 @@ class AudioDataImpl : public AudioData {
 	void write (BinaryIO* io, UWORD32 n = AudioData::NoLimit) ;
 
 	unsigned long getNumSamples (void) const ;
-	SampleValue* getSampleValue (const SamplePos pos) const ;
+	std::unique_ptr<SampleValue> getSampleValue (const SamplePos pos) const ;
 	void replaceSample (const SamplePos pos, const SampleValue* s) ;
 
 	private:
@@ -151,10 +151,10 @@ unsigned long AudioDataImpl<Type,ValueType,SampleValueType>::getNumSamples (void
 }
 
 template<AUDIOSAMPLETYPE Type, class ValueType, class SampleValueType>
-SampleValue* AudioDataImpl<Type,ValueType,SampleValueType>::getSampleValue (const SamplePos pos) const
+std::unique_ptr<SampleValue> AudioDataImpl<Type,ValueType,SampleValueType>::getSampleValue (const SamplePos pos) const
 {
 	myassert (pos < Data.size()) ;
-	return ((SampleValue*) new SampleValueType (Data[pos])) ;
+	return std::make_unique<SampleValueType> (Data[pos]) ;
 }
 
 template<AUDIOSAMPLETYPE Type, class ValueType, class SampleValueType>

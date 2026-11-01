@@ -19,6 +19,7 @@
  */
 
 #include "BitString.h"
+#include "BmpRGBSampleValue.h"
 #include "CvrStgFile.h"
 #define private public
 #define protected public
@@ -224,8 +225,14 @@ void GraphTest::testSampleValues()
 
 	// violate uniqueness
 	Globs = gl_f ;
-	g_f->SampleValues[0] = g_f->SampleValues[1] ;
+	// replace SampleValues[0] with a separate object equal to SampleValues[1]
+	// (f_f is a 24-bit bmp file), and put it back afterwards: the vertices
+	// and the later tests still use it
+	BmpRGBSampleValue* sv1 = (BmpRGBSampleValue*) g_f->SampleValues[1].get() ;
+	std::unique_ptr<SampleValue> sv0 = std::move (g_f->SampleValues[0]) ;
+	g_f->SampleValues[0] = std::make_unique<BmpRGBSampleValue> (sv1->getRed(), sv1->getGreen(), sv1->getBlue()) ;
 	addTestResult (!g_f->check_SampleValues()) ;
+	g_f->SampleValues[0] = std::move (sv0) ;
 }
 
 void GraphTest::testSampleOccurences()

@@ -48,7 +48,7 @@ class DummyFile : public CvrStgFile {
 
 	void replaceSample (const SamplePos pos, const SampleValue* s) ;
 
-	SampleValue* getSampleValue (const SamplePos pos) const ;
+	std::unique_ptr<SampleValue> getSampleValue (const SamplePos pos) const ;
 
 	std::vector<std::vector<bool> >* getSampleValueAdjacencyMatrix() const
 		{ return SampleValueAdjacencyMatrix ; } ;

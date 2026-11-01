@@ -35,7 +35,7 @@ class BmpRGBSampleValue : public BmpSampleValue {
 	BmpRGBSampleValue (RGBTriple t) ;
 
 	UWORD32 calcDistance (const SampleValue *s) const ;
-	SampleValue* getNearestTargetSampleValue (EmbValue t) const ;
+	std::unique_ptr<SampleValue> getNearestTargetSampleValue (EmbValue t) const ;
 	std::string getName (void) const ;
 
 	BYTE getRed (void) const { return Color.Red ; } ;

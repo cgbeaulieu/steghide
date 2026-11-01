@@ -68,7 +68,7 @@ WavPCMSampleValue::WavPCMSampleValue (int v)
 	EValue = calcEValue (Value) ;
 }
 
-SampleValue *WavPCMSampleValue::getNearestTargetSampleValue (EmbValue t) const
+std::unique_ptr<SampleValue> WavPCMSampleValue::getNearestTargetSampleValue (EmbValue t) const
 {
 	int val_up = Value, val_down = Value, newval = 0 ;
 	bool found = false ;
@@ -100,7 +100,7 @@ SampleValue *WavPCMSampleValue::getNearestTargetSampleValue (EmbValue t) const
 		}
 	} while (!found) ;
 
-	return ((SampleValue *) new WavPCMSampleValue (newval)) ;
+	return std::make_unique<WavPCMSampleValue> (newval) ;
 }
 
 UWORD32 WavPCMSampleValue::calcDistance (const SampleValue *s) const

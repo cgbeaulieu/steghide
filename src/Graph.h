@@ -141,7 +141,7 @@ class Graph {
 	std::vector<Vertex*> Vertices ;
 
 	/// contains the list of (unique) sample values - SampleValues[l] is the sample value with label l
-	std::vector<SampleValue*> SampleValues ;
+	std::vector<std::unique_ptr<SampleValue> > SampleValues ;
 
 	/// contains the sample value adjacency lists (SVALists[v] contains only sample values with embedded value v)
 	std::vector<SampleValueAdjacencyList*> SVALists ;

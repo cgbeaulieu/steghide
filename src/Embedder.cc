@@ -258,19 +258,15 @@ void Embedder::embedEdge (const Edge& e)
 void Embedder::embedExposedVertex (Vertex *v)
 {
 	SamplePos samplepos = 0 ;
-	SampleValue *newsample = NULL ;
+	std::unique_ptr<SampleValue> newsample ;
 	float mindistance = FLT_MAX ;
 	for (unsigned short i = 0 ; i < Globs.TheCvrStgFile->getSamplesPerVertex() ; i++) {
 		SampleValue *curold = v->getSampleValue(i) ;
-		SampleValue *curnew = v->getSampleValue(i)->getNearestTargetSampleValue(v->getTargetValue(i)) ;
-		if (curold->calcDistance (curnew) < mindistance) {
-			delete newsample ;	// the nearest one so far
+		std::unique_ptr<SampleValue> curnew = v->getSampleValue(i)->getNearestTargetSampleValue(v->getTargetValue(i)) ;
+		if (curold->calcDistance (curnew.get()) < mindistance) {
 			samplepos = v->getSamplePos(i) ;
-			newsample = curnew ;
-			mindistance = curold->calcDistance (curnew) ;
-		}
-		else {
-			delete curnew ;
+			mindistance = curold->calcDistance (curnew.get()) ;
+			newsample = std::move (curnew) ;
 		}
 	}
 
@@ -279,7 +275,6 @@ void Embedder::embedExposedVertex (Vertex *v)
 #endif
 
 	EmbValue oldev = Globs.TheCvrStgFile->getEmbeddedValue (samplepos) ;
-	Globs.TheCvrStgFile->replaceSample (samplepos, newsample) ;
+	Globs.TheCvrStgFile->replaceSample (samplepos, newsample.get()) ;
 	myassert (oldev != Globs.TheCvrStgFile->getEmbeddedValue (samplepos)) ;
-	delete newsample ;
 }

@@ -31,7 +31,7 @@ JpegSampleValue::JpegSampleValue (int c)
 	EValue = calcEValue (DctCoeff) ;
 }
 
-SampleValue *JpegSampleValue::getNearestTargetSampleValue (EmbValue t) const
+std::unique_ptr<SampleValue> JpegSampleValue::getNearestTargetSampleValue (EmbValue t) const
 {
 	SWORD16 minvalue = 0, maxvalue = 0 ;
 
@@ -76,7 +76,7 @@ SampleValue *JpegSampleValue::getNearestTargetSampleValue (EmbValue t) const
 		}
 	} while (!found) ;
 
-	return ((SampleValue *) new JpegSampleValue (dctc_new)) ;
+	return std::make_unique<JpegSampleValue> (dctc_new) ;
 }
 
 UWORD32 JpegSampleValue::calcDistance (const SampleValue *s) const

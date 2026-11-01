@@ -74,7 +74,7 @@ class SampleValue {
 	 *
 	 * The returned SampleValue object should be deleted by the callser.
 	 **/
-	virtual SampleValue* getNearestTargetSampleValue (EmbValue t) const = 0 ;
+	virtual std::unique_ptr<SampleValue> getNearestTargetSampleValue (EmbValue t) const = 0 ;
 
 	/**
 	 * calculate the distance between the sample value s and this sample value

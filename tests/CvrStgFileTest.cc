@@ -78,14 +78,12 @@ bool CvrStgFileTest::genericTestReadEmbedExtract (const std::string& fn, BitStri
 
 	// embed data (at the beginning of the file)
 	for (unsigned long i = 0 ; i < emb.getNAryLength() ; i++) {
-		SampleValue *oldsample = file->getSampleValue (i) ;
+		std::unique_ptr<SampleValue> oldsample = file->getSampleValue (i) ;
 		EmbValue target = emb.getNAry(i) ;
 		if (oldsample->getEmbeddedValue() != target) {
-			SampleValue* newsample = oldsample->getNearestTargetSampleValue (target) ;
-			file->replaceSample (i, newsample) ;
-			delete newsample ;
+			std::unique_ptr<SampleValue> newsample = oldsample->getNearestTargetSampleValue (target) ;
+			file->replaceSample (i, newsample.get()) ;
 		}
-		delete oldsample ;
 	}
 
 	// extract and compare
@@ -110,14 +108,12 @@ bool CvrStgFileTest::genericTestReadEmbedWriteReadExtract (const std::string& cv
 
 	// embed
 	for (unsigned long i = 0 ; i < emb.getLength() ; i++) {
-		SampleValue *oldsample = file->getSampleValue (i) ;
+		std::unique_ptr<SampleValue> oldsample = file->getSampleValue (i) ;
 		EmbValue target = emb.getNAry(i) ;
 		if (oldsample->getEmbeddedValue() != target) {
-			SampleValue* newsample = oldsample->getNearestTargetSampleValue (target) ;
-			file->replaceSample (i, newsample) ;
-			delete newsample ;
+			std::unique_ptr<SampleValue> newsample = oldsample->getNearestTargetSampleValue (target) ;
+			file->replaceSample (i, newsample.get()) ;
 		}
-		delete oldsample ;
 	}
 
 	// write
@@ -143,7 +139,7 @@ bool CvrStgFileTest::genericTestReadEmbedWriteReadExtract (const std::string& cv
 
 bool CvrStgFileTest::genericTestPosition (const CvrStgFile* f, const SamplePos pos, SampleValue* sv_r) const
 {
-	SampleValue* sv_o = f->getSampleValue (pos) ;
+	std::unique_ptr<SampleValue> sv_o = f->getSampleValue (pos) ;
 	bool retval = (*sv_o == *sv_r) ;
 	if (ArgVerbose && !retval) {
 		std::cerr << std::endl << "---- FAILED: genericTestPosition ----" << std::endl ;
@@ -151,14 +147,16 @@ bool CvrStgFileTest::genericTestPosition (const CvrStgFile* f, const SamplePos p
 		std::cerr << "should be: " << std::hex << sv_r->getKey() << std::dec << std::endl ;
 		std::cerr << "-------------------------------------" << std::endl ;
 	}
-	delete sv_o ;
 	delete sv_r ;
 	return retval ;
 }
 
 bool CvrStgFileTest::genericTestSVALCalculation (const CvrStgFile* f, const Graph* g) const
 {
-	const std::vector<SampleValue*>& svs = g->SampleValues ;
+	std::vector<SampleValue*> svs ;
+	for (const std::unique_ptr<SampleValue>& sv : g->SampleValues) {
+		svs.push_back (sv.get()) ;
+	}
 	std::vector<SampleValueAdjacencyList*> svals_generic = f->CvrStgFile::calcSVAdjacencyLists (svs) ;
 	std::vector<SampleValueAdjacencyList*> svals_specialized = f->calcSVAdjacencyLists (svs) ;
 	bool ok = true ;
@@ -172,9 +170,7 @@ bool CvrStgFileTest::genericTestEmbeddedValue (const CvrStgFile* f) const
 {
 	bool retval = true ;
 	for (SamplePos pos = 0 ; pos < f->getNumSamples() ; pos++) {
-		SampleValue* sv = f->getSampleValue(pos) ;
-		retval = (sv->getEmbeddedValue() == f->getEmbeddedValue(pos)) && retval ;
-		delete sv ;
+		retval = (f->getSampleValue(pos)->getEmbeddedValue() == f->getEmbeddedValue(pos)) && retval ;
 	}
 	return retval ;
 }

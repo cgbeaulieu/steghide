@@ -52,7 +52,7 @@ class AudioSampleValue : public SampleValue {
 
 	ValueType getValue (void) const { return Value ; } ;
 
-	SampleValue* getNearestTargetSampleValue (EmbValue t) const ;
+	std::unique_ptr<SampleValue> getNearestTargetSampleValue (EmbValue t) const ;
 	UWORD32 calcDistance (const SampleValue* s) const ;
 	std::string getName (void) const ;
 
@@ -90,7 +90,7 @@ UWORD32 AudioSampleValue<Type,ValueType>::calcDistance (const SampleValue* s) co
 }
 
 template<AUDIOSAMPLETYPE Type, class ValueType>
-SampleValue* AudioSampleValue<Type,ValueType>::getNearestTargetSampleValue (EmbValue t) const
+std::unique_ptr<SampleValue> AudioSampleValue<Type,ValueType>::getNearestTargetSampleValue (EmbValue t) const
 {
 	ValueType val_up = Value, val_down = Value, newval = 0 ;
 	bool found = false ;
@@ -122,7 +122,7 @@ SampleValue* AudioSampleValue<Type,ValueType>::getNearestTargetSampleValue (EmbV
 		}
 	} while (!found) ;
 
-	return ((SampleValue *) new AudioSampleValue<Type,ValueType> (newval)) ;
+	return std::make_unique<AudioSampleValue<Type,ValueType> > (newval) ;
 }
 
 template<AUDIOSAMPLETYPE Type, class ValueType>

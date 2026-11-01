@@ -181,10 +181,10 @@ unsigned long JpegFile::getNumSamples (void) const
 	return StegoIndices.size() ;
 }
 
-SampleValue* JpegFile::getSampleValue (const SamplePos pos) const
+std::unique_ptr<SampleValue> JpegFile::getSampleValue (const SamplePos pos) const
 {
 	myassert (pos < StegoIndices.size()) ;
-	return new JpegSampleValue (LinDctCoeffs[StegoIndices[pos]]) ;
+	return std::make_unique<JpegSampleValue> (LinDctCoeffs[StegoIndices[pos]]) ;
 }
 
 void JpegFile::replaceSample (const SamplePos pos, const SampleValue* s)
@@ -215,9 +215,8 @@ std::map<SampleKey,unsigned long>* JpegFile::getFrequencies ()
 	std::map<SampleKey,unsigned long>* table = new std::map<SampleKey,unsigned long> () ;
 
 	for (unsigned long pos = 0 ; pos < n ; pos++) {
-		SampleValue *sv = (SampleValue*) new JpegSampleValue (LinDctCoeffs[pos]) ;
-		(*table)[sv->getKey()]++ ;
-		delete sv ;
+		JpegSampleValue sv (LinDctCoeffs[pos]) ;
+		(*table)[sv.getKey()]++ ;
 	}
 
 	return table ;

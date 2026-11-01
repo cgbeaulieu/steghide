@@ -31,7 +31,7 @@ class WavPCMSampleValue : public SampleValue {
 	public:
 	WavPCMSampleValue (int v) ;
 
-	SampleValue* getNearestTargetSampleValue (EmbValue t) const ;
+	std::unique_ptr<SampleValue> getNearestTargetSampleValue (EmbValue t) const ;
 	UWORD32 calcDistance (const SampleValue *s) const ;
 	std::string getName (void) const ;
 

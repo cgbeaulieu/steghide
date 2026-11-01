@@ -116,7 +116,7 @@ void WavFile::replaceSample (const SamplePos pos, const SampleValue* s)
 	}
 }
 
-SampleValue *WavFile::getSampleValue (SamplePos pos) const
+std::unique_ptr<SampleValue> WavFile::getSampleValue (SamplePos pos) const
 {
 	int value = 0 ;
 	if (FormatChunk->getBitsPerSample() <= 8) {
@@ -125,7 +125,7 @@ SampleValue *WavFile::getSampleValue (SamplePos pos) const
 	else {
 		value = data_large[pos] ;
 	}
-	return ((SampleValue *) new WavPCMSampleValue (value)) ;
+	return std::make_unique<WavPCMSampleValue> (value) ;
 }
 
 std::vector<SampleValueAdjacencyList*> WavFile::calcSVAdjacencyLists (const std::vector<SampleValue*>& svs) const

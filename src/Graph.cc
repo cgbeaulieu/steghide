@@ -88,15 +88,14 @@ void Graph::constructSamples (const std::vector<std::unique_ptr<SamplePos[]> >& 
 	for (unsigned long i = 0 ; i < numvertices ; i++) {
 		svalues[i] = std::make_unique<SampleValue*[]> (File->getSamplesPerVertex()) ;
 		for (unsigned short j = 0 ; j < File->getSamplesPerVertex() ; j++) {
-			SampleValue *sv = File->getSampleValue (sposs[i][j]) ;
-			std::pair<std::unordered_set<SampleValue*,SampleValueHash,SampleValuesEqual>::iterator,bool> res = SampleValues_set.insert (sv) ;
+			std::unique_ptr<SampleValue> sv = File->getSampleValue (sposs[i][j]) ;
+			std::pair<std::unordered_set<SampleValue*,SampleValueHash,SampleValuesEqual>::iterator,bool> res = SampleValues_set.insert (sv.get()) ;
 			if (res.second) { // sample has not been found - add it !
 				sv->setLabel (SampleValues.size()) ;
-				SampleValues.push_back (sv) ;
-				svalues[i][j] = sv ;
+				svalues[i][j] = sv.get() ;
+				SampleValues.push_back (std::move (sv)) ;
 			}
 			else { // sample value is already in SampleValues_set
-				delete sv ;
 				svalues[i][j] = *res.first ;
 			}
 		}
@@ -115,7 +114,11 @@ void Graph::constructVertices (std::vector<std::unique_ptr<SamplePos[]> >& sposs
 void Graph::constructEdges ()
 {
 	// create SampleValue Adjacency Lists
-	SVALists = File->calcSVAdjacencyLists (SampleValues) ;
+	std::vector<SampleValue*> svs ;
+	for (const std::unique_ptr<SampleValue>& sv : SampleValues) {
+		svs.push_back (sv.get()) ;
+	}
+	SVALists = File->calcSVAdjacencyLists (svs) ;
 
 	// allocate memory for SampleOccurences
 	SampleOccurences = std::vector<std::list<SampleOccurence> > (SampleValues.size()) ;
@@ -160,10 +163,6 @@ Graph::~Graph()
 {
 	for (std::vector<Vertex*>::iterator i = Vertices.begin() ; i != Vertices.end() ; i++) {
 		delete *i ;
-	}
-
-	for (std::vector<SampleValue*>::iterator svit = SampleValues.begin() ; svit != SampleValues.end() ; svit++) {
-		delete *svit ;
 	}
 
 	for (EmbValue t = 0 ; t < EmbValueModulus ; t++) {
@@ -268,7 +267,7 @@ bool Graph::check_Vertices (bool verbose) const
 	for (unsigned long i = 0 ; i < Vertices.size() ; i++) {
 		for (unsigned short j = 0 ; j < File->getSamplesPerVertex() ; j++) {
 			SampleValue* sv = Vertices[i]->getSampleValue(j) ;
-			svuniqueness = (sv == SampleValues[sv->getLabel()]) && svuniqueness ;
+			svuniqueness = (sv == SampleValues[sv->getLabel()].get()) && svuniqueness ;
 		}
 	}
 
@@ -341,7 +340,7 @@ bool Graph::check_SampleOccurences_correctness (bool verbose) const
 		for (std::list<SampleOccurence>::const_iterator socit = SampleOccurences[lbl].begin() ; socit != SampleOccurences[lbl].end() ; socit++) {
 			Vertex *v = socit->getVertex() ;
 			unsigned short idx = socit->getIndex() ;
-			correctness = (v->getSampleValue(idx) == SampleValues[lbl]) && correctness ; // pointer equivalence
+			correctness = (v->getSampleValue(idx) == SampleValues[lbl].get()) && correctness ; // pointer equivalence
 		}
 	}
 
@@ -398,7 +397,7 @@ bool Graph::check_SVALists_soundness (bool verbose) const
 	bool neigh_ok = true ;
 	for (EmbValue t = 0 ; t < File->getEmbValueModulus() ; t++) {
 		for (SampleValueLabel srclbl = 0 ; srclbl < numsvs ; srclbl++) {
-			SampleValue* srcsv = SampleValues[srclbl] ;
+			SampleValue* srcsv = SampleValues[srclbl].get() ;
 			const std::vector<SampleValue*> &row = (*(SVALists[t]))[srclbl];
 			for (std::vector<SampleValue*>::const_iterator destsv = row.begin() ; destsv != row.end() ; destsv++) {
 				if ((*destsv)->getEmbeddedValue() != t) {
@@ -432,7 +431,7 @@ bool Graph::check_SVALists_sorted (bool verbose) const
 	bool sorted = true ;
 	for (EmbValue t = 0 ; t < File->getEmbValueModulus() ; t++) {
 		for (SampleValueLabel srclbl = 0 ; srclbl < numsvs ; srclbl++) {
-			SampleValue* srcsv = SampleValues[srclbl] ;
+			SampleValue* srcsv = SampleValues[srclbl].get() ;
 			const std::vector<SampleValue*> &row = (*(SVALists[t]))[srclbl] ;
 			if (row.size() > 1) {
 				for (unsigned int i = 0 ; i < (row.size() - 1) ; i++) {
@@ -490,9 +489,9 @@ bool Graph::check_SVALists_completeness (bool verbose) const
 
 	unsigned long numsvs = SampleValues.size() ;
 	for (unsigned long i = 0 ; i < numsvs ; i++) {
-		SampleValue *svsrc = SampleValues[i] ;
+		SampleValue *svsrc = SampleValues[i].get() ;
 		for (unsigned long j = 0 ; j < numsvs ; j++) {
-			SampleValue *svdest = SampleValues[j] ;
+			SampleValue *svdest = SampleValues[j].get() ;
 			if (svsrc->isNeighbour(svdest) && (svsrc->getLabel() != svdest->getLabel())) {
 				// svsrc and svdest are neighbours => there must be an entry in SVALists
 				myassert (svdest->isNeighbour (svsrc)) ;
