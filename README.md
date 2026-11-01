@@ -120,20 +120,24 @@ Using steghide hasn't changed. What changed is everything underneath it.
 | Needs libmcrypt and libmhash, unmaintained since 2007 | ⚠️ yes | ✅ no, the ciphers are built in |
 | Long-file-name stack overflow (CVE-2026-31024) | ❌ | ✅ fixed |
 | Large payload in a big 24-bit BMP | 💥 crashes | ✅ works |
+| A stego file can make `extract` write outside the current folder | ❌ yes | ✅ fixed |
+| Embedding in 8-bit WAV can turn loud samples into clicks | ❌ yes | ✅ fixed |
+| Damaged or crafted files crash it or make it use gigabytes of memory | ❌ yes | ✅ fixed, found by fuzzing |
 | Memory errors found by ASan and UBSan | ❌ several | ✅ none |
 | Memory leaks | ❌ yes | ✅ none |
 | Builds on today's compilers | ⚠️ needs distro patches | ✅ GCC and Clang, no warnings |
 | Build system | autotools | CMake (autotools still works) |
-| Tests | unit and system tests | ➕ 0.5.1 compatibility, cipher test vectors, sanitizer and leak checks |
+| Tests | unit and system tests | ➕ 0.5.1 compatibility, cipher test vectors, sanitizer and leak checks, fuzzing |
 
 <details>
-<summary><b>How compatibility is checked</b></summary>
+<summary><b>How it is tested</b></summary>
 
 <br>
 
 - **`tests/compat`** holds 50 files embedded by an unmodified steghide 0.5.1: every cover format, every cipher, every cipher mode, every option, and empty, non-ASCII and long passphrases. `check.sh` extracts them with the new build, and also embeds every case with the new build and extracts it with 0.5.1.
 - **`tests/vectors`** holds about 800 answers recorded from the real libmcrypt 2.5.8 and libmhash, for every algorithm, mode and key length. The built-in replacements must give the same answer to each one.
-- **Sanitizers.** All three test suites run under AddressSanitizer, UndefinedBehaviorSanitizer and LeakSanitizer with GCC and Clang.
+- **Sanitizers.** Every test runs under AddressSanitizer, UndefinedBehaviorSanitizer and LeakSanitizer with GCC and Clang.
+- **Fuzzing.** The cover file parsers and the embedded data format are fuzzed with libFuzzer, and the tests replay an input for each bug it found ([`fuzz/`](fuzz/README.md)).
 
 </details>
 
@@ -178,13 +182,14 @@ sudo cmake --install build
 | `STEGHIDE_COMPAT_REFERENCE` | path to a steghide 0.5.1, for example `/usr/bin/steghide`; the tests then also check that it can read what the new build writes |
 | `STEGHIDE_NLS` | `OFF` leaves out the translations (German, Spanish, French, Romanian, Russian) |
 | `STEGHIDE_DEBUG` | `ON` includes steghide's debugging commands |
+| `STEGHIDE_FUZZ` | `ON` builds the fuzz targets with libFuzzer (Clang only), see [`fuzz/README.md`](fuzz/README.md) |
 
 ## 🗺️ Roadmap
 
 | Phase | Status | What it covers |
 | --- | --- | --- |
 | **1. Baseline** | ✅ done | Debian and Fedora patches, compatibility test files from a real 0.5.1 |
-| **2. Modernize without changing the format** | 🚧 in progress | done: CMake, built-in ciphers, memory fixes, no leaks or warnings · next: fuzzing, CI, a secure random source |
+| **2. Modernize without changing the format** | 🚧 in progress | done: CMake, built-in ciphers, memory fixes, no leaks or warnings, fuzzing · next: CI, a secure random source |
 | **3. A new, stronger format** | 📝 planned | modern key derivation and authenticated encryption, while still reading old files |
 | **4. Later** | 💭 ideas | PNG support, a library other programs can use |
 

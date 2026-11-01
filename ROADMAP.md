@@ -34,6 +34,15 @@ State at the end of phase 1, built with GCC 16.2:
   - memory leaks on every path, found with LeakSanitizer, and with them a dangling libjpeg error manager in `JpegFile`
   - `stripDir`'s truncated `npos` (reported by [alexnorell/steghide](https://github.com/alexnorell/steghide); two bugs that cancelled out)
   - an `sprintf` overflow in `Utils::formatHRSize` and a throwing destructor in `RandomSource`
+  - **extract wrote outside the current directory**: it saves the extracted file under the name stored in the stego file, and did not strip directories from it, so a stego file holding `../name` or `/path/name` wrote there. Embedding has always stripped them, so no file steghide wrote has one; extract now strips them too, with a warning (`tests/extract_name`)
+  - found by fuzzing (see `fuzz/README.md` for an input for each):
+    - a BMP whose palette is shorter than its pixels' colour indices was read past the end of the palette
+    - the sizes in BMP, AU and WAV headers were allocated before the data was read, so a file of a few hundred bytes could make steghide allocate gigabytes
+    - the same for JPEG, where libjpeg allocates the whole image before reading the data and fills in what is missing with zeros. That size can be real, so steghide now refuses JPEGs of more than 2^28 DCT coefficients (512 MB; about 178 megapixels with 4:2:0 subsampling)
+    - any error in a JPEG made libjpeg call `exit()`; it now comes back as a steghide error, and libjpeg's memory is freed
+    - embedded data was read past its end, and a length near 2^32 wrapped around once encryption padding was added; both failed assertions
+    - more assertions reachable from a file: BMP planes, compressed data that is not whole bytes, an AU data size that is not whole samples, a WAV with more than 32 bits per sample
+  - embedding in an 8-bit WAV turned some samples of 255 into 0, a full-scale click: the largest 8-bit value was taken to be 256, which a byte stores as 0. Found while reading the WAV code for the fuzzer; 32-bit WAV samples also relied on signed overflow
 
 ## Phase 2: modernize without changing the format
 
@@ -44,15 +53,15 @@ Every step must keep `tests/compat/check.sh` at 100% in both directions.
 - [x] Builds with Clang
 - [x] Replace libmcrypt and libmhash. The 18 ciphers libmcrypt 2.5.8 builds are its own code in `src/mcrypt/` (with its undefined behaviour fixed); the modes, the key setup, MD5, CRC32 and the key generation are reimplemented. Checked against vectors from the real libraries for every algorithm, mode and key length (`tests/vectors/`), and against the 0.5.1 fixtures in both directions.
 - [ ] Remove autotools and the generated files committed with it (kept for now; `make check` still passes)
-- [ ] CI: GCC and Clang, ASan/UBSan, all three CTest suites
-- [ ] Fuzz the cover-file parsers (BMP, JPEG, WAV, AU); they read untrusted input
+- [ ] CI: GCC and Clang, ASan/UBSan, all CTest tests, and a short fuzzing run
+- [x] Fuzz the cover-file parsers (BMP, JPEG, WAV, AU) and the embedded data format with libFuzzer (`fuzz/`, `STEGHIDE_FUZZ`). CTest replays an input for each bug found in every build.
 - [x] Replace `hash_map`/`hash_set` with `std::unordered_*`; drop `binary_function`/`unary_function`; replace `sprintf` and variable-length arrays. Sample values are now labelled in first-seen order instead of hash-table order.
 - [x] No compiler warnings with GCC or Clang (`-Wall`), outside `src/mcrypt/`
-- [x] No leaks, in steghide or in the unit tests; CTest checks all three suites for leaks under `STEGHIDE_SANITIZE`
+- [x] No leaks, in steghide or in the unit tests; CTest checks every test for leaks under `STEGHIDE_SANITIZE`
 - [x] Ownership: `src/` has no `new` or `delete` left. Owners hold `std::unique_ptr`s or containers (cover files their `BinaryIO` and contents, `Embedder` and `Extractor` their file, `Embedder` its graph and matching, `Graph` its vertices, sample values and adjacency lists, `Matching` its edges by value), factories return `std::unique_ptr`, and `Globs` only points to the current file and graph (they clear it when destroyed). The unit tests still use raw pointers for their fixtures, freed in `cleanup()`.
 - [ ] Replace `srand(time(NULL))` in `RandomSource.cc` with the OS CSPRNG
 
-State so far, with GCC 16.2, Clang 23.1 (-O2 and -O3), both compilers with ASan/UBSan and leak checks, and `STEGHIDE_DEBUG`: all three CTest suites pass (the sanitizer builds 3 runs in a row), with no warnings, and so does the autotools `make check`. The unit tests use their own harness in `tests/`, not cppunit. Translations build and install, but loading them has not been checked on a system with a matching locale.
+State so far, with GCC 16.2, Clang 23.1 (-O2 and -O3), both compilers with ASan/UBSan and leak checks, and `STEGHIDE_DEBUG`: all six CTest tests pass (unit, system, compat in both directions against 0.5.1, `extract_name`, and the replays of both fuzz targets), with no warnings, and so does the autotools `make check`. With all fixes in, `fuzz_cover` ran 3.2 million inputs and `fuzz_embdata` 25 million, under ASan and UBSan, without a finding. The unit tests use their own harness in `tests/`, not cppunit. Translations build and install, but loading them has not been checked on a system with a matching locale.
 
 ## Phase 3: v2 file format
 
