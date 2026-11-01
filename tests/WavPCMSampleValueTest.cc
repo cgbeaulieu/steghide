@@ -29,6 +29,7 @@ WavPCMSampleValueTest::WavPCMSampleValueTest (TestSuite* s)
 {
 	ADDTESTCATEGORY (WavPCMSampleValueTest, testDistance) ;
 	ADDTESTCATEGORY (WavPCMSampleValueTest, testIsNeighbour) ;
+	ADDTESTCATEGORY (WavPCMSampleValueTest, testNearestTarget) ;
 }
 
 void WavPCMSampleValueTest::setup ()
@@ -40,6 +41,7 @@ void WavPCMSampleValueTest::setup ()
 	sv_WavPCM8_0 = new WavPCMSampleValue (0) ;
 	sv_WavPCM8_1 = new WavPCMSampleValue (1) ;
 	sv_WavPCM8_45 = new WavPCMSampleValue (45) ;
+	sv_WavPCM8_255 = new WavPCMSampleValue (255) ;
 	gl_WavPCM8 = Globs ;
 
 	Globs.reset() ;
@@ -56,7 +58,7 @@ void WavPCMSampleValueTest::cleanup ()
 	UnitTest::cleanup() ;
 
 	delete f_WavPCM8 ; delete f_WavPCM16 ;
-	delete sv_WavPCM8_0 ; delete sv_WavPCM8_1 ; delete sv_WavPCM8_45 ;
+	delete sv_WavPCM8_0 ; delete sv_WavPCM8_1 ; delete sv_WavPCM8_45 ; delete sv_WavPCM8_255 ;
 	delete sv_WavPCM16_m32768 ; delete sv_WavPCM16_32767 ; delete sv_WavPCM16_0 ; delete sv_WavPCM16_15 ;
 }
 
@@ -82,4 +84,27 @@ void WavPCMSampleValueTest::testIsNeighbour ()
 	addTestResult (genericTestIsNeighbour (sv_WavPCM16_0, sv_WavPCM16_15, true)) ;
 	addTestResult (genericTestIsNeighbour (sv_WavPCM16_m32768, sv_WavPCM16_0, false)) ;
 	addTestResult (genericTestIsNeighbour (sv_WavPCM16_m32768, sv_WavPCM16_32767, false)) ;
+}
+
+void WavPCMSampleValueTest::testNearestTarget ()
+{
+	// at both ends of the range the nearest value with the other embedded
+	// value is one step inwards, never past the end (0.5.1 chose 256 for an
+	// 8-bit 255 half of the time, which a byte stores as 0). It is chosen at
+	// random when both neighbours fit, so try a few times.
+	Globs = gl_WavPCM8 ;
+	bool ok = true ;
+	for (unsigned int i = 0 ; i < 20 ; i++) {
+		ok = ok && (sv_WavPCM8_255->getNearestTargetSampleValue(0)->getKey() == 254) ;
+		ok = ok && (sv_WavPCM8_0->getNearestTargetSampleValue(1)->getKey() == 1) ;
+	}
+	addTestResult (ok) ;
+
+	Globs = gl_WavPCM16 ;
+	ok = true ;
+	for (unsigned int i = 0 ; i < 20 ; i++) {
+		ok = ok && ((SWORD16) sv_WavPCM16_32767->getNearestTargetSampleValue(0)->getKey() == 32766) ;
+		ok = ok && ((SWORD16) sv_WavPCM16_m32768->getNearestTargetSampleValue(1)->getKey() == -32767) ;
+	}
+	addTestResult (ok) ;
 }

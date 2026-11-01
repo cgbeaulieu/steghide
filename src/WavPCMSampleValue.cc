@@ -32,32 +32,18 @@ WavPCMSampleValue::WavPCMSampleValue (int v)
 	myassert (wavfile != NULL) ;
 	unsigned short samplesize = wavfile->getBitsPerSample() ;
 
-	int maxvalue = 1 ;
-	int minvalue = 1 ;
 	if ((samplesize >= 1) && (samplesize <= 8)) {
-		// maxvalue is 2^samplesize
-		for (unsigned short i = 0 ; i < samplesize ; i++) {
-			maxvalue *= 2 ;
-		}
-
-		minvalue = 0 ;
+		// unsigned: 0 to 2^samplesize - 1 (0.5.1 allowed 2^samplesize,
+		// which a byte stores as 0: embedding turned some 255s into 0s)
+		MinValue = 0 ;
+		MaxValue = (1 << samplesize) - 1 ;
 	}
 	else {
-		// maxvalue is (2^(samplesize - 1)) - 1
-		for (unsigned short i = 0 ; i < (samplesize - 1) ; i++) {
-			maxvalue *= 2 ;
-		}
-		maxvalue-- ;
-
-		// minvalue is -(2^(SampleSize - 1))
-		for (unsigned short i = 0 ; i < (samplesize - 1) ; i++) {
-			minvalue *= 2 ;
-		}
-		minvalue = -minvalue ;
+		// two's complement: -(2^(samplesize - 1)) to 2^(samplesize - 1) - 1,
+		// in 64 bits because samplesize can be 32
+		MinValue = (int) -(1LL << (samplesize - 1)) ;
+		MaxValue = (int) ((1LL << (samplesize - 1)) - 1) ;
 	}
-
-	MaxValue = maxvalue ;
-	MinValue = minvalue ;
 	if (MinValue > Value) {
 		std::cerr << "MinValue: " << MinValue << ", Value: " << Value << std::endl ;
 	}

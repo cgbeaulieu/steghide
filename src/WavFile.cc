@@ -219,7 +219,7 @@ void WavFile::readdata (void)
 				value = value >> firstbitpos ;
 					
 				int sign = 0 ;
-				if (((value & (1 << (bitspersample - 1))) >> (bitspersample - 1)) == 0) {
+				if (((value & ((UWORD32) 1 << (bitspersample - 1))) >> (bitspersample - 1)) == 0) {
 					sign = 1 ;
 				}
 				else {
@@ -229,7 +229,7 @@ void WavFile::readdata (void)
 					value &= mask ;
 				}
 
-				data_large.push_back (sign * ((int) value)) ;
+				data_large.push_back ((int) (sign * (long long) value)) ; // value is 2^31 for the lowest 32-bit sample
 			}
 			readpos += bytespersample ;
 		}
@@ -278,7 +278,7 @@ void WavFile::writedata (void)
 					value = (unsigned long) data_large[writepos / bytespersample] ;
 				}
 				else {
-					value = (unsigned long) -data_large[writepos / bytespersample] ; // value is now |sample|
+					value = (unsigned long) -(long long) data_large[writepos / bytespersample] ; // value is now |sample|
 					value = ~value ;
 					value++ ;
 				}
