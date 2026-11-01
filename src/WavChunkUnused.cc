@@ -24,9 +24,10 @@
 
 void WavChunkUnused::read (BinaryIO *io)
 {
-	Data = std::vector<BYTE> (ChunkHeader->getChunkLength()) ;
-	for (unsigned int i = 0 ; i < ChunkHeader->getChunkLength() ; i++) {
-		Data[i] = io->read8() ;
+	// the length comes from the file: allocate only as the data arrives
+	Data.clear() ;
+	for (UWORD32 i = 0 ; i < ChunkHeader->getChunkLength() ; i++) {
+		Data.push_back (io->read8()) ;
 	}
 }
 

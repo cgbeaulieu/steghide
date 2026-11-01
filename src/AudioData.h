@@ -81,9 +81,10 @@ void AudioDataImpl<Type,ValueType,SampleValueType>::read (BinaryIO* io, UWORD32 
 			}
 		}
 		else {
-			Data.resize (n) ;
+			// n comes from the file's headers: allocate only as the data arrives
+			Data.clear() ;
 			for (UWORD32 i = 0 ; i < n ; i++) {
-				Data[i] = readValue(io) ;
+				Data.push_back (readValue(io)) ;
 			}
 		}
 	}

@@ -39,6 +39,15 @@ void WavFormatChunk::read (BinaryIO *io)
 	AvgBytesPerSec = io->read32_le() ;
 	BlockAlign = io->read16_le() ;
 	BitsPerSample = io->read16_le() ;
+	// samples are read into 32 bits
+	if (BitsPerSample < 1 || BitsPerSample > 32) {
+		if (io->is_std()) {
+			throw SteghideError (_("the wav file from standard input has %d bits per sample, which is not supported."), BitsPerSample) ;
+		}
+		else {
+			throw SteghideError (_("the wav file \"%s\" has %d bits per sample, which is not supported."), io->getName().c_str(), BitsPerSample) ;
+		}
+	}
 	if (ChunkHeader->getChunkLength() == 16) {
 		AdditionalSize = 0 ;
 	}

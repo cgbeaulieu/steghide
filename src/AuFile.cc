@@ -64,12 +64,11 @@ void AuFile::read (BinaryIO *io)
 		Header.channels = getBinIO()->read32_be() ;
 
 		// read infofield
+		checkCorrupt (Header.offset >= AuHeader::HeaderSize, _("the data starts inside the header")) ;
 		unsigned long leninfofield = Header.offset - AuHeader::HeaderSize ;
-		if (leninfofield > 0) {
-			Infofield.resize (leninfofield) ;
-			for (unsigned long i = 0 ; i < leninfofield ; i++) {
-				Infofield[i] = getBinIO()->read8() ;
-			}
+		Infofield.clear() ;
+		for (unsigned long i = 0 ; i < leninfofield ; i++) {
+			Infofield.push_back (getBinIO()->read8()) ;
 		}
 
 		// read data
@@ -131,10 +130,22 @@ void AuFile::read (BinaryIO *io)
 	// if available, use size of audio data, else read until eof
 	unsigned long n = AudioData::NoLimit ;
 	if (Header.size != AuHeader::SizeUnknown) {
-		myassert (Header.size % Header.getBytesPerSample() == 0) ;
+		checkCorrupt (Header.size % Header.getBytesPerSample() == 0, _("the data size is not a whole number of samples")) ;
 		n = Header.size / Header.getBytesPerSample() ;
 	}
 	Data->read (getBinIO(), n) ;
+}
+
+void AuFile::checkCorrupt (bool ok, const char* what) const
+{
+	if (!ok) {
+		if (getBinIO()->is_std()) {
+			throw SteghideError (_("the au data from standard input is corrupt: %s."), what) ;
+		}
+		else {
+			throw SteghideError (_("the au file \"%s\" is corrupt: %s."), getBinIO()->getName().c_str(), what) ;
+		}
+	}
 }
 
 void AuFile::write ()

@@ -78,6 +78,12 @@ class AuFile : public CvrStgFile {
 
 	AuHeader Header ;
 	std::vector<BYTE> Infofield ;
+
+	/**
+	 * throw a SteghideError saying that the au file is corrupt, unless ok
+	 * \param what what is wrong with it
+	 **/
+	void checkCorrupt (bool ok, const char* what) const ;
 	std::unique_ptr<AudioData> Data ;
 } ;
 
