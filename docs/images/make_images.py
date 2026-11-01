@@ -124,8 +124,8 @@ def diagram(name):
 
     def box(x, y, bw, bh, fill, label, sub):
         a(f'<rect x="{x}" y="{y}" width="{bw}" height="{bh}" rx="14" fill="{fill}"/>')
-        a(f'<text x="{x + bw/2:.0f}" y="{y + bh/2 - 4:.0f}" text-anchor="middle" font-family="{FONT}" font-size="23" font-weight="700" fill="#ffffff">{label}</text>')
-        a(f'<text x="{x + bw/2:.0f}" y="{y + bh/2 + 22:.0f}" text-anchor="middle" font-family="{FONT}" font-size="16" fill="#ffffff" fill-opacity="0.85">{sub}</text>')
+        a(f'<text x="{x + bw/2:.0f}" y="{y + bh/2 - 5:.0f}" text-anchor="middle" font-family="{FONT}" font-size="25" font-weight="700" fill="#ffffff">{label}</text>')
+        a(f'<text x="{x + bw/2:.0f}" y="{y + bh/2 + 23:.0f}" text-anchor="middle" font-family="{FONT}" font-size="19" fill="#ffffff" fill-opacity="0.9">{sub}</text>')
 
     def line(points, dashed=False):
         d = ' '.join(f'{"M" if i == 0 else "L"}{x},{y}' for i, (x, y) in enumerate(points))
@@ -133,13 +133,13 @@ def diagram(name):
         a(f'<path d="{d}" fill="none" stroke="{t["line"]}" stroke-width="2.5"{dash} marker-end="url(#arrow)"/>')
 
     def note(x, y, text, anchor='middle'):
-        a(f'<text x="{x}" y="{y}" text-anchor="{anchor}" font-family="{FONT}" font-size="15" font-style="italic" fill="{t["muted"]}">{text}</text>')
+        a(f'<text x="{x}" y="{y}" text-anchor="{anchor}" font-family="{FONT}" font-size="18" font-style="italic" fill="{t["muted"]}">{text}</text>')
 
     top, th = 48, 92
     row = [(40, 180, 'input', 'your file', 'note.txt'),
            (275, 180, 'step', 'compress', 'takes less room'),
            (510, 180, 'step', 'encrypt', 'AES by default'),
-           (745, 200, 'step', 'hide', 'nudge chosen pixels'),
+           (740, 210, 'step', 'hide', 'nudge chosen pixels'),
            (995, 165, 'output', 'stego file', 'looks the same')]
     for x, bw, kind, label, sub in row:
         box(x, top, bw, th, t[kind], label, sub)
