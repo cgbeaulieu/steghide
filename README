@@ -68,12 +68,25 @@ will not be available without them.
 
 Linux / Unix :
 --------------
-After unpacking the source distribution, enter the following commands:
+With CMake 3.20 or later, enter the following commands:
 
-1) ./configure 
-2) make
-3) make check
-4) make install (as root)
+1) cmake -B build
+2) cmake --build build
+3) ctest --test-dir build
+4) cmake --install build (as root)
+
+Pass -DSTEGHIDE_SANITIZE=address,undefined to the first command to build with
+sanitizers, and -DSTEGHIDE_COMPAT_REFERENCE=/path/to/steghide-0.5.1 to also
+check that steghide 0.5.1 can read what this build writes (see
+tests/compat/README.md).
+
+The autotools build still works for now:
+
+1) autoreconf -fi
+2) ./configure
+3) make
+4) make check
+5) make install (as root)
 
 For more information see the generic installation instructions in the file
 INSTALL that came with the distribution.
