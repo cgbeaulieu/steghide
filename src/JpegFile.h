@@ -49,6 +49,15 @@ class JpegFile : public CvrStgFile {
 	JpegFile (std::unique_ptr<BinaryIO> io) ;
 	~JpegFile (void) ;
 
+	/**
+	 * the most dct coefficients read() accepts: 2^28 (512 MB), about 178
+	 * megapixels with 4:2:0 subsampling. libjpeg allocates them all before
+	 * reading the data and fills in what is missing with zeros, so without
+	 * a limit a file of a few hundred bytes can ask for gigabytes. The fuzz
+	 * targets lower it.
+	 **/
+	static unsigned long MaxCoefficients ;
+
 	void read (BinaryIO* io) ;
 	void write (void) ;
 

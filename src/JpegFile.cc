@@ -32,6 +32,8 @@
 #include "SMDConstructionHeuristic.h"
 #include "error.h"
 
+unsigned long JpegFile::MaxCoefficients = 1UL << 28 ;
+
 JpegFile::JpegFile (std::unique_ptr<BinaryIO> io)
 	: CvrStgFile(), CInfo(), DeCInfo()
 {
@@ -102,8 +104,6 @@ void JpegFile::read (BinaryIO* io)
 	jpeg_stdio_src (&DeCInfo, infile) ;
 	jpeg_read_header (&DeCInfo, TRUE) ;
 
-	DctCoeffs = jpeg_read_coefficients (&DeCInfo) ;
-
 	// fill HeightInBlocks and WidthInBlocks
 	unsigned short max_v_samp_factor = 0 ;
 	unsigned short max_h_samp_factor = 0 ;
@@ -120,11 +120,21 @@ void JpegFile::read (BinaryIO* io)
 																	8 * max_h_samp_factor) ;
 	}
 
-	// resize LinDctCoeffs to size that is enough to contain all dct coeffs
+	// the size comes from the header, before libjpeg allocates it
 	unsigned long totalnumcoeffs = 0 ;
 	for (unsigned short icomp = 0 ; icomp < DeCInfo.num_components ; icomp++) {
-		totalnumcoeffs += CoeffPerBlock * (HeightInBlocks[icomp] * WidthInBlocks[icomp]) ;
+		totalnumcoeffs += (unsigned long) CoeffPerBlock * HeightInBlocks[icomp] * WidthInBlocks[icomp] ;
 	}
+	if (totalnumcoeffs > MaxCoefficients) {
+		jpeg_destroy_decompress (&DeCInfo) ;
+		DeCInfoCreated = false ;
+		throw SteghideError (_("the jpeg file \"%s\" is too large: it has %lu dct coefficients, steghide reads at most %lu."),
+			io->getName().c_str(), totalnumcoeffs, MaxCoefficients) ;
+	}
+
+	DctCoeffs = jpeg_read_coefficients (&DeCInfo) ;
+
+	// resize LinDctCoeffs to size that is enough to contain all dct coeffs
 	LinDctCoeffs.resize (totalnumcoeffs) ;
 
 	// read data from jpeglib's virtual array into LinDctCoeffs and StegoIndices

@@ -63,6 +63,7 @@ What each input in `regressions/` found. steghide 0.5.1 has all of these.
 | `cover/bmp-huge-size` | the width and height in a BMP header were allocated before any pixel was read: gigabytes for a small file |
 | `cover/bmp-palette-short` | a BMP whose palette is shorter than its pixels' colour indices: the pixels were looked up past the end of the palette (made by hand from `tests/data/win3x8_std.bmp`) |
 | `cover/jpeg-libjpeg-error` | any error in a JPEG made libjpeg call `exit()`, skipping steghide's error handling and cleanup |
+| `cover/jpeg-huge-size` | a 287-byte JPEG that says it is 18758x21074 pixels: libjpeg allocates the whole image before reading the data and fills in what is missing with zeros, so it took gigabytes and many seconds. steghide now reads at most 2^28 DCT coefficients, and the fuzz targets 2^22 |
 | `cover/au-header-offset` | an AU data offset inside the header made the info field length wrap around to 4 GB |
 | `cover/au-huge-size` | the data size in an AU header was allocated before any sample was read |
 | `cover/wav-huge-chunk` | the length of an unknown WAV chunk was allocated before it was read |

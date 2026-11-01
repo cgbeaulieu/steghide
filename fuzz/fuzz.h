@@ -13,16 +13,23 @@
 #include <unistd.h>
 
 #include "AssertionFailed.h"
+#include "JpegFile.h"
 #include "common.h"
 
 /**
- * set the arguments steghide would otherwise take from the command line:
- * no messages, and no "overwrite ?" questions
+ * set the arguments steghide would otherwise take from the command line
+ * (no messages, and no "overwrite ?" questions), and a lower size limit
+ * for jpeg files
  **/
 inline void fuzz_setup (void)
 {
 	Args.Verbosity.setValue (QUIET) ;
 	Args.Force.setValue (true) ;
+#ifdef USE_LIBJPEG
+	// decoding the largest jpeg steghide accepts takes seconds, which would
+	// hide the slow inputs worth finding
+	JpegFile::MaxCoefficients = 1UL << 22 ;
+#endif
 }
 
 /**
