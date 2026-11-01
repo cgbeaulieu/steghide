@@ -168,8 +168,8 @@ void Embedder::embed ()
 	const Matching* M = calculateMatching (prout) ;
 
 	// embed matched edges
-	const std::list<Edge*> medges = M->getEdges() ;
-	for (std::list<Edge*>::const_iterator it = medges.begin() ; it != medges.end() ; it++) {
+	const std::list<Edge>& medges = M->getEdges() ;
+	for (std::list<Edge>::const_iterator it = medges.begin() ; it != medges.end() ; it++) {
 		embedEdge (*it) ;
 	}
 
@@ -246,13 +246,13 @@ const Matching* Embedder::calculateMatching (ProgressOutput* prout)
 	return matching ;
 }
  
-void Embedder::embedEdge (Edge *e)
+void Embedder::embedEdge (const Edge& e)
 {
-	Vertex* v1 = e->getVertex1() ;
-	Vertex* v2 = e->getVertex2() ;
+	Vertex* v1 = e.getVertex1() ;
+	Vertex* v2 = e.getVertex2() ;
 
-	Globs.TheCvrStgFile->replaceSample (e->getSamplePos(v1), e->getReplacingSampleValue (v1)) ;
-	Globs.TheCvrStgFile->replaceSample (e->getSamplePos(v2), e->getReplacingSampleValue (v2)) ;
+	Globs.TheCvrStgFile->replaceSample (e.getSamplePos(v1), e.getReplacingSampleValue (v1)) ;
+	Globs.TheCvrStgFile->replaceSample (e.getSamplePos(v2), e.getReplacingSampleValue (v2)) ;
 }
 
 void Embedder::embedExposedVertex (Vertex *v)

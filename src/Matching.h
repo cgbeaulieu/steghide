@@ -139,7 +139,7 @@ class Matching {
 	/**
 	 * get the list of all edges in this matching
 	 **/
-	const std::list<Edge*>& getEdges (void) const
+	const std::list<Edge>& getEdges (void) const
 		{ return MatchingEdges ; } ;
 
 	/**
@@ -164,7 +164,7 @@ class Matching {
 	 **/
 	class VertexInfo {
 		public:
-		VertexInfo (std::list<Edge*>::iterator mit)
+		VertexInfo (std::list<Edge>::iterator mit)
 			{ setMatched (mit) ; } ;
 
 		VertexInfo (std::list<Vertex*>::iterator eit)
@@ -177,15 +177,15 @@ class Matching {
 			{ return Matched ; } ;
 
 		Edge *getMatchingEdge (void) const
-			{ return *MatchedIterator ; } ;
+			{ return &(*MatchedIterator) ; } ;
 
-		std::list<Edge*>::iterator getMatchedIterator (void) const
+		std::list<Edge>::iterator getMatchedIterator (void) const
 			{ return MatchedIterator ; } ;
 
 		std::list<Vertex*>::iterator getExposedIterator (void) const
 			{ return ExposedIterator ; } ;
 
-		void setMatched (std::list<Edge*>::iterator mit)
+		void setMatched (std::list<Edge>::iterator mit)
 			{ Matched = true ; MatchedIterator = mit ; } ;
 
 		void setExposed (std::list<Vertex*>::iterator eit)
@@ -194,7 +194,7 @@ class Matching {
 		private:
 		bool Matched ;
 		/// an iterator into the list of matched edges (only valid if this vertex is matched)
-		std::list<Edge*>::iterator MatchedIterator ;
+		std::list<Edge>::iterator MatchedIterator ;
 		/// an iterator into the list of exposed vertices (only valid if this vertex is exposed)
 		std::list<Vertex*>::iterator ExposedIterator ;
 	} ;
@@ -206,7 +206,7 @@ class Matching {
 	std::list<Vertex*> ExposedVertices ;
 
 	/// the std::list of all edges in the matching
-	std::list<Edge*> MatchingEdges ;
+	std::list<Edge> MatchingEdges ;
 
 	/// the number of edges in the matching
 	unsigned long Cardinality ;

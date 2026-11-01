@@ -80,7 +80,7 @@ class Vertex {
 	 * get the shortest edge of this vertex
 	 **/
 	Edge *getShortestEdge (void) const
-		{ return ShortestEdge ; } ;
+		{ return ShortestEdge.get() ; } ;
 
 	/**
 	 * find shortest edge of this vertex and save result to ShortestEdge
@@ -131,7 +131,7 @@ class Vertex {
 	std::unique_ptr<std::list<SampleOccurence>::iterator[]> SampleOccurenceIts ;
 
 	/// the shortest edge of this vertex (as calculated by updateShortestEdge)
-	Edge *ShortestEdge ;
+	std::unique_ptr<Edge> ShortestEdge ;
 
 	/// true iff this vertex is not deleted
 	bool valid ;

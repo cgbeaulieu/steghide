@@ -45,9 +45,6 @@ Matching::Matching (Graph* g, ProgressOutput* po)
 
 Matching::~Matching ()
 {
-	for (std::list<Edge*>::iterator edgeit = MatchingEdges.begin() ; edgeit != MatchingEdges.end() ; edgeit++) {
-		delete (*edgeit) ;
-	}
 }
 
 bool Matching::includesEdge (const Edge& e) const
@@ -76,7 +73,7 @@ void Matching::addEdge (const Edge& e)
 
 	myassert (VertexInformation[vlbl1].isExposed()) ;
 	myassert (VertexInformation[vlbl2].isExposed()) ;
-	std::list<Edge*>::iterator edgeit = MatchingEdges.insert (MatchingEdges.end(), new Edge (e)) ;
+	std::list<Edge>::iterator edgeit = MatchingEdges.insert (MatchingEdges.end(), e) ;
 
 	ExposedVertices.erase (VertexInformation[vlbl1].getExposedIterator()) ;
 	ExposedVertices.erase (VertexInformation[vlbl2].getExposedIterator()) ;
@@ -98,10 +95,9 @@ void Matching::removeEdge (const Edge& e)
 	myassert (VertexInformation[vlbl2].isMatched()) ;
 
 	// delete e from MatchingEdges
-	std::list<Edge*>::iterator eit1 = VertexInformation[vlbl1].getMatchedIterator() ;
-	std::list<Edge*>::iterator eit2 = VertexInformation[vlbl2].getMatchedIterator() ;
+	std::list<Edge>::iterator eit1 = VertexInformation[vlbl1].getMatchedIterator() ;
+	std::list<Edge>::iterator eit2 = VertexInformation[vlbl2].getMatchedIterator() ;
 	myassert (eit1 == eit2) ;
-	delete (*eit1) ;
 	MatchingEdges.erase (eit1) ;
 
 	// add v1,v2 to ExposedVertices
@@ -118,7 +114,7 @@ Matching& Matching::augment (const Edge** path, unsigned long len)
 	// TODO - rewrite this to use structure like: while (+--+==+ -> +==+--+); +--+ -> +==+ where == is matched edge
 	myassert (len % 2 == 1) ;
 	bool e_was_matched = false ;
-	Edge *e = NULL ;	// the last edge added to MatchingEdges, which owns it
+	std::list<Edge>::iterator e = MatchingEdges.end() ;	// the last edge added to MatchingEdges
 	Edge cur ;
 	Edge before ;
 	for (unsigned int i = 0 ; i < len ; i++) {
@@ -145,7 +141,6 @@ Matching& Matching::augment (const Edge** path, unsigned long len)
 			VertexLabel v2lbl = v2->getLabel() ;
 
 			// remove old edge from matching
-			delete (*(VertexInformation[v2lbl].getMatchedIterator())) ;
 			MatchingEdges.erase (VertexInformation[v2lbl].getMatchedIterator()) ;
 
 			// v2 is exposed now (for one iteration)
@@ -153,7 +148,7 @@ Matching& Matching::augment (const Edge** path, unsigned long len)
 			VertexInformation[v2lbl].setExposed (expvit2) ;
 		}
 		else {
-			e = new Edge (cur) ;
+			e = MatchingEdges.insert (MatchingEdges.end(), cur) ;
 			Vertex *v1 = e->getVertex1() ;
 			Vertex *v2 = e->getVertex2() ;
 			VertexLabel v1lbl = v1->getLabel() ;
@@ -163,9 +158,8 @@ Matching& Matching::augment (const Edge** path, unsigned long len)
 			ExposedVertices.erase (VertexInformation[v1lbl].getExposedIterator()) ;
 
 			// add new edge to matching
-			std::list<Edge*>::iterator edgeit = MatchingEdges.insert (MatchingEdges.end(), e) ;
-			VertexInformation[v1lbl].setMatched (edgeit) ;
-			VertexInformation[v2lbl].setMatched (edgeit) ;
+			VertexInformation[v1lbl].setMatched (e) ;
+			VertexInformation[v2lbl].setMatched (e) ;
 		}
 
 		e_was_matched = !e_was_matched ;
@@ -173,7 +167,7 @@ Matching& Matching::augment (const Edge** path, unsigned long len)
 	}
 
 	ExposedVertices.erase (VertexInformation[e->getVertex2()->getLabel()].getExposedIterator()) ;
-	VertexInformation[e->getVertex2()->getLabel()].setMatched (std::find (MatchingEdges.begin(), MatchingEdges.end(), e)) ;
+	VertexInformation[e->getVertex2()->getLabel()].setMatched (e) ;
 
 	setCardinality (Cardinality + 1) ;
 
@@ -192,8 +186,8 @@ void Matching::printVerboseInfo (void) const
 
 	if (Args.Verbosity.getValue() == STATS) {
 		float sumweights = 0 ;
-		for (std::list<Edge*>::const_iterator it = MatchingEdges.begin() ; it != MatchingEdges.end() ; it++) {
-			sumweights += (*it)->getWeight() ;
+		for (std::list<Edge>::const_iterator it = MatchingEdges.begin() ; it != MatchingEdges.end() ; it++) {
+			sumweights += it->getWeight() ;
 		}
 
 		printf ("%.4f:%.1f:",
@@ -211,8 +205,8 @@ float Matching::getMatchedRate (void) const
 float Matching::getAvgEdgeWeight (void) const
 {
 	float sumweights = 0 ;
-	for (std::list<Edge*>::const_iterator it = MatchingEdges.begin() ; it != MatchingEdges.end() ; it++) {
-		sumweights += (*it)->getWeight() ;
+	for (std::list<Edge>::const_iterator it = MatchingEdges.begin() ; it != MatchingEdges.end() ; it++) {
+		sumweights += it->getWeight() ;
 	}
 	return (sumweights / (float) getCardinality()) ;
 }
@@ -238,9 +232,9 @@ bool Matching::check_MatchingEdges_vs_VertexInformation () const
 {
 	bool err = false ;
 	// for every e = (v1,v2) in MatchingEdges: isMatched(v1) && isMatched(v2)
-	for (std::list<Edge*>::const_iterator it = MatchingEdges.begin() ; it != MatchingEdges.end() ; it++) {
-		Vertex *v1 = (*it)->getVertex1() ;
-		Vertex *v2 = (*it)->getVertex2() ;
+	for (std::list<Edge>::const_iterator it = MatchingEdges.begin() ; it != MatchingEdges.end() ; it++) {
+		Vertex *v1 = it->getVertex1() ;
+		Vertex *v2 = it->getVertex2() ;
 		if (VertexInformation[v1->getLabel()].isExposed() || VertexInformation[v2->getLabel()].isExposed()) {
 			err = true ;
 			break ;
@@ -279,7 +273,7 @@ bool Matching::check_VertexInformation_Integrity () const
 
 	for (unsigned long vlbl = 0 ; vlbl < VertexInformation.size() ; vlbl++) {
 		if (VertexInformation[vlbl].isMatched()) {
-			Edge* e = *(VertexInformation[vlbl].getMatchedIterator()) ;
+			const Edge* e = VertexInformation[vlbl].getMatchingEdge() ;
 			if ((e->getVertex1()->getLabel() != vlbl) && (e->getVertex2()->getLabel() != vlbl)) {
 				if (vlbl == 16) { std::cerr << "FAILED, printing edge:" << std::endl ; e->print() ; }
 				err_matched = true ;

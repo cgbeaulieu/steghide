@@ -63,7 +63,7 @@ class Edge {
 	unsigned short getIndex2 (void) const
 		{ return Index2 ; } ;
 
-	UWORD32 getWeight (void) ;
+	UWORD32 getWeight (void) const ;
 
 	void set (Vertex* v1, unsigned short idx1, Vertex* v2, unsigned short idx2) ;
 
@@ -116,7 +116,8 @@ class Edge {
 	/// contains the index of the sample (of those in Vertex2) that will be changed (if this edge is used)
 	unsigned short Index2 ;
 
-	UWORD32 Weight ;
+	/// calculated by getWeight when it is first needed
+	mutable UWORD32 Weight ;
 } ;
 
 #endif // ndef SH_EDGE_H

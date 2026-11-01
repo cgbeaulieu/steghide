@@ -38,7 +38,7 @@ Edge::Edge (const Edge& e)
 	Weight = e.Weight ;
 }
 
-UWORD32 Edge::getWeight ()
+UWORD32 Edge::getWeight () const
 {
 	if (Weight == UWORD32_MAX) {
 		Weight = Vertex1->getSampleValue(Index1)->calcDistance(Vertex2->getSampleValue(Index2)) ;

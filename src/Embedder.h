@@ -50,7 +50,7 @@ class Embedder {
 	/**
 	 * embed the two bits represented by the two vertices adjacent to e
 	 **/
-	void embedEdge (Edge *e) ;
+	void embedEdge (const Edge& e) ;
 
 	/**
 	 * embed the bit represented by the Vertex v

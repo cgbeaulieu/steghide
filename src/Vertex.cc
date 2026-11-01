@@ -31,7 +31,6 @@ Vertex::Vertex (VertexLabel l, std::unique_ptr<SamplePos[]> sposs, std::unique_p
 	setLabel (l) ;
 
 	SampleOccurenceIts = std::make_unique<std::list<SampleOccurence>::iterator[]> (Globs.TheCvrStgFile->getSamplesPerVertex()) ;
-	ShortestEdge = NULL ;
 	valid = true ;
 
 	// calculate sample target values...
@@ -69,7 +68,6 @@ Vertex::Vertex (VertexLabel l, std::unique_ptr<SamplePos[]> sposs, std::unique_p
 
 Vertex::~Vertex ()
 {
-	delete ShortestEdge ;
 }
 
 void Vertex::markDeleted ()
@@ -126,14 +124,12 @@ void Vertex::updateShortestEdge ()
 	printDebug (3, "updating shorted edge for vertex with label %lu", getLabel()) ;
 #endif
 
-	delete ShortestEdge ;
-
 	if (getDegree() == 0) {
-		ShortestEdge = NULL ;
+		ShortestEdge.reset() ;
 	}
 	else {
 		EdgeIterator edgeit (this) ;
-		ShortestEdge = new Edge (**edgeit) ;
+		ShortestEdge = std::make_unique<Edge> (**edgeit) ;
 	}
 }
 
@@ -185,10 +181,9 @@ void Vertex::printEdges() const
 	std::cerr << "edges of vertex with label " << getLabel() << std::endl ;
 	EdgeIterator edgeit (Globs.TheGraph->getVertex(getLabel())) ;
 	while (*edgeit != NULL) {
-		Edge* e = new Edge (**edgeit) ;
-		std::cerr << "  label of other vertex: " << e->getOtherVertex(this)->getLabel() << std::endl ;
-		std::cerr << "  weight: " << e->getWeight() << std::endl ;
-		delete e ;
+		Edge e (**edgeit) ;
+		std::cerr << "  label of other vertex: " << e.getOtherVertex(this)->getLabel() << std::endl ;
+		std::cerr << "  weight: " << e.getWeight() << std::endl ;
 		++edgeit ;
 	}
 }
