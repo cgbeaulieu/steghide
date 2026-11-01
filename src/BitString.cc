@@ -335,7 +335,9 @@ BitString& BitString::uncompress (unsigned long idestlen)
 			break ;
 		}
 	}
-	myassert (ydestlen_before == ydestlen) ; // because idestlen must be _exactly_ size in bits
+	if (ydestlen != ydestlen_before) { // idestlen must be _exactly_ the size in bits
+		throw SteghideError (_("can not uncompress data. compressed data is corrupted.")) ;
+	}
 
 	// write uncompressed data into Data
 	Data.resize (ydestlen) ;

@@ -18,6 +18,8 @@
  *
  */
 
+#include <cstdint>
+
 #include "AUtils.h"
 #include "BinaryIO.h"
 #include "BitString.h"
@@ -140,7 +142,12 @@ void EmbData::addBits (BitString addbits)
 			
 			NPlainBits = bits.getValue (0, NBitsNPlainBits) ;
 
-			NumBitsNeeded = (UWORD32) MCryptPP::getEncryptedSize (EncAlgo, EncMode, NPlainBits) ;
+			// padding and the IV can take a size near 2^32 past what NumBitsNeeded holds
+			const unsigned long encsize = MCryptPP::getEncryptedSize (EncAlgo, EncMode, NPlainBits) ;
+			if (encsize > UINT32_MAX) {
+				throw CorruptDataError (_("the embedded data has an invalid length.")) ;
+			}
+			NumBitsNeeded = (UWORD32) encsize ;
 			NumBitsRequested = AUtils::bminus<unsigned long> (NumBitsNeeded, Reservoir.getLength()) ;
 
 			State = READ_ENCRYPTED ;
@@ -163,13 +170,21 @@ void EmbData::addBits (BitString addbits)
 			plain.truncate (0, NPlainBits) ;	// cut off random padding used to achieve full number of encryption blocks
 
 			unsigned long pos = 0 ;
+			// the lengths in plain come from the stego file: check each one before reading
+			auto require = [&plain, &pos] (unsigned long n) {
+				if (plain.getLength() - pos < n) {
+					throw CorruptDataError (_("the embedded data is too short.")) ;
+				}
+			} ;
 
 			// read Compression (and uncompress)
+			require (1) ;
 			Compression = ((plain[pos++]) ? 9 : 0) ; // to make compression contain a value that makes sense
 #ifdef DEBUG
 			printDebug (2, " compression: %d\n", plain[pos - 1]) ;
 #endif
 			if (Compression > 0) {
+				require (NBitsNUncompressedBits) ;
 				UWORD32 NUncompressedBits = plain.getValue (pos, NBitsNUncompressedBits) ;
 #ifdef DEBUG
 				printDebug (2, " nuncobits: %lu\n", NUncompressedBits) ;
@@ -178,15 +193,21 @@ void EmbData::addBits (BitString addbits)
 
 				plain.truncate (pos, plain.getLength()) ;
 				pos = 0 ;
+				// compress() writes whole bytes, and deflate expands by at most 1032:1
+				if (plain.getLength() % 8 != 0 || NUncompressedBits / 8 > 1032 * (plain.getLength() / 8) + 1032) {
+					throw CorruptDataError (_("can not uncompress data. compressed data is corrupted.")) ;
+				}
 				plain.uncompress (NUncompressedBits) ;
 			}
 
 			// read Checksum
+			require (1) ;
 			Checksum = plain[pos++] ;
 #ifdef DEBUG
 			printDebug (2, " checksum: %d\n", plain[pos - 1]) ;
 #endif
 			if (Checksum) {
+				require (NBitsCrc32) ;
 				CRC32 = plain.getValue (pos, NBitsCrc32) ;
 #ifdef DEBUG
 				printDebug (2, " crc32: 0x%x\n", CRC32) ;
@@ -198,6 +219,7 @@ void EmbData::addBits (BitString addbits)
 			char curchar = '\0' ;
 			FileName = "" ;
 			do {
+				require (8) ;
 				curchar = (char) plain.getValue (pos, 8) ;
 				if (curchar != '\0') {
 					FileName += curchar ;
