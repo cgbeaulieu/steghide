@@ -231,14 +231,14 @@ void JpegFile::printFrequencies (const std::map<SampleKey,unsigned long>& freqs)
 	// insert the positive dct coeffs into output list
 	for (std::map<SampleKey,unsigned long>::const_iterator pit = freqs.begin() ; pit->first < 2147483648UL /* 2^31 */ ; pit++) {
 		char buf[30] ;
-		sprintf (buf, "%ld: %lu", (long) pit->first, pit->second) ;
+		snprintf (buf, sizeof (buf), "%ld: %lu", (long) pit->first, pit->second) ;
 		output.push_back (std::string(buf)) ;
 	}
 
 	// insert the negative dct coeffs into output list
 	for (std::map<SampleKey,unsigned long>::const_reverse_iterator nit = freqs.rbegin() ; nit->first > 2147483648UL /* 2^31 */ ; nit++) {
 		char buf[30] ;
-		sprintf (buf, "%ld: %lu", (long) nit->first, nit->second) ;
+		snprintf (buf, sizeof (buf), "%ld: %lu", (long) nit->first, nit->second) ;
 		output.push_front (std::string(buf)) ;
 	}
 

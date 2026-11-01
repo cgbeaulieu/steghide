@@ -193,7 +193,7 @@ std::vector<SampleValueAdjacencyList*> BmpFile::calcSVAdjacencyLists (const std:
 
 		// create hemisphere matrix (will contain a discrete hemisphere with radius getRadius())
 		unsigned short r_eucl = (unsigned short) sqrt (r) ; // the euclidean radius (not squared) - rounded to next lower natural number 
-		short hemisphere[2 * r_eucl + 1][2 * r_eucl + 1] ;
+		std::vector<std::vector<short> > hemisphere (2 * r_eucl + 1, std::vector<short> (2 * r_eucl + 1)) ;
 		for (short dr = -r_eucl ; dr <= r_eucl ; dr++) {
 			for (short dg = -r_eucl ; dg <= r_eucl ; dg++) {
 				short db_sq = r_eucl*r_eucl - dr*dr - dg*dg ;
@@ -214,10 +214,10 @@ std::vector<SampleValueAdjacencyList*> BmpFile::calcSVAdjacencyLists (const std:
 		// create reservoir - for every i reservoir[i] contains the sample values that are neighbourss of
 		// the sample value with label i and have a lower label (and have already been found)
 		// This is necessary to use collapsing trees together with bucket sort (without huge increase in memory usage)
-		std::vector<BmpRGBSampleValue*> reservoir[svs.size()] ;
+		std::vector<std::vector<BmpRGBSampleValue*> > reservoir (svs.size()) ;
 
 		// neighbours sorted by distance (for the current source sample value)
-		std::vector<BmpRGBSampleValue*> neighbours_byd[r + 1] ;
+		std::vector<std::vector<BmpRGBSampleValue*> > neighbours_byd (r + 1) ;
 
 		for (std::vector<SampleValue*>::const_iterator srcsvit = svs.begin() ; srcsvit != svs.end() ; srcsvit++) {
 			BmpRGBSampleValue* srcsv = (BmpRGBSampleValue*) (*srcsvit) ;

@@ -40,7 +40,7 @@ std::string Utils::formatHRSize (unsigned long size)
 		unit = "GB" ;
 	}
 
-	char buf[15] ;
-	sprintf (buf, "%.1f %s", s, unit.c_str()) ;
+	char buf[32] ;
+	snprintf (buf, sizeof (buf), "%.1f %s", s, unit.c_str()) ;
 	return std::string (buf) ;
 }

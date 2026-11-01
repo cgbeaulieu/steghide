@@ -236,12 +236,11 @@ UWORD32 BinaryIO::read_le (unsigned short n)
 
 std::string BinaryIO::readstring (unsigned int len)
 {
-	char retval[len + 1] ;
+	std::string retval ;
 	for (unsigned int i = 0 ; i < len ; i++) {
-		retval[i] = (char) read8() ;
+		retval += (char) read8() ;
 	}
-	retval[len] = '\0' ;
-	return std::string (retval) ;
+	return std::string (retval.c_str()) ;	// cut off at the first '\0', as before
 }
 
 void BinaryIO::write8 (BYTE val)
