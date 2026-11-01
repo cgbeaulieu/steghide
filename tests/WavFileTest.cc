@@ -42,14 +42,14 @@ void WavFileTest::setup ()
 	UnitTest::setup() ;
 
 	Globs.reset() ;
-	f1 = CvrStgFile::readFile (std::string(DATADIR) + "pcm8_std.wav") ;
+	f1 = CvrStgFile::readFile (std::string(DATADIR) + "pcm8_std.wav").release() ;
 	bs1 = new BitString (std::string ("this is a test string for the WavFile")) ;
 	s1 = new Selector (bs1->getLength() * f1->getSamplesPerVertex(), std::string ("a passphrase")) ;
 	g1 = new Graph (f1, *bs1, *s1) ;
 	gl1 = Globs ;
 
 	Globs.reset() ;
-	f2 = CvrStgFile::readFile (std::string(DATADIR) + "pcm16_std.wav") ;
+	f2 = CvrStgFile::readFile (std::string(DATADIR) + "pcm16_std.wav").release() ;
 	bs2 = new BitString (std::string ("this is another test - this time a little longer, but also for the WavFile unit test")) ;
 	s2 = new Selector (bs2->getLength() * f2->getSamplesPerVertex(), std::string ("another passphrase")) ;
 	g2 = new Graph (f2, *bs2, *s2) ;

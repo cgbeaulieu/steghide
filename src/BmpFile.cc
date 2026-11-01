@@ -36,15 +36,15 @@
 #include "common.h"
 #include "error.h"
 
-BmpFile::BmpFile (BinaryIO *io)
+BmpFile::BmpFile (std::unique_ptr<BinaryIO> io)
 	: CvrStgFile()
 {
-	read (io) ;
+	setBinIO (std::move (io)) ;
+	read (getBinIO()) ;
 }
 
 BmpFile::~BmpFile ()
 {
-	delete Palette ;
 }
 
 BmpFile::SUBFORMAT BmpFile::getSubformat () const
@@ -55,7 +55,7 @@ BmpFile::SUBFORMAT BmpFile::getSubformat () const
 void BmpFile::read (BinaryIO *io)
 {
 	CvrStgFile::read (io) ;
-	Palette = NULL ;
+	Palette.reset() ;
 
 	readheaders() ;
 	readdata() ;
@@ -396,7 +396,7 @@ ColorPalette *BmpFile::getPalette() const
 {
 	myassert (getBitCount() != 24) ;
 	myassert (Palette) ;
-	return Palette ;
+	return Palette.get() ;
 }
 
 /* reads the headers of a bmp file from disk */
@@ -513,7 +513,7 @@ void BmpFile::bmpwin_readheaders ()
 
 	if (bmih.biBitCount != 24) {
 		/* a color table exists */
-		Palette = new ColorPalette() ;
+		Palette = std::make_unique<ColorPalette>() ;
 		unsigned int ncolors = 0 ;
 		switch (bmih.biBitCount) {
 			case 1: {
@@ -603,7 +603,7 @@ void BmpFile::bmpos2_readheaders ()
 	if (bmch.bcBitCount != 24) {
 		/* a color table exists */
 		unsigned int ncolors = 0 ;
-		Palette = new ColorPalette() ;
+		Palette = std::make_unique<ColorPalette>() ;
 		switch (bmch.bcBitCount) {
 			case 1: {
 				if (Args.Command.getValue() == EMBED) {

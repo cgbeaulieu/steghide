@@ -90,7 +90,7 @@ Embedder::Embedder ()
 	vrc.setNewline (false) ;
 	vrc.printMessage() ;
 
-	CvrStgFile::readFile (Args.CvrFn.getValue()) ;
+	TheCvrStgFile = CvrStgFile::readFile (Args.CvrFn.getValue()) ;
 
 	vdone.printMessage() ;
 
@@ -136,8 +136,6 @@ Embedder::Embedder ()
 
 Embedder::~Embedder ()
 {
-	TheGraph.reset() ;	// before the cover file it was built from
-	delete Globs.TheCvrStgFile ;
 }
 	
 void Embedder::embed ()

@@ -38,15 +38,15 @@
 #include "msg.h"
 
 CvrStgFile::CvrStgFile ()
-	: BinIO(NULL), SamplesPerVertex(0), Radius(0), EmbValueModulus(0)
+	: SamplesPerVertex(0), Radius(0), EmbValueModulus(0)
 {
 	Globs.TheCvrStgFile = this ;
 }
 
 CvrStgFile::~CvrStgFile (void)
 {
-	if (BinIO != NULL) {
-		delete BinIO ;
+	if (Globs.TheCvrStgFile == this) {
+		Globs.TheCvrStgFile = NULL ;
 	}
 }
 
@@ -62,7 +62,8 @@ void CvrStgFile::setRadius (UWORD32 r)
 
 void CvrStgFile::read (BinaryIO *io)
 {
-	setBinIO (io) ;
+	// the constructors of the derived classes have already made io BinIO
+	myassert (io == getBinIO()) ;
 }
 
 void CvrStgFile::write (void)
@@ -71,9 +72,8 @@ void CvrStgFile::write (void)
 
 void CvrStgFile::transform (const std::string& stgfn)
 {
-	delete BinIO ;
-	BinIO = NULL ;
-	BinIO = new BinaryIO (stgfn, BinaryIO::WRITE) ;
+	BinIO.reset() ;	// close it before opening stgfn, which can be the same file
+	BinIO = std::make_unique<BinaryIO> (stgfn, BinaryIO::WRITE) ;
 }
 
 std::vector<std::unique_ptr<SampleValueAdjacencyList> > CvrStgFile::calcSVAdjacencyLists (const std::vector<SampleValue*>& svs) const
@@ -126,13 +126,13 @@ std::string CvrStgFile::getHRCapacity () const
 }
 
 #ifdef DEBUG
-std::map<SampleKey,unsigned long>* CvrStgFile::getFrequencies ()
+std::map<SampleKey,unsigned long> CvrStgFile::getFrequencies ()
 {
 	unsigned long n = getNumSamples() ;
-	std::map<SampleKey,unsigned long>* table = new std::map<SampleKey,unsigned long> () ;
+	std::map<SampleKey,unsigned long> table ;
 
 	for (unsigned long pos = 0 ; pos < n ; pos++) {
-		(*table)[getSampleValue (pos)->getKey()]++ ;
+		table[getSampleValue (pos)->getKey()]++ ;
 	}
 
 	return table ;
@@ -178,31 +178,31 @@ CvrStgFile::FILEFORMAT CvrStgFile::guessff (BinaryIO *io)
 	return retval ;
 }
 
-CvrStgFile* CvrStgFile::readFile (const std::string& fn)
+std::unique_ptr<CvrStgFile> CvrStgFile::readFile (const std::string& fn)
 {
-	BinaryIO *BinIO = new BinaryIO (fn, BinaryIO::READ) ;
+	std::unique_ptr<BinaryIO> BinIO = std::make_unique<BinaryIO> (fn, BinaryIO::READ) ;
 
-	CvrStgFile *file = NULL ;
-	switch (guessff (BinIO)) {
+	std::unique_ptr<CvrStgFile> file ;
+	switch (guessff (BinIO.get())) {
 		case UNKNOWN: {
-			throw UnSupFileFormat (BinIO) ;	
+			throw UnSupFileFormat (BinIO.get()) ;
 		break ; }
 
 		case BMP: {
-			file = new BmpFile (BinIO) ;
+			file = std::make_unique<BmpFile> (std::move (BinIO)) ;
 		break ; }
 
 		case WAV: {
-			file = new WavFile (BinIO) ;
+			file = std::make_unique<WavFile> (std::move (BinIO)) ;
 		break ; }
 
 		case AU: {
-			file = new AuFile (BinIO) ;
+			file = std::make_unique<AuFile> (std::move (BinIO)) ;
 		break ; }
 
 		case JPEG: {
 #ifdef USE_LIBJPEG
-			file = new JpegFile (BinIO) ;
+			file = std::make_unique<JpegFile> (std::move (BinIO)) ;
 #else
 			throw SteghideError (_("can not read input file. steghide has been compiled without support for jpeg files.")) ;
 #endif

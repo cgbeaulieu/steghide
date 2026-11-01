@@ -24,6 +24,7 @@
 #include <memory>
 #include <string>
 
+class CvrStgFile ;
 class EmbData ;
 
 class Extractor {
@@ -31,9 +32,13 @@ class Extractor {
 	Extractor (std::string stgfn, std::string pp)
 		: StegoFileName(stgfn), Passphrase(pp) {} ;
 
+	~Extractor (void) ;
+
 	std::unique_ptr<EmbData> extract (void) ;
 
 	private:
+	/// the stego file, which Globs.TheCvrStgFile points to while extracting
+	std::unique_ptr<CvrStgFile> TheCvrStgFile ;
 	std::string StegoFileName ;
 	std::string Passphrase ;
 } ;

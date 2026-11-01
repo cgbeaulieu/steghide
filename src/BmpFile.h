@@ -32,7 +32,7 @@ class ColorPalette ;
 class BmpFile : public CvrStgFile {
 	public:
 	BmpFile (void) ;
-	BmpFile (BinaryIO *io) ;
+	BmpFile (std::unique_ptr<BinaryIO> io) ;
 	~BmpFile (void) ;
 
 	void read (BinaryIO *io) ;
@@ -110,7 +110,7 @@ class BmpFile : public CvrStgFile {
 	BITMAPFILEHEADER bmfh ;
 	BITMAPINFOHEADER bmih ;
 	BITMAPCOREHEADER bmch ;
-	ColorPalette* Palette ;
+	std::unique_ptr<ColorPalette> Palette ;
 	/**
 	 * contains the bitmap in the following format
 	 * bitmap[i] is the pixel data of the i-th row of the bitmap

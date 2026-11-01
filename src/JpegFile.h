@@ -45,7 +45,7 @@ class SampleValue ;
  **/
 class JpegFile : public CvrStgFile {
 	public:
-	JpegFile (BinaryIO* io) ;
+	JpegFile (std::unique_ptr<BinaryIO> io) ;
 	~JpegFile (void) ;
 
 	void read (BinaryIO* io) ;
@@ -60,7 +60,7 @@ class JpegFile : public CvrStgFile {
 	EmbValue getEmbeddedValue (const SamplePos pos) const ;
 
 #ifdef DEBUG
-	std::map<SampleKey,unsigned long>* getFrequencies (void) ;
+	std::map<SampleKey,unsigned long> getFrequencies (void) ;
 	/**
 	 * SampleKey is unsigned, jpeg dct coefficients are signed data. This function is a specialization
 	 * of printFrequencies that converts the SampleKeys back to dct coefficient values before printing

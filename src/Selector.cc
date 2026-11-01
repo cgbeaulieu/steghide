@@ -36,7 +36,7 @@ Selector::Selector (UWORD32 m, std::string pp)
 		seed ^= h.getValue (i * 32, 32) ;
 	}
 
-	PRandom = new PseudoRandomSource (seed) ;
+	PRandom = std::make_unique<PseudoRandomSource> (seed) ;
 }
 
 Selector::Selector (UWORD32 m)
@@ -47,7 +47,6 @@ Selector::Selector (UWORD32 m)
 		X[i] = i ;
 	}
 	NumInArray = m ;
-	PRandom = NULL ;
 }
 
 Selector::Selector (const std::vector<UWORD32>& retvals)
@@ -55,14 +54,10 @@ Selector::Selector (const std::vector<UWORD32>& retvals)
 	X = retvals ;
 	Maximum = retvals.size() ;
 	NumInArray = retvals.size() ;
-	PRandom = NULL ;
 }
 
 Selector::~Selector ()
 {
-	if (PRandom) {
-		delete PRandom ;
-	}
 }
 
 UWORD32 Selector::operator[] (UWORD32 i)

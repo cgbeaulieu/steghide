@@ -36,14 +36,14 @@ void WavPCMSampleValueTest::setup ()
 	UnitTest::setup() ;
 
 	Globs.reset() ;
-	f_WavPCM8 = CvrStgFile::readFile (std::string(DATADIR) + "pcm8_std.wav") ;
+	f_WavPCM8 = CvrStgFile::readFile (std::string(DATADIR) + "pcm8_std.wav").release() ;
 	sv_WavPCM8_0 = new WavPCMSampleValue (0) ;
 	sv_WavPCM8_1 = new WavPCMSampleValue (1) ;
 	sv_WavPCM8_45 = new WavPCMSampleValue (45) ;
 	gl_WavPCM8 = Globs ;
 
 	Globs.reset() ;
-	f_WavPCM16 = CvrStgFile::readFile (std::string(DATADIR) + "pcm16_std.wav") ;
+	f_WavPCM16 = CvrStgFile::readFile (std::string(DATADIR) + "pcm16_std.wav").release() ;
 	sv_WavPCM16_m32768 = new WavPCMSampleValue (-32768) ;
 	sv_WavPCM16_32767 = new WavPCMSampleValue (32767) ;
 	sv_WavPCM16_0 = new WavPCMSampleValue (0) ;

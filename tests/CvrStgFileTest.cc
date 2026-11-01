@@ -35,7 +35,7 @@ bool CvrStgFileTest::genericTestReadWrite (const std::string& rfn, bool new_wfn)
 {
 	bool retval = false ;
 	if (new_wfn) {
-		CvrStgFile *file = CvrStgFile::readFile (rfn) ;
+		CvrStgFile *file = CvrStgFile::readFile (rfn).release() ;
 		std::string wfn ("test_rw.out") ;
 		file->transform (wfn) ;
 		file->write() ;
@@ -45,7 +45,7 @@ bool CvrStgFileTest::genericTestReadWrite (const std::string& rfn, bool new_wfn)
 		removeFile (wfn) ;
 	}
 	else {
-		CvrStgFile *file = CvrStgFile::readFile (rfn) ;
+		CvrStgFile *file = CvrStgFile::readFile (rfn).release() ;
 		copyFile (rfn, "test_rw.bak") ; // make backup copy
 		file->write() ;
 		delete file ;
@@ -60,7 +60,7 @@ bool CvrStgFileTest::genericTestReadWrite (const std::string& rfn, bool new_wfn)
 
 bool CvrStgFileTest::genericTestReadExtractCompare (const std::string& fn, BitString& emb) const
 {
-	CvrStgFile *file = CvrStgFile::readFile (fn) ;
+	CvrStgFile *file = CvrStgFile::readFile (fn).release() ;
 	emb.setArity (file->getEmbValueModulus()) ;
 	bool ok = true ;
 	for (unsigned long i = 0 ; i < emb.getLength() ; i++) {
@@ -73,7 +73,7 @@ bool CvrStgFileTest::genericTestReadExtractCompare (const std::string& fn, BitSt
 
 bool CvrStgFileTest::genericTestReadEmbedExtract (const std::string& fn, BitString& emb) const
 {
-	CvrStgFile *file = CvrStgFile::readFile (fn) ;
+	CvrStgFile *file = CvrStgFile::readFile (fn).release() ;
 	emb.setArity (file->getEmbValueModulus()) ;
 
 	// embed data (at the beginning of the file)
@@ -103,7 +103,7 @@ bool CvrStgFileTest::genericTestReadEmbedWriteReadExtract (const std::string& cv
 	std::string stgfn ("test_rewrx.out") ;
 
 	// read
-	CvrStgFile *file = CvrStgFile::readFile (cvrfn) ;
+	CvrStgFile *file = CvrStgFile::readFile (cvrfn).release() ;
 	emb.setArity (file->getEmbValueModulus()) ;
 
 	// embed
@@ -122,7 +122,7 @@ bool CvrStgFileTest::genericTestReadEmbedWriteReadExtract (const std::string& cv
 	delete file ;
 
 	// read
-	file = CvrStgFile::readFile (stgfn) ;
+	file = CvrStgFile::readFile (stgfn).release() ;
 
 	// extract and compare
 	bool retval = true ;

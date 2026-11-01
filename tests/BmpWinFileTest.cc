@@ -41,22 +41,22 @@ void BmpWinFileTest::setup ()
 	UnitTest::setup() ;
 
 	Globs.reset() ;
-	f1 = CvrStgFile::readFile (std::string(DATADIR) + "win3x1_std.bmp") ;
+	f1 = CvrStgFile::readFile (std::string(DATADIR) + "win3x1_std.bmp").release() ;
 	bs1 = new BitString (std::string ("this is a test")) ;
 	gl1 = Globs ;
 
 	Globs.reset() ;
-	f2 = CvrStgFile::readFile (std::string(DATADIR) + "win3x4_std.bmp") ;
+	f2 = CvrStgFile::readFile (std::string(DATADIR) + "win3x4_std.bmp").release() ;
 	bs2 = new BitString (std::string ("this is another test - this time a little longer")) ;
 	gl2 = Globs ;
 
 	Globs.reset() ;
-	f3 = CvrStgFile::readFile (std::string(DATADIR) + "win3x8_std.bmp") ;
+	f3 = CvrStgFile::readFile (std::string(DATADIR) + "win3x8_std.bmp").release() ;
 	bs3 = new BitString (std::string ("yet another test which is even longer than the previous test bitstring")) ;
 	gl3 = Globs ;
 
 	Globs.reset() ;
-	f4 = CvrStgFile::readFile (std::string(DATADIR) + "win3x24_std.bmp") ;
+	f4 = CvrStgFile::readFile (std::string(DATADIR) + "win3x24_std.bmp").release() ;
 	bs4 = new BitString (std::string ("the last test")) ;
 	gl4 = Globs ;
 }

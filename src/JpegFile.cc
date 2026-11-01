@@ -32,14 +32,15 @@
 #include "SMDConstructionHeuristic.h"
 #include "error.h"
 
-JpegFile::JpegFile (BinaryIO* io)
+JpegFile::JpegFile (std::unique_ptr<BinaryIO> io)
 	: CvrStgFile()
 {
 	setSamplesPerVertex (SamplesPerVertex) ;
 	setRadius (Radius) ;
 	setEmbValueModulus (EmbValueModulus) ;
 	DeCInfoCreated = false ;
-	read (io) ;
+	setBinIO (std::move (io)) ;
+	read (getBinIO()) ;
 }
 
 JpegFile::~JpegFile ()
@@ -209,14 +210,14 @@ std::vector<std::unique_ptr<MatchingAlgorithm> > JpegFile::getMatchingAlgorithms
 }
 
 #ifdef DEBUG
-std::map<SampleKey,unsigned long>* JpegFile::getFrequencies ()
+std::map<SampleKey,unsigned long> JpegFile::getFrequencies ()
 {
 	unsigned long n = LinDctCoeffs.size() ;
-	std::map<SampleKey,unsigned long>* table = new std::map<SampleKey,unsigned long> () ;
+	std::map<SampleKey,unsigned long> table ;
 
 	for (unsigned long pos = 0 ; pos < n ; pos++) {
 		JpegSampleValue sv (LinDctCoeffs[pos]) ;
-		(*table)[sv.getKey()]++ ;
+		table[sv.getKey()]++ ;
 	}
 
 	return table ;

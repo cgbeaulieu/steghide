@@ -34,7 +34,7 @@ class WavFormatChunk ;
 class WavFile : public CvrStgFile {
 	public:
 	WavFile (void) ;
-	WavFile (BinaryIO *io) ;
+	WavFile (std::unique_ptr<BinaryIO> io) ;
 	~WavFile (void) ;
 
 	void read (BinaryIO *io) ;
@@ -59,18 +59,18 @@ class WavFile : public CvrStgFile {
 	static const UWORD32 Radius_large = 20 ;
 	static const EmbValue EmbValueModulus = 2 ;
 
-	WavChunkHeader *riffchhdr ;
+	std::unique_ptr<WavChunkHeader> riffchhdr ;
 	char id_wave[4] ;
 
-	WavFormatChunk *FormatChunk ;
+	std::unique_ptr<WavFormatChunk> FormatChunk ;
 
-	WavChunkHeader *datachhdr ;
+	std::unique_ptr<WavChunkHeader> datachhdr ;
 	/// this std::vector contains the wav data if BitsPerSample <= 8
 	std::vector<unsigned char> data_small ;
 	/// this std::vector contains the wav data if BitsPerSample >8
 	std::vector<int> data_large ;	// it is assumed that an int can hold 32 bits
 	
-	std::vector<WavChunkUnused*> UnusedBeforeData ;
+	std::vector<std::unique_ptr<WavChunkUnused> > UnusedBeforeData ;
 	std::vector<BYTE> UnusedAfterData ;
 
 	void readheaders (void) ;

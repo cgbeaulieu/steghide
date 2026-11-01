@@ -40,7 +40,7 @@ void SampleValueAdjacencyListTest::setup ()
 
 void SampleValueAdjacencyListTest::testEquality ()
 {
-	CvrStgFile *f = CvrStgFile::readFile (std::string(DATADIR) + "mulaw_std.au") ;
+	CvrStgFile *f = CvrStgFile::readFile (std::string(DATADIR) + "mulaw_std.au").release() ;
 
 	SampleValueAdjacencyList sval1 (2) ;
 	SampleValueAdjacencyList sval2 (2) ;

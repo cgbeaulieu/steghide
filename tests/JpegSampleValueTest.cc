@@ -36,7 +36,7 @@ void JpegSampleValueTest::setup ()
 	UnitTest::setup() ;
 
 	Globs.reset() ;
-	f1 = CvrStgFile::readFile (std::string(DATADIR) + "std.jpg") ;
+	f1 = CvrStgFile::readFile (std::string(DATADIR) + "std.jpg").release() ;
 	sv_m1 = new JpegSampleValue (-1) ;
 	sv_0 = new JpegSampleValue (0) ;
 	sv_1 = new JpegSampleValue (1) ;

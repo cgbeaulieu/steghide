@@ -44,7 +44,10 @@ class Embedder {
 
 	BitString ToEmbed ;
 
-	/// the graph for ToEmbed and Globs.TheCvrStgFile, which Globs.TheGraph points to
+	/// the cover file, which Globs.TheCvrStgFile points to
+	std::unique_ptr<CvrStgFile> TheCvrStgFile ;
+
+	/// the graph for ToEmbed and TheCvrStgFile, which Globs.TheGraph points to (declared after TheCvrStgFile so that it is destroyed first)
 	std::unique_ptr<Graph> TheGraph ;
 
 	/**

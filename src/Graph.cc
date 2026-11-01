@@ -161,6 +161,9 @@ void Graph::constructEdges ()
 
 Graph::~Graph()
 {
+	if (Globs.TheGraph == this) {
+		Globs.TheGraph = NULL ;
+	}
 }
 
 void Graph::unmarkDeletedAllVertices ()

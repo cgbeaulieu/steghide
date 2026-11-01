@@ -21,11 +21,13 @@
 #include "WavChunk.h"
 #include "WavChunkHeader.h"
 
+WavChunk::WavChunk (std::unique_ptr<WavChunkHeader> chh)
+	: ChunkHeader(std::move (chh))
+{
+}
+
 WavChunk::~WavChunk ()
 {
-	if (ChunkHeader != NULL) {
-		delete ChunkHeader ;
-	}
 }
 
 void WavChunk::write (BinaryIO *io)

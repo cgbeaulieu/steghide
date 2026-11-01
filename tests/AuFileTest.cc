@@ -39,17 +39,17 @@ void AuFileTest::setup ()
 	UnitTest::setup() ;
 
 	Globs.reset() ;
-	f1 = CvrStgFile::readFile (std::string(DATADIR) + "mulaw_std.au") ;
+	f1 = CvrStgFile::readFile (std::string(DATADIR) + "mulaw_std.au").release() ;
 	bs1 = new BitString (std::string ("a test passphrase")) ;
 	gl1 = Globs ;
 
 	Globs.reset() ;
-	f2 = CvrStgFile::readFile (std::string(DATADIR) + "pcm8_std.au") ;
+	f2 = CvrStgFile::readFile (std::string(DATADIR) + "pcm8_std.au").release() ;
 	bs2 = new BitString (std::string ("another test passphrase")) ;
 	gl2 = Globs ;
 
 	Globs.reset() ;
-	f3 = CvrStgFile::readFile (std::string(DATADIR) + "pcm16_std.au") ;
+	f3 = CvrStgFile::readFile (std::string(DATADIR) + "pcm16_std.au").release() ;
 	bs3 = new BitString (std::string ("inventing test passphrases is boring")) ;
 	gl3 = Globs ;
 

@@ -36,22 +36,17 @@
 #include "error.h"
 #include "msg.h"
 
-WavFile::WavFile (BinaryIO *io)
+WavFile::WavFile (std::unique_ptr<BinaryIO> io)
 	: CvrStgFile()
 {
 	setSamplesPerVertex (SamplesPerVertex) ;
 	setEmbValueModulus (EmbValueModulus) ;
-	read (io) ;
+	setBinIO (std::move (io)) ;
+	read (getBinIO()) ;
 }
 
 WavFile::~WavFile ()
 {
-	delete riffchhdr ;
-	delete FormatChunk ;
-	delete datachhdr ;
-	for (std::vector<WavChunkUnused*>::iterator i = UnusedBeforeData.begin() ; i != UnusedBeforeData.end() ; i++) {
-		delete (*i) ;
-	}
 }
 
 void WavFile::read (BinaryIO *io)
@@ -314,7 +309,7 @@ void WavFile::writedata (void)
 void WavFile::readheaders ()
 {
 	try {
-		riffchhdr = new WavChunkHeader ("RIFF", getBinIO()->read32_le()) ;
+		riffchhdr = std::make_unique<WavChunkHeader> ("RIFF", getBinIO()->read32_le()) ;
 
 		for (unsigned int i = 0 ; i < 4 ; i++) {
 			id_wave[i] = getBinIO()->read8() ;
@@ -323,7 +318,7 @@ void WavFile::readheaders ()
 			throw UnSupFileFormat (getBinIO()) ;
 		}
 
-		FormatChunk = new WavFormatChunk (new WavChunkHeader (getBinIO()), getBinIO()) ;
+		FormatChunk = std::make_unique<WavFormatChunk> (std::make_unique<WavChunkHeader> (getBinIO()), getBinIO()) ;
 		if (FormatChunk->getBitsPerSample() <= 8) {
 			setRadius (Radius_small) ;
 		}
@@ -332,13 +327,13 @@ void WavFile::readheaders ()
 		}
 
 		UnusedBeforeData.clear() ;
-		WavChunkHeader *chhdr = new WavChunkHeader (getBinIO()) ; 
+		std::unique_ptr<WavChunkHeader> chhdr = std::make_unique<WavChunkHeader> (getBinIO()) ;
 		while (strncmp (chhdr->getChunkId(), "data", 4) != 0) {
-			UnusedBeforeData.push_back (new WavChunkUnused (chhdr, getBinIO())) ;
-			chhdr = new WavChunkHeader (getBinIO()) ;
+			UnusedBeforeData.push_back (std::make_unique<WavChunkUnused> (std::move (chhdr), getBinIO())) ;
+			chhdr = std::make_unique<WavChunkHeader> (getBinIO()) ;
 		}
 
-		datachhdr = chhdr ;
+		datachhdr = std::move (chhdr) ;
 	}
 	catch (BinaryInputError& e) {
 		switch (e.getType()) {
@@ -382,7 +377,7 @@ void WavFile::writeheaders ()
 
 		FormatChunk->write (getBinIO()) ;
 
-		for (std::vector<WavChunkUnused*>::const_iterator i = UnusedBeforeData.begin() ; i != UnusedBeforeData.end() ; i++) {
+		for (std::vector<std::unique_ptr<WavChunkUnused> >::const_iterator i = UnusedBeforeData.begin() ; i != UnusedBeforeData.end() ; i++) {
 			(*i)->write (getBinIO()) ;
 		}
 

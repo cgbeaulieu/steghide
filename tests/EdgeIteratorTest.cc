@@ -58,21 +58,21 @@ void EdgeIteratorTest::setup ()
 	// real files
 	{
 		Globs.reset() ;
-		f10 = CvrStgFile::readFile (std::string(DATADIR) + "win3x8_std.bmp") ;
+		f10 = CvrStgFile::readFile (std::string(DATADIR) + "win3x8_std.bmp").release() ;
 		bs10 = new BitString (std::string ("secret message")) ;
 		s10 = new Selector (bs10->getLength() * f10->getSamplesPerVertex(), std::string ("secret passphrase")) ;
 		g10 = new Graph (f10, *bs10, *s10) ;
 		gl10 = Globs ;
 
 		Globs.reset() ;
-		f11 = CvrStgFile::readFile (std::string(DATADIR) + "pcm16_std.wav") ;
+		f11 = CvrStgFile::readFile (std::string(DATADIR) + "pcm16_std.wav").release() ;
 		bs11 = new BitString (std::string ("16 bits per sample")) ;
 		s11 = new Selector (bs11->getLength() * f11->getSamplesPerVertex(), std::string ("a passphrase")) ;
 		g11 = new Graph (f11, *bs11, *s11) ;
 		gl11 = Globs ;
 
 		Globs.reset() ;
-		f12 = CvrStgFile::readFile (std::string(DATADIR) + "mulaw_std.au") ;
+		f12 = CvrStgFile::readFile (std::string(DATADIR) + "mulaw_std.au").release() ;
 		bs12 = new BitString (std::string ("mu law sample data in an au file")) ;
 		s12 = new Selector (bs12->getLength() * f12->getSamplesPerVertex(), std::string ("another passphrase")) ;
 		g12 = new Graph (f12, *bs12, *s12) ;

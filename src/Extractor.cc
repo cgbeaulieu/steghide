@@ -30,6 +30,10 @@
 #include "common.h"
 #include "error.h"
 
+Extractor::~Extractor ()
+{
+}
+
 std::unique_ptr<EmbData> Extractor::extract ()
 {
 	VerboseMessage vrs ;
@@ -42,12 +46,12 @@ std::unique_ptr<EmbData> Extractor::extract ()
 	vrs.setNewline (false) ;
 	vrs.printMessage() ;
 
-	Globs.TheCvrStgFile = CvrStgFile::readFile (StegoFileName) ;
+	TheCvrStgFile = CvrStgFile::readFile (StegoFileName) ;
 
 	VerboseMessage vd (_(" done")) ;
 	vd.printMessage() ;
 
-	std::unique_ptr<EmbData> embdata (new EmbData (EmbData::EXTRACT, Passphrase)) ;
+	std::unique_ptr<EmbData> embdata = std::make_unique<EmbData> (EmbData::EXTRACT, Passphrase) ;
 	Selector sel (Globs.TheCvrStgFile->getNumSamples(), Passphrase) ;
 
 	VerboseMessage ve (_("extracting data...")) ;

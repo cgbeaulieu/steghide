@@ -22,8 +22,9 @@
 #define SH_CVRSTGFILE_H
 
 #include <list>
-#include <string>
 #include <map>
+#include <memory>
+#include <string>
 
 #include "BinaryIO.h"
 #include "CvrStgObject.h"
@@ -49,7 +50,7 @@ class CvrStgFile : public CvrStgObject {
 	 * this function reads the file with name fn and returns
 	 * a *File object of the correct type casted to CvrStgFile.
 	 **/
-	static CvrStgFile *readFile (const std::string& fn) ;
+	static std::unique_ptr<CvrStgFile> readFile (const std::string& fn) ;
 
 	class Property : private std::pair<std::string,std::string> {
 		public:
@@ -145,7 +146,7 @@ class CvrStgFile : public CvrStgObject {
 	/**
 	 * return a map that contains the absolute sample frequencies indexed by sample key
 	 **/
-	virtual std::map<SampleKey,unsigned long>* getFrequencies (void) ;
+	virtual std::map<SampleKey,unsigned long> getFrequencies (void) ;
 	/**
 	 * print the frequency table freqs
 	 *
@@ -165,11 +166,11 @@ class CvrStgFile : public CvrStgObject {
 	void setEmbValueModulus (EmbValue m)
 		{ EmbValueModulus = m ; } ;
 	
-	void setBinIO (BinaryIO* io)
-		{ BinIO = io ; } ;
+	void setBinIO (std::unique_ptr<BinaryIO> io)
+		{ BinIO = std::move (io) ; } ;
 
 	BinaryIO* getBinIO (void) const
-		{ return BinIO ; } ;
+		{ return BinIO.get() ; } ;
 
 	private:
 	enum FILEFORMAT { UNKNOWN, BMP, WAV, AU, JPEG } ;
@@ -179,7 +180,7 @@ class CvrStgFile : public CvrStgObject {
 	 **/
 	static FILEFORMAT guessff (BinaryIO *io) ;
 
-	BinaryIO* BinIO ;
+	std::unique_ptr<BinaryIO> BinIO ;
 
 	unsigned short SamplesPerVertex ;
 	UWORD32 Radius ;

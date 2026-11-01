@@ -42,22 +42,22 @@ void BmpOS2FileTest::setup ()
 
 	Globs.reset() ;
 	bs1 = new BitString (std::string ("a test")) ;
-	f1 = CvrStgFile::readFile (std::string(DATADIR) + "os21x1_std.bmp") ;
+	f1 = CvrStgFile::readFile (std::string(DATADIR) + "os21x1_std.bmp").release() ;
 	gl1 = Globs ;
 
 	Globs.reset() ;
 	bs2 = new BitString (std::string ("another test - this time a little longer")) ;
-	f2 = CvrStgFile::readFile (std::string(DATADIR) + "os21x4_std.bmp") ;
+	f2 = CvrStgFile::readFile (std::string(DATADIR) + "os21x4_std.bmp").release() ;
 	gl2 = Globs ;
 
 	Globs.reset() ;
 	bs3 = new BitString (std::string ("yet another test")) ;
-	f3 = CvrStgFile::readFile (std::string(DATADIR) + "os21x8_std.bmp") ;
+	f3 = CvrStgFile::readFile (std::string(DATADIR) + "os21x8_std.bmp").release() ;
 	gl3 = Globs ;
 
 	Globs.reset() ;
 	bs4 = new BitString (std::string ("last test")) ;
-	f4 = CvrStgFile::readFile (std::string(DATADIR) + "os21x24_std.bmp") ;
+	f4 = CvrStgFile::readFile (std::string(DATADIR) + "os21x24_std.bmp").release() ;
 	gl4 = Globs ;
 }
 

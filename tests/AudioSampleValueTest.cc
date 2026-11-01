@@ -37,14 +37,14 @@ void AudioSampleValueTest::setup ()
 	UnitTest::setup() ;
 
 	Globs.reset() ;
-	f_AuMuLaw = CvrStgFile::readFile (std::string(DATADIR) + "mulaw_std.au") ;
+	f_AuMuLaw = CvrStgFile::readFile (std::string(DATADIR) + "mulaw_std.au").release() ;
 	sv_AuMuLaw_0 = new AuMuLawSampleValue (0) ;
 	sv_AuMuLaw_1 = new AuMuLawSampleValue (1) ;
 	sv_AuMuLaw_45 = new AuMuLawSampleValue (45) ;
 	gl_AuMuLaw = Globs ;
 
 	Globs.reset() ;
-	f_AuPCM16 = CvrStgFile::readFile (std::string(DATADIR) + "pcm16_std.au") ;
+	f_AuPCM16 = CvrStgFile::readFile (std::string(DATADIR) + "pcm16_std.au").release() ;
 	sv_AuPCM16_m32768 = new AuPCM16SampleValue (-32768) ;
 	sv_AuPCM16_32767 = new AuPCM16SampleValue (32767) ;
 	sv_AuPCM16_0 = new AuPCM16SampleValue (0) ;

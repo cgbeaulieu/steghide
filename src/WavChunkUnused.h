@@ -31,10 +31,10 @@ class WavChunkUnused : public WavChunk {
 	public:
 	WavChunkUnused (void) :
 		WavChunk() {} ;
-	WavChunkUnused (WavChunkHeader *chh) :
-		WavChunk(chh) {} ;
-	WavChunkUnused (WavChunkHeader *chh, BinaryIO *io) :
-		WavChunk(chh) { read(io) ; } ;
+	WavChunkUnused (std::unique_ptr<WavChunkHeader> chh) :
+		WavChunk(std::move (chh)) {} ;
+	WavChunkUnused (std::unique_ptr<WavChunkHeader> chh, BinaryIO *io) :
+		WavChunk(std::move (chh)) { read(io) ; } ;
 
 	void read (BinaryIO *io) ;
 	void write (BinaryIO *io) ;

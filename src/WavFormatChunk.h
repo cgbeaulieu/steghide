@@ -30,10 +30,10 @@ class WavFormatChunk : public WavChunk {
 	public:
 	WavFormatChunk (void) :
 		WavChunk() {} ;
-	WavFormatChunk (WavChunkHeader *chh) :
-		WavChunk(chh) {} ;
-	WavFormatChunk (WavChunkHeader *chh, BinaryIO *io) :
-		WavChunk(chh) { read(io) ; } ;
+	WavFormatChunk (std::unique_ptr<WavChunkHeader> chh) :
+		WavChunk(std::move (chh)) {} ;
+	WavFormatChunk (std::unique_ptr<WavChunkHeader> chh, BinaryIO *io) :
+		WavChunk(std::move (chh)) { read(io) ; } ;
 
 	void read (BinaryIO *io) ;
 	void write (BinaryIO *io) ;

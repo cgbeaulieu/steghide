@@ -36,7 +36,7 @@ void BmpPaletteSampleValueTest::setup ()
 	UnitTest::setup() ;
 
 	Globs.reset() ;
-	f1 = CvrStgFile::readFile (std::string(DATADIR) + "os21x4_std.bmp") ;
+	f1 = CvrStgFile::readFile (std::string(DATADIR) + "os21x4_std.bmp").release() ;
 	sv1_0 = new BmpPaletteSampleValue (0) ;
 	sv1_3 = new BmpPaletteSampleValue (3) ;
 	sv1_7 = new BmpPaletteSampleValue (7) ;
@@ -44,7 +44,7 @@ void BmpPaletteSampleValueTest::setup ()
 	gl1 = Globs ;
 
 	Globs.reset() ;
-	f2 = CvrStgFile::readFile (std::string(DATADIR) + "win3x8_std.bmp") ;
+	f2 = CvrStgFile::readFile (std::string(DATADIR) + "win3x8_std.bmp").release() ;
 	sv2_3_49_96_5 = new BmpPaletteSampleValue (3) ;
 	sv2_10_11_99_203 = new BmpPaletteSampleValue (10) ;
 	sv2_48_18_106_194 = new BmpPaletteSampleValue (48) ;

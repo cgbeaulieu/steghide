@@ -34,12 +34,12 @@ void JpegFileTest::setup ()
 	UnitTest::setup() ;
 
 	Globs.reset() ;
-	f1 = CvrStgFile::readFile (std::string(DATADIR) + "std.jpg") ;
+	f1 = CvrStgFile::readFile (std::string(DATADIR) + "std.jpg").release() ;
 	bs1 = new BitString (std::string ("a test passphrase")) ;
 	gl1 = Globs ;
 
 	Globs.reset() ;
-	f2 = CvrStgFile::readFile (std::string(DATADIR) + "prog.jpg") ;
+	f2 = CvrStgFile::readFile (std::string(DATADIR) + "prog.jpg").release() ;
 	bs2 = new BitString (std::string ("another test passphrase")) ;
 	gl2 = Globs ;
 }

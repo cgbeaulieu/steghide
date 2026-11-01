@@ -36,14 +36,14 @@ void BmpFileTest::setup ()
 	UnitTest::setup() ;
 
 	Globs.reset() ;
-	f1 = CvrStgFile::readFile (std::string(DATADIR) + "win3x24_std.bmp") ;
+	f1 = CvrStgFile::readFile (std::string(DATADIR) + "win3x24_std.bmp").release() ;
 	bs1 = new BitString (std::string ("this BitString will be embedded")) ;
 	s1 = new Selector (bs1->getLength() * f1->getSamplesPerVertex(), std::string ("a passphrase")) ;
 	g1 = new Graph (f1, *bs1, *s1) ;
 	gl1 = Globs ;
 
 	Globs.reset() ;
-	f2 = CvrStgFile::readFile (std::string(DATADIR) + "os21x24_std.bmp") ;
+	f2 = CvrStgFile::readFile (std::string(DATADIR) + "os21x24_std.bmp").release() ;
 	bs2 = new BitString (std::string ("this BitString will be embedded too")) ;
 	s2 = new Selector (bs2->getLength() * f2->getSamplesPerVertex(), std::string ("another passphrase")) ;
 	g2 = new Graph (f2, *bs2, *s2) ;

@@ -21,21 +21,22 @@
 #ifndef SH_WAVCHUNK_H
 #define SH_WAVCHUNK_H
 
+#include <memory>
+
 class BinaryIO ;
 class WavChunkHeader ;
 
 class WavChunk {
 	public:
 	WavChunk (void) {} ;
-	WavChunk (WavChunkHeader *chh) :
-		ChunkHeader(chh) {} ;
+	WavChunk (std::unique_ptr<WavChunkHeader> chh) ;
 	virtual ~WavChunk (void) ;
 
 	virtual void read (BinaryIO *io) = 0 ;
 	virtual void write (BinaryIO *io) ;
 
 	protected:
-	WavChunkHeader *ChunkHeader ;
+	std::unique_ptr<WavChunkHeader> ChunkHeader ;
 } ;
 
 #endif // ndef SH_WAVCHUNK_H

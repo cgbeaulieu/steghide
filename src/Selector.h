@@ -21,6 +21,7 @@
 #ifndef SH_SELECTOR_H
 #define SH_SELECTOR_H
 
+#include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -75,7 +76,7 @@ class Selector {
 	UWORD32 Maximum ;
 	/// the number of calculated positions in the arrays
 	UWORD32 NumInArray ;
-	PseudoRandomSource* PRandom ;
+	std::unique_ptr<PseudoRandomSource> PRandom ;
 
 	/**
 	 * fill X, Y and Xreversed until but not including index m

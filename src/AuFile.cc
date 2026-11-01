@@ -33,17 +33,17 @@
 #include "common.h"
 #include "error.h"
 
-AuFile::AuFile (BinaryIO *io)
+AuFile::AuFile (std::unique_ptr<BinaryIO> io)
 	: CvrStgFile()
 {
 	setSamplesPerVertex (SamplesPerVertex) ;
 	setEmbValueModulus (EmbValueModulus) ;
-	read (io) ;
+	setBinIO (std::move (io)) ;
+	read (getBinIO()) ;
 }
 
 AuFile::~AuFile (void)
 {
-	delete Data ;
 }
 
 void AuFile::read (BinaryIO *io)
@@ -76,17 +76,17 @@ void AuFile::read (BinaryIO *io)
 		switch (encoding) {
 			case MULAW8:
 			setRadius (Radius_MuLaw8) ;
-			Data = new AuMuLawAudioData (this) ;
+			Data = std::make_unique<AuMuLawAudioData> (this) ;
 			break ;
 
 			case PCM8:
 			setRadius (Radius_PCM8) ;
-			Data = new AuPCM8AudioData (this) ;
+			Data = std::make_unique<AuPCM8AudioData> (this) ;
 			break ;
 
 			case PCM16:
 			setRadius (Radius_PCM16) ;
-			Data = new AuPCM16AudioData (this) ;
+			Data = std::make_unique<AuPCM16AudioData> (this) ;
 			break ;
 
 			default:

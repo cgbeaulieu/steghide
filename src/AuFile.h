@@ -35,7 +35,7 @@ class BinaryIO ;
  **/
 class AuFile : public CvrStgFile {
 	public:
-	AuFile (BinaryIO *io) ;
+	AuFile (std::unique_ptr<BinaryIO> io) ;
 	~AuFile (void) ;
 
 	void read (BinaryIO *io) ;
@@ -78,7 +78,7 @@ class AuFile : public CvrStgFile {
 
 	AuHeader Header ;
 	std::vector<BYTE> Infofield ;
-	AudioData* Data ;
+	std::unique_ptr<AudioData> Data ;
 } ;
 
 #endif /* ndef SH_AUFILE_H */

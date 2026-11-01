@@ -133,7 +133,7 @@ void Session::run ()
 void Session::printInfo ()
 {
 	// if file format not supported: exception will be catched in main
-	std::unique_ptr<CvrStgFile> file (CvrStgFile::readFile (Args.CvrFn.getValue())) ;
+	std::unique_ptr<CvrStgFile> file = CvrStgFile::readFile (Args.CvrFn.getValue()) ;
 
 	if (Args.CvrFn.getValue() == "") {
 		printf (_("data from standard input:\n")) ;
@@ -312,20 +312,16 @@ void Session::printFrequencies ()
 	std::map<SampleKey,unsigned long> Frequencies ;
 	const std::list<std::string>& flist = Args.FileList.getValue() ;
 	for (std::list<std::string>::const_iterator fnit = flist.begin() ; fnit != flist.end() ; fnit++) {
-		CvrStgFile *f = CvrStgFile::readFile (*fnit) ;
-		addFrequencies (&Frequencies, f->getFrequencies()) ;
-		delete f ;
+		addFrequencies (&Frequencies, CvrStgFile::readFile (*fnit)->getFrequencies()) ;
 	}
 
 	// get CvrStgFile in correct format to call printFrequencies
-	CvrStgFile *f = CvrStgFile::readFile (*(Args.FileList.getValue().begin())) ;
-	f->printFrequencies (Frequencies) ;
-	delete f ;
+	CvrStgFile::readFile (*(Args.FileList.getValue().begin()))->printFrequencies (Frequencies) ;
 }
 
-void Session::addFrequencies (std::map<SampleKey,unsigned long>* f1, const std::map<SampleKey,unsigned long>* f2)
+void Session::addFrequencies (std::map<SampleKey,unsigned long>* f1, const std::map<SampleKey,unsigned long>& f2)
 {
-	for (std::map<SampleKey,unsigned long>::const_iterator fit = f2->begin() ; fit != f2->end() ; fit++) {
+	for (std::map<SampleKey,unsigned long>::const_iterator fit = f2.begin() ; fit != f2.end() ; fit++) {
 		(*f1)[fit->first] += fit->second ;
 	}
 }

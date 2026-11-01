@@ -45,112 +45,112 @@ void GraphTest::setup ()
 	UnitTest::setup() ;
 
 	Globs.reset() ;
-	f1 = CvrStgFile::readFile (std::string(DATADIR) + "win3x1_std.bmp") ;
+	f1 = CvrStgFile::readFile (std::string(DATADIR) + "win3x1_std.bmp").release() ;
 	bs1 = new BitString (std::string ("this BitString will be embedded")) ;
 	s1 = new Selector (bs1->getLength() * f1->getSamplesPerVertex(), std::string ("a passphrase")) ;
 	g1 = new Graph (f1, *bs1, *s1) ;
 	gl1 = Globs ;
 
 	Globs.reset() ;
-	f2 = CvrStgFile::readFile (std::string(DATADIR) + "win3x4_std.bmp") ;
+	f2 = CvrStgFile::readFile (std::string(DATADIR) + "win3x4_std.bmp").release() ;
 	bs2 = new BitString (std::string ("this is a test")) ;
 	s2 = new Selector (bs2->getLength() * f2->getSamplesPerVertex(), std::string ("another passphrase")) ;
 	g2 = new Graph (f2, *bs2, *s2) ;
 	gl2 = Globs ;
 
 	Globs.reset() ;
-	f3 = CvrStgFile::readFile (std::string(DATADIR) + "win3x8_std.bmp") ;
+	f3 = CvrStgFile::readFile (std::string(DATADIR) + "win3x8_std.bmp").release() ;
 	bs3 = new BitString (std::string ("this is another test")) ;
 	s3 = new Selector (bs3->getLength() * f3->getSamplesPerVertex(), std::string ("yet another passphrase")) ;
 	g3 = new Graph (f3, *bs3, *s3) ;
 	gl3 = Globs ;
 
 	Globs.reset() ;
-	f4 = CvrStgFile::readFile (std::string(DATADIR) + "win3x24_std.bmp") ;
+	f4 = CvrStgFile::readFile (std::string(DATADIR) + "win3x24_std.bmp").release() ;
 	bs4 = new BitString (std::string ("this time embedding in RGB pixel data")) ;
 	s4 = new Selector (bs4->getLength() * f4->getSamplesPerVertex(), std::string ("a true-color passphrase ;-)")) ;
 	g4 = new Graph (f4, *bs4, *s4) ;
 	gl4 = Globs ;
 
 	Globs.reset() ;
-	f5 = CvrStgFile::readFile (std::string(DATADIR) + "os21x1_std.bmp") ;
+	f5 = CvrStgFile::readFile (std::string(DATADIR) + "os21x1_std.bmp").release() ;
 	bs5 = new BitString (std::string ("this BitString will be embedded")) ;
 	s5 = new Selector (bs5->getLength() * f5->getSamplesPerVertex(), std::string ("a passphrase")) ;
 	g5 = new Graph (f5, *bs5, *s5) ;
 	gl5 = Globs ;
 
 	Globs.reset() ;
-	f6 = CvrStgFile::readFile (std::string(DATADIR) + "os21x4_std.bmp") ;
+	f6 = CvrStgFile::readFile (std::string(DATADIR) + "os21x4_std.bmp").release() ;
 	bs6 = new BitString (std::string ("this is a test")) ;
 	s6 = new Selector (bs6->getLength() * f6->getSamplesPerVertex(), std::string ("another passphrase")) ;
 	g6 = new Graph (f6, *bs6, *s6) ;
 	gl6 = Globs ;
 
 	Globs.reset() ;
-	f7 = CvrStgFile::readFile (std::string(DATADIR) + "os21x8_std.bmp") ;
+	f7 = CvrStgFile::readFile (std::string(DATADIR) + "os21x8_std.bmp").release() ;
 	bs7 = new BitString (std::string ("this is another test")) ;
 	s7 = new Selector (bs7->getLength() * f7->getSamplesPerVertex(), std::string ("yet another passphrase")) ;
 	g7 = new Graph (f7, *bs7, *s7) ;
 	gl7 = Globs ;
 
 	Globs.reset() ;
-	f8 = CvrStgFile::readFile (std::string(DATADIR) + "os21x24_std.bmp") ;
+	f8 = CvrStgFile::readFile (std::string(DATADIR) + "os21x24_std.bmp").release() ;
 	bs8 = new BitString (std::string ("this time embedding in RGB pixel data")) ;
 	s8 = new Selector (bs8->getLength() * f8->getSamplesPerVertex(), std::string ("a true-color passphrase ;-)")) ;
 	g8 = new Graph (f8, *bs8, *s8) ;
 	gl8 = Globs ;
 
 	Globs.reset() ;
-	f9 = CvrStgFile::readFile (std::string(DATADIR) + "mulaw_std.au") ;
+	f9 = CvrStgFile::readFile (std::string(DATADIR) + "mulaw_std.au").release() ;
 	bs9 = new BitString (std::string ("u-law or mu-law that's the question")) ;
 	s9 = new Selector (bs9->getLength() * f9->getSamplesPerVertex(), std::string ("muuuuuuuu")) ;
 	g9 = new Graph (f9, *bs9, *s9) ;
 	gl9 = Globs ;
 
 	Globs.reset() ;
-	f10 = CvrStgFile::readFile (std::string(DATADIR) + "pcm8_std.au") ;
+	f10 = CvrStgFile::readFile (std::string(DATADIR) + "pcm8_std.au").release() ;
 	bs10 = new BitString (std::string ("also au files can have pcm encoded data")) ;
 	s10 = new Selector (bs10->getLength() * f10->getSamplesPerVertex(), std::string ("pulse code modulation")) ;
 	g10 = new Graph (f10, *bs10, *s10) ;
 	gl10 = Globs ;
 
 	Globs.reset() ;
-	f11 = CvrStgFile::readFile (std::string(DATADIR) + "pcm16_std.au") ;
+	f11 = CvrStgFile::readFile (std::string(DATADIR) + "pcm16_std.au").release() ;
 	bs11 = new BitString (std::string ("even with 16 bits per sample")) ;
 	s11 = new Selector (bs11->getLength() * f11->getSamplesPerVertex(), std::string ("pcm16")) ;
 	g11 = new Graph (f11, *bs11, *s11) ;
 	gl11 = Globs ;
 
 	Globs.reset() ;
-	f12 = CvrStgFile::readFile (std::string(DATADIR) + "pcm8_std.wav") ;
+	f12 = CvrStgFile::readFile (std::string(DATADIR) + "pcm8_std.wav").release() ;
 	bs12 = new BitString (std::string ("8 bit pcm data in a riff wav file")) ;
 	s12 = new Selector (bs12->getLength() * f12->getSamplesPerVertex(), std::string ("afaf")) ;
 	g12 = new Graph (f12, *bs12, *s12) ;
 	gl12 = Globs ;
 
 	Globs.reset() ;
-	f13 = CvrStgFile::readFile (std::string(DATADIR) + "pcm16_std.wav") ;
+	f13 = CvrStgFile::readFile (std::string(DATADIR) + "pcm16_std.wav").release() ;
 	bs13 = new BitString (std::string ("16 bits per sample")) ;
 	s13 = new Selector (bs13->getLength() * f13->getSamplesPerVertex(), std::string ("passphrase")) ;
 	g13 = new Graph (f13, *bs13, *s13) ;
 	gl13 = Globs ;
 
 	Globs.reset() ;
-	f14 = CvrStgFile::readFile (std::string(DATADIR) + "std.jpg") ;
+	f14 = CvrStgFile::readFile (std::string(DATADIR) + "std.jpg").release() ;
 	bs14 = new BitString (std::string ("standard jpeg produced by the GIMP")) ;
 	s14 = new Selector (bs14->getLength() * f14->getSamplesPerVertex(), std::string ("passphrase")) ;
 	g14 = new Graph (f14, *bs14, *s14) ;
 	gl14 = Globs ;
 
 	Globs.reset() ;
-	f15 = CvrStgFile::readFile (std::string(DATADIR) + "prog.jpg") ;
+	f15 = CvrStgFile::readFile (std::string(DATADIR) + "prog.jpg").release() ;
 	bs15 = new BitString (std::string ("progressive encoding")) ;
 	s15 = new Selector (bs15->getLength() * f15->getSamplesPerVertex(), std::string ("passphrase")) ;
 	g15 = new Graph (f15, *bs15, *s15) ;
 	gl15 = Globs ;
 
 	Globs.reset() ;
-	f_f = CvrStgFile::readFile (std::string(DATADIR) + "win3x24_std.bmp") ;
+	f_f = CvrStgFile::readFile (std::string(DATADIR) + "win3x24_std.bmp").release() ;
 	bs_f = new BitString (std::string ("this time embedding in RGB pixel data")) ;
 	s_f = new Selector (bs_f->getLength() * f_f->getSamplesPerVertex(), std::string ("a true-color passphrase ;-)")) ;
 	g_f = new Graph (f_f, *bs_f, *s_f) ;

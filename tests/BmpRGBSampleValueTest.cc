@@ -36,7 +36,7 @@ void BmpRGBSampleValueTest::setup ()
 	UnitTest::setup() ;
 
 	Globs.reset() ;
-	f_win = CvrStgFile::readFile (std::string(DATADIR) + "win3x24_std.bmp") ;
+	f_win = CvrStgFile::readFile (std::string(DATADIR) + "win3x24_std.bmp").release() ;
 	sv_0_0_0 = new BmpRGBSampleValue (0, 0, 0) ;
 	sv_1_1_1 = new BmpRGBSampleValue (1, 1, 1) ;
 	sv_0_3_4 = new BmpRGBSampleValue (0, 3, 4) ;
@@ -48,7 +48,7 @@ void BmpRGBSampleValueTest::setup ()
 	gl_win = Globs ;
 
 	Globs.reset() ;
-	f_os2 = CvrStgFile::readFile (std::string(DATADIR) + "os21x24_std.bmp") ;
+	f_os2 = CvrStgFile::readFile (std::string(DATADIR) + "os21x24_std.bmp").release() ;
 	gl_os2 = Globs ;
 }
 
