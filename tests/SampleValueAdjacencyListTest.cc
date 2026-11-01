@@ -18,6 +18,7 @@
  *
  */
 
+#include <memory>
 #include <vector>
 
 #include "AuSampleValues.h"
@@ -40,27 +41,32 @@ void SampleValueAdjacencyListTest::setup ()
 
 void SampleValueAdjacencyListTest::testEquality ()
 {
-	CvrStgFile *f = CvrStgFile::readFile (std::string(DATADIR) + "mulaw_std.au").release() ;
+	std::unique_ptr<CvrStgFile> f = CvrStgFile::readFile (std::string(DATADIR) + "mulaw_std.au") ;
+
+	// the adjacency lists only point to sample values
+	std::vector<std::unique_ptr<SampleValue> > values ;
+	auto sv = [&values] (BYTE v) {
+		values.push_back (std::make_unique<AuMuLawSampleValue> (v)) ;
+		return values.back().get() ;
+	} ;
 
 	SampleValueAdjacencyList sval1 (2) ;
 	SampleValueAdjacencyList sval2 (2) ;
 
-	sval1[(SampleValueLabel) 0].push_back (new AuMuLawSampleValue (10)) ;
-	sval1[(SampleValueLabel) 0].push_back (new AuMuLawSampleValue (15)) ;
-	sval1[(SampleValueLabel) 0].push_back (new AuMuLawSampleValue (17)) ;
-	sval1[(SampleValueLabel) 1].push_back (new AuMuLawSampleValue (100)) ;
-	sval2[(SampleValueLabel) 0].push_back (new AuMuLawSampleValue (10)) ;
-	sval2[(SampleValueLabel) 0].push_back (new AuMuLawSampleValue (15)) ;
-	sval2[(SampleValueLabel) 0].push_back (new AuMuLawSampleValue (17)) ;
-	sval2[(SampleValueLabel) 1].push_back (new AuMuLawSampleValue (100)) ;
+	sval1[(SampleValueLabel) 0].push_back (sv (10)) ;
+	sval1[(SampleValueLabel) 0].push_back (sv (15)) ;
+	sval1[(SampleValueLabel) 0].push_back (sv (17)) ;
+	sval1[(SampleValueLabel) 1].push_back (sv (100)) ;
+	sval2[(SampleValueLabel) 0].push_back (sv (10)) ;
+	sval2[(SampleValueLabel) 0].push_back (sv (15)) ;
+	sval2[(SampleValueLabel) 0].push_back (sv (17)) ;
+	sval2[(SampleValueLabel) 1].push_back (sv (100)) ;
 
 	addTestResult (sval1 == sval2) ;
 
-	sval2[(SampleValueLabel) 1].push_back (new AuMuLawSampleValue (110)) ;
+	sval2[(SampleValueLabel) 1].push_back (sv (110)) ;
 
 	addTestResult (!(sval1 == sval2)) ;
-
-	delete f ;
 }
 
 void SampleValueAdjacencyListTest::testQuicksort ()

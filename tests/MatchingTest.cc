@@ -26,7 +26,6 @@
 #include "DummyFile.h"
 #include "MatchingTest.h"
 
-#define CREATEEDGEPTR(G,V1,V2) (new Edge ((G)->getVertex(V1), 0, (G)->getVertex(V2), 1))
 #define CREATEEDGEOBJ(G,V1,V2) (Edge ((G)->getVertex(V1), 0, (G)->getVertex(V2), 1))
 
 MatchingTest::MatchingTest (TestSuite* s)
@@ -154,8 +153,12 @@ void MatchingTest::testAugmentingPath ()
 	{ // test Matching m1
 		Globs = gl1 ;
 
+		Edge e01 = CREATEEDGEOBJ (g1, 0, 1) ;
+		Edge e13 = CREATEEDGEOBJ (g1, 1, 3) ;
+		Edge e02 = CREATEEDGEOBJ (g1, 0, 2) ;
+
 		std::vector<Edge*> augpath1 ;
-		augpath1.push_back (CREATEEDGEPTR (g1, 0, 1)) ;
+		augpath1.push_back (&e01) ;
 		m1->augment (augpath1) ;
 		addTestResult (	m1->isMatched((VertexLabel) 0) &&
 						m1->isMatched((VertexLabel) 1) &&
@@ -163,9 +166,9 @@ void MatchingTest::testAugmentingPath ()
 						m1->isExposed((VertexLabel) 3)) ;
 
 		std::vector<Edge*> augpath2 ;
-		augpath2.push_back (CREATEEDGEPTR (g1, 1, 3)) ;
-		augpath2.push_back (CREATEEDGEPTR (g1, 0, 1)) ;
-		augpath2.push_back (CREATEEDGEPTR (g1, 0, 2)) ;
+		augpath2.push_back (&e13) ;
+		augpath2.push_back (&e01) ;
+		augpath2.push_back (&e02) ;
 		m1->augment (augpath2) ;
 		addTestResult (	m1->isMatched((VertexLabel) 0) &&
 						m1->isMatched((VertexLabel) 1) &&
@@ -176,54 +179,54 @@ void MatchingTest::testAugmentingPath ()
 	{ // test Matching m2
 		Globs = gl2 ;
 
-		Edge* e12 = CREATEEDGEPTR (g2, 1, 2) ;
-		Edge* e17 = CREATEEDGEPTR (g2, 1, 7) ;
-		Edge* e23 = CREATEEDGEPTR (g2, 2, 3) ;
-		Edge* e36 = CREATEEDGEPTR (g2, 3, 6) ;
-		Edge* e47 = CREATEEDGEPTR (g2, 4, 7) ;
-		Edge* e49 = CREATEEDGEPTR (g2, 4, 9) ;
-		Edge* e56 = CREATEEDGEPTR (g2, 5, 6) ;
+		Edge e12 = CREATEEDGEOBJ (g2, 1, 2) ;
+		Edge e17 = CREATEEDGEOBJ (g2, 1, 7) ;
+		Edge e23 = CREATEEDGEOBJ (g2, 2, 3) ;
+		Edge e36 = CREATEEDGEOBJ (g2, 3, 6) ;
+		Edge e47 = CREATEEDGEOBJ (g2, 4, 7) ;
+		Edge e49 = CREATEEDGEOBJ (g2, 4, 9) ;
+		Edge e56 = CREATEEDGEOBJ (g2, 5, 6) ;
 
 		std::vector<Edge*> augpath1 ;
-		augpath1.push_back (e12) ;
+		augpath1.push_back (&e12) ;
 		m2->augment (augpath1) ;
 		addTestResult (	m2->getCardinality() == 1 &&
-						m2->includesEdge(*e12)) ;
+						m2->includesEdge(e12)) ;
 
 		std::vector<Edge*> augpath2 ;
-		augpath2.push_back (e17) ;
-		augpath2.push_back (e12) ;
-		augpath2.push_back (e23) ;
+		augpath2.push_back (&e17) ;
+		augpath2.push_back (&e12) ;
+		augpath2.push_back (&e23) ;
 		m2->augment (augpath2) ;
 		addTestResult (	m2->getCardinality() == 2 &&
-						m2->includesEdge(*e17) &&
-						m2->includesEdge(*e23)) ;
+						m2->includesEdge(e17) &&
+						m2->includesEdge(e23)) ;
 
 		std::vector<Edge*> augpath3 ;
-		augpath3.push_back (e47) ;
-		augpath3.push_back (e17) ;
-		augpath3.push_back (e12) ;
-		augpath3.push_back (e23) ;
-		augpath3.push_back (e36) ;
+		augpath3.push_back (&e47) ;
+		augpath3.push_back (&e17) ;
+		augpath3.push_back (&e12) ;
+		augpath3.push_back (&e23) ;
+		augpath3.push_back (&e36) ;
 		m2->augment (augpath3) ;
 		addTestResult (	m2->getCardinality() == 3 &&
-						m2->includesEdge(*e47) &&
-						m2->includesEdge(*e12) &&
-						m2->includesEdge(*e36)) ;
+						m2->includesEdge(e47) &&
+						m2->includesEdge(e12) &&
+						m2->includesEdge(e36)) ;
 
 		std::vector<Edge*> augpath4 ;
-		augpath4.push_back (e49) ;
-		augpath4.push_back (e47) ;
-		augpath4.push_back (e17) ;
-		augpath4.push_back (e12) ;
-		augpath4.push_back (e23) ;
-		augpath4.push_back (e36) ;
-		augpath4.push_back (e56) ;
+		augpath4.push_back (&e49) ;
+		augpath4.push_back (&e47) ;
+		augpath4.push_back (&e17) ;
+		augpath4.push_back (&e12) ;
+		augpath4.push_back (&e23) ;
+		augpath4.push_back (&e36) ;
+		augpath4.push_back (&e56) ;
 		m2->augment (augpath4) ;
 		addTestResult (	m2->getCardinality() == 4 &&
-						m2->includesEdge(*e49) &&
-						m2->includesEdge(*e17) &&
-						m2->includesEdge(*e23) &&
-						m2->includesEdge(*e56)) ;
+						m2->includesEdge(e49) &&
+						m2->includesEdge(e17) &&
+						m2->includesEdge(e23) &&
+						m2->includesEdge(e56)) ;
 	}
 }

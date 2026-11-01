@@ -28,7 +28,7 @@
 #include "DummyFile.h"
 #include "WKSConstructionHeuristicTest.h"
 
-#define CREATEEDGE(G,V1,V2) (new Edge ((G)->getVertex(V1), 0, (G)->getVertex(V2), 1))
+#define CREATEEDGE(G,V1,V2) (Edge ((G)->getVertex(V1), 0, (G)->getVertex(V2), 1))
 
 WKSConstructionHeuristicTest::WKSConstructionHeuristicTest (TestSuite* s)
 	: UnitTest ("WKSConstructionHeuristic", s)

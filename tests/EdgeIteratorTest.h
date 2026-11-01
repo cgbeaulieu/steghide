@@ -45,11 +45,11 @@ class EdgeIteratorTest : public UnitTest {
 	void testIterationLength (void) ;
 
 	private:
-	BitString *bs1, *bs2 ;
-	CvrStgFile *f1, *f2 ;
-	Selector *s1, *s2 ;
-	Graph *g1, *g2 ;
-	Globals gl1, gl2 ;
+	BitString *bs1 ;
+	CvrStgFile *f1 ;
+	Selector *s1 ;
+	Graph *g1 ;
+	Globals gl1 ;
 
 	BitString *bs10, *bs11, *bs12 ;
 	CvrStgFile *f10, *f11, *f12 ;
@@ -62,7 +62,7 @@ class EdgeIteratorTest : public UnitTest {
 	/**
 	 * check if an edge iterator for srcvertex with m iterates exactly through edges
 	 **/
-	bool genericTestVertexIteration (Vertex* srcvertex, EdgeIterator::ITERATIONMODE m, const std::vector<Edge*>& edges) ;
+	bool genericTestVertexIteration (Vertex* srcvertex, EdgeIterator::ITERATIONMODE m, const std::vector<Edge>& edges) ;
 
 	/**
 	 * for all vertices in the graph test if getDegree() returns exactly the number of edges EdgeIterator iterates through

@@ -60,6 +60,7 @@ void BmpRGBSampleValueTest::cleanup ()
 	delete sv_0_0_0 ;
 	delete sv_1_1_1 ;
 	delete sv_0_3_4 ;
+	delete sv_10_10_10 ;
 	delete sv_12_13_14 ;
 	delete sv_128_128_128 ;
 	delete sv_210_0_120 ;

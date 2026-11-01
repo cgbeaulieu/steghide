@@ -24,8 +24,8 @@
 #include "DummyFile.h"
 #include "DummySampleValue.h"
 
-DummyFile::DummyFile (UWORD16 s, std::vector<std::vector<bool> >* svam)
-	: SampleValueAdjacencyMatrix(svam)
+DummyFile::DummyFile (UWORD16 s, std::unique_ptr<std::vector<std::vector<bool> > > svam)
+	: SampleValueAdjacencyMatrix(std::move (svam))
 {
 	Samples.resize (s) ;
 	for (UWORD16 i = 0 ; i < s ; i++) {
@@ -74,7 +74,7 @@ void DummyFile::createGraph (std::vector<std::list<UWORD16> >& adjlist, BitStrin
 	}
 
 	// allocate memory for SampleValue Adjacency-Matrix
-	std::vector<std::vector<bool> >* svam = new std::vector<std::vector<bool> > (2 * numvertices) ;
+	std::unique_ptr<std::vector<std::vector<bool> > > svam = std::make_unique<std::vector<std::vector<bool> > > (2 * numvertices) ;
 	for (UWORD16 srcv = 0 ; srcv < numvertices ; srcv++) {
 		(*svam)[2*srcv] = std::vector<bool> (2 * numvertices) ;
 		(*svam)[2*srcv + 1] = std::vector<bool> (2 * numvertices) ;
@@ -90,7 +90,7 @@ void DummyFile::createGraph (std::vector<std::list<UWORD16> >& adjlist, BitStrin
 		}
 	}
 
-	(*f) = (CvrStgFile*) new DummyFile (2 * numvertices, svam) ;
+	(*f) = new DummyFile (2 * numvertices, std::move (svam)) ;
 	(*bs) = new BitString ((unsigned long) numvertices) ; // zeros only
 	(*s) = new Selector (2 * numvertices) ; // identity permutation
 }

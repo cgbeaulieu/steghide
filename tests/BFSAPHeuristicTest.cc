@@ -32,7 +32,7 @@
 #include "DummyFile.h"
 #include "BFSAPHeuristicTest.h"
 
-#define CREATEEDGE(G,V1,V2) (new Edge ((G)->getVertex(V1), 0, (G)->getVertex(V2), 1))
+#define CREATEEDGE(G,V1,V2) (Edge ((G)->getVertex(V1), 0, (G)->getVertex(V2), 1))
 
 BFSAPHeuristicTest::BFSAPHeuristicTest (TestSuite* s)
 	: UnitTest ("BFSAPHeuristic", s)
@@ -121,8 +121,8 @@ void BFSAPHeuristicTest::testAlgorithm ()
 
 	{
 		Globs = gl2 ;
-		Edge* e01 = CREATEEDGE (g2, 0, 1) ;
-		Edge* e23 = CREATEEDGE (g2, 2, 3) ;
+		Edge e01 = CREATEEDGE (g2, 0, 1) ;
+		Edge e23 = CREATEEDGE (g2, 2, 3) ;
 		aph2->run() ;
 		addTestResult ( m2->getCardinality() == 2 &&
 						m2->includesEdge(e01) &&
@@ -131,8 +131,8 @@ void BFSAPHeuristicTest::testAlgorithm ()
 
 	{
 		Globs = gl3 ;
-		Edge* e01 = CREATEEDGE (g3, 0, 1) ;
-		Edge* e23 = CREATEEDGE (g3, 2, 3) ;
+		Edge e01 = CREATEEDGE (g3, 0, 1) ;
+		Edge e23 = CREATEEDGE (g3, 2, 3) ;
 		aph3->run() ;
 		addTestResult ( m3->getCardinality() == 2 &&
 						m3->includesEdge(e01) &&
@@ -141,7 +141,7 @@ void BFSAPHeuristicTest::testAlgorithm ()
 
 	{
 		Globs = gl4 ;
-		Edge* e12 = CREATEEDGE (g4, 1, 2) ;
+		Edge e12 = CREATEEDGE (g4, 1, 2) ;
 		aph4->run() ;
 		addTestResult ( m4->getCardinality() == 1 &&
 						m4->includesEdge(e12)) ;

@@ -32,7 +32,7 @@
 #include "DummyFile.h"
 #include "DFSAPHeuristicTest.h"
 
-#define CREATEEDGE(G,V1,V2) (new Edge ((G)->getVertex(V1), 0, (G)->getVertex(V2), 1))
+#define CREATEEDGE(G,V1,V2) (Edge ((G)->getVertex(V1), 0, (G)->getVertex(V2), 1))
 
 DFSAPHeuristicTest::DFSAPHeuristicTest (TestSuite* s)
 	: UnitTest ("DFSAPHeuristic", s)
@@ -162,8 +162,8 @@ void DFSAPHeuristicTest::testAlgorithm ()
 
 	{
 		Globs = gl2 ;
-		Edge* e01 = CREATEEDGE (g2, 0, 1) ;
-		Edge* e23 = CREATEEDGE (g2, 2, 3) ;
+		Edge e01 = CREATEEDGE (g2, 0, 1) ;
+		Edge e23 = CREATEEDGE (g2, 2, 3) ;
 		aph2->run() ;
 		addTestResult ( m2->getCardinality() == 2 &&
 						m2->includesEdge(e01) &&
@@ -172,10 +172,10 @@ void DFSAPHeuristicTest::testAlgorithm ()
 
 	{
 		Globs = gl3 ;
-		Edge* e01 = CREATEEDGE (g3, 0, 1) ;
-		Edge* e26 = CREATEEDGE (g3, 2, 6) ;
-		Edge* e34 = CREATEEDGE (g3, 3, 4) ;
-		Edge* e57 = CREATEEDGE (g3, 5, 7) ;
+		Edge e01 = CREATEEDGE (g3, 0, 1) ;
+		Edge e26 = CREATEEDGE (g3, 2, 6) ;
+		Edge e34 = CREATEEDGE (g3, 3, 4) ;
+		Edge e57 = CREATEEDGE (g3, 5, 7) ;
 		aph3->run() ;
 		addTestResult ( m3->getCardinality() == 4 &&
 						m3->includesEdge(e01) &&
@@ -194,12 +194,12 @@ void DFSAPHeuristicTest::testAlgorithm ()
 
 	{
 		Globs = gl5 ;
-		Edge* e2_12 = CREATEEDGE (g5, 2, 12) ;
-		Edge* e3_13 = CREATEEDGE (g5, 3, 13) ;
-		Edge* e4_6 = CREATEEDGE (g5, 4, 6) ;
-		Edge* e5_7 = CREATEEDGE (g5, 5, 7) ;
-		Edge* e8_10 = CREATEEDGE (g5, 8, 10) ;
-		Edge* e9_11 = CREATEEDGE (g5, 9, 11) ;
+		Edge e2_12 = CREATEEDGE (g5, 2, 12) ;
+		Edge e3_13 = CREATEEDGE (g5, 3, 13) ;
+		Edge e4_6 = CREATEEDGE (g5, 4, 6) ;
+		Edge e5_7 = CREATEEDGE (g5, 5, 7) ;
+		Edge e8_10 = CREATEEDGE (g5, 8, 10) ;
+		Edge e9_11 = CREATEEDGE (g5, 9, 11) ;
 		aph5->run() ;
 		addTestResult ( m5->getCardinality() == 6 &&
 						m5->includesEdge(e2_12) &&

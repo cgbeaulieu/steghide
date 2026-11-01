@@ -27,8 +27,8 @@
 #include "utcommon.h"
 
 #define CREATEEDGE(G,V1,V2) ((V1 < V2) ? \
-		(new Edge ((G)->getVertex(V1), 0, (G)->getVertex(V2), 1)) : \
-		(new Edge ((G)->getVertex(V2), 0, (G)->getVertex(V1), 1)))
+		(Edge ((G)->getVertex(V1), 0, (G)->getVertex(V2), 1)) : \
+		(Edge ((G)->getVertex(V2), 0, (G)->getVertex(V1), 1)))
 
 EdgeIteratorTest::EdgeIteratorTest (TestSuite* s)
 	: UnitTest ("EdgeIterator", s)
@@ -82,6 +82,12 @@ void EdgeIteratorTest::setup ()
 
 void EdgeIteratorTest::cleanup ()
 {
+	UnitTest::cleanup() ;
+
+	delete g1 ; delete s1 ; delete bs1 ; delete f1 ;
+	delete g10 ; delete s10 ; delete bs10 ; delete f10 ;
+	delete g11 ; delete s11 ; delete bs11 ; delete f11 ;
+	delete g12 ; delete s12 ; delete bs12 ; delete f12 ;
 }
 
 void EdgeIteratorTest::testReferenceIteration ()
@@ -89,7 +95,7 @@ void EdgeIteratorTest::testReferenceIteration ()
 	{
 		Globs = gl1 ;
 
-		std::vector<Edge*> edges ;
+		std::vector<Edge> edges ;
 		edges.push_back (CREATEEDGE (g1, 0, 1)) ;
 		edges.push_back (CREATEEDGE (g1, 0, 4)) ;
 		addTestResult (genericTestVertexIteration (g1->getVertex(0), EdgeIterator::SAMPLEOCCURENCE, edges)) ;
@@ -161,24 +167,23 @@ bool EdgeIteratorTest::genericTestGraphIteration (Graph* g, EdgeIterator::ITERAT
 }
 #endif
 
-bool EdgeIteratorTest::genericTestVertexIteration (Vertex* srcvertex, EdgeIterator::ITERATIONMODE m, const std::vector<Edge*>& edges)
+bool EdgeIteratorTest::genericTestVertexIteration (Vertex* srcvertex, EdgeIterator::ITERATIONMODE m, const std::vector<Edge>& edges)
 {
 	EdgeIterator edgeit (srcvertex, m) ;
-	std::vector<Edge*>::const_iterator refit = edges.begin() ;
+	std::vector<Edge>::const_iterator refit = edges.begin() ;
 
 	bool ok = true ;
 	while (!edgeit.isFinished() && refit != edges.end()) {
-		if (**refit != **edgeit) {
+		if (*refit != **edgeit) {
 			if (ArgVerbose) {
 				if (ok) {
 					std::cerr << std::endl << "---- FAILED: genericTestVertexIteration ----" << std::endl ;
 				}
 				std::cerr << "expected edge:" << std::endl ;
-				(*refit)->print(1) ;
+				refit->print(1) ;
 				std::cerr << "found edge:" << std::endl ;
-				Edge* e = new Edge(**edgeit) ;
-				e->print(1) ;
-				delete e ;
+				Edge e (**edgeit) ;
+				e.print(1) ;
 			}
 			ok = false ;
 		}
@@ -199,7 +204,7 @@ bool EdgeIteratorTest::genericTestVertexIteration (Vertex* srcvertex, EdgeIterat
 
 		std::cerr << "rest of reference iteration:" << std::endl ;
 		for ( ; refit != edges.end() ; refit++) {
-			(*refit)->print(1) ;
+			refit->print(1) ;
 		}
 		if (ok) {
 			std::cerr << "-------------------------------------" << std::endl ;

@@ -21,6 +21,7 @@
 #ifndef SH_DUMMYFILE_H
 #define SH_DUMMYFILE_H
 
+#include <memory>
 #include <vector>
 #include <list>
 
@@ -40,7 +41,7 @@ class DummyFile : public CvrStgFile {
 	 * \param s the size of the DummyFile (i.e. the number of samples it should contain)
 	 * \param svam the SampleValueAdjacencyMatrix for the Samples in this file
 	 **/
-	DummyFile (UWORD16 s, std::vector<std::vector<bool> >* svam) ;
+	DummyFile (UWORD16 s, std::unique_ptr<std::vector<std::vector<bool> > > svam) ;
 
 	std::list<CvrStgFile::Property> getProperties (void) const ;
 
@@ -51,7 +52,7 @@ class DummyFile : public CvrStgFile {
 	std::unique_ptr<SampleValue> getSampleValue (const SamplePos pos) const ;
 
 	std::vector<std::vector<bool> >* getSampleValueAdjacencyMatrix() const
-		{ return SampleValueAdjacencyMatrix ; } ;
+		{ return SampleValueAdjacencyMatrix.get() ; } ;
 
 	/**
 	 * create a BitString, a DummyFile and a Selector that together will produce a graph like described by the adjacency list
@@ -77,7 +78,7 @@ class DummyFile : public CvrStgFile {
 	static const EmbValue EmbValueModulus = 2 ;
 
 	std::vector<UWORD16> Samples ;
-	std::vector<std::vector<bool> >* SampleValueAdjacencyMatrix ;
+	std::unique_ptr<std::vector<std::vector<bool> > > SampleValueAdjacencyMatrix ;
 } ;
 
 #endif // ndef SH_DUMMYFILE_H

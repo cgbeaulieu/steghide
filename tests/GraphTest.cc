@@ -161,22 +161,22 @@ void GraphTest::cleanup ()
 {
 	UnitTest::cleanup() ;
 
-	delete f1 ; delete bs1 ; delete s1 ; delete g1 ;
-	delete f2 ; delete bs2 ; delete s2 ; delete g2 ;
-	delete f3 ; delete bs3 ; delete s3 ; delete g3 ;
-	delete f4 ; delete bs4 ; delete s4 ; delete g4 ;
-	delete f5 ; delete bs5 ; delete s5 ; delete g5 ;
-	delete f6 ; delete bs6 ; delete s6 ; delete g6 ;
-	delete f7 ; delete bs7 ; delete s7 ; delete g7 ;
-	delete f8 ; delete bs8 ; delete s8 ; delete g8 ;
-	delete f9 ; delete bs9 ; delete s9 ; delete g9 ;
-	delete f10 ; delete bs10 ; delete s10 ; delete g10 ;
-	delete f11 ; delete bs11 ; delete s11 ; delete g11 ;
-	delete f12 ; delete bs12 ; delete s12 ; delete g12 ;
-	delete f13 ; delete bs13 ; delete s13 ; delete g13 ;
-	delete f14 ; delete bs14 ; delete s14 ; delete g14 ;
-	delete f15 ; delete bs15 ; delete s15 ; delete g15 ;
-	// *_f are not delted because inconsistencies might crash the destructors
+	delete g1 ; delete s1 ; delete bs1 ; delete f1 ;
+	delete g2 ; delete s2 ; delete bs2 ; delete f2 ;
+	delete g3 ; delete s3 ; delete bs3 ; delete f3 ;
+	delete g4 ; delete s4 ; delete bs4 ; delete f4 ;
+	delete g5 ; delete s5 ; delete bs5 ; delete f5 ;
+	delete g6 ; delete s6 ; delete bs6 ; delete f6 ;
+	delete g7 ; delete s7 ; delete bs7 ; delete f7 ;
+	delete g8 ; delete s8 ; delete bs8 ; delete f8 ;
+	delete g9 ; delete s9 ; delete bs9 ; delete f9 ;
+	delete g10 ; delete s10 ; delete bs10 ; delete f10 ;
+	delete g11 ; delete s11 ; delete bs11 ; delete f11 ;
+	delete g12 ; delete s12 ; delete bs12 ; delete f12 ;
+	delete g13 ; delete s13 ; delete bs13 ; delete f13 ;
+	delete g14 ; delete s14 ; delete bs14 ; delete f14 ;
+	delete g15 ; delete s15 ; delete bs15 ; delete f15 ;
+	delete g_f ; delete s_f ; delete bs_f ; delete f_f ;
 }
 
 void GraphTest::testVertices()
