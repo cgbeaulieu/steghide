@@ -21,7 +21,7 @@
 #ifndef SH_MHASHPP_H
 #define SH_MHASHPP_H
 
-#include <mhash.h>
+#include "wrapper_mhash.h"
 
 #include "common.h"
 

@@ -21,7 +21,7 @@
 #include <cstdlib>
 #include <string>
 
-#include <mhash.h>
+#include "wrapper_mhash.h"
 
 #include "BitString.h"
 #include "common.h"

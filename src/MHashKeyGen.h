@@ -23,7 +23,7 @@
 
 #include <vector>
 
-#include <mhash.h>
+#include "wrapper_mhash.h"
 
 class MHashKeyGen {
 	public:
