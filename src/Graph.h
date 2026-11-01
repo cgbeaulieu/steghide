@@ -74,7 +74,7 @@ class Graph {
 	 * \return the vertex with label l
 	 **/
 	Vertex* getVertex (VertexLabel l) const
-		{ return Vertices[l] ; } ;
+		{ return Vertices[l].get() ; } ;
 
 	void unmarkDeletedAllVertices (void) ;
 
@@ -138,13 +138,13 @@ class Graph {
 	friend class Vertex ;
 
 	/// contains the vertices in this graph - Vertices[l] is the vertex with label l
-	std::vector<Vertex*> Vertices ;
+	std::vector<std::unique_ptr<Vertex> > Vertices ;
 
 	/// contains the list of (unique) sample values - SampleValues[l] is the sample value with label l
 	std::vector<std::unique_ptr<SampleValue> > SampleValues ;
 
 	/// contains the sample value adjacency lists (SVALists[v] contains only sample values with embedded value v)
-	std::vector<SampleValueAdjacencyList*> SVALists ;
+	std::vector<std::unique_ptr<SampleValueAdjacencyList> > SVALists ;
 
 	/// SampleOccurences[l] contains all occurences of the sample value with label l
 	std::vector<std::list<SampleOccurence> > SampleOccurences ;

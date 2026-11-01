@@ -25,6 +25,7 @@
 
 #ifdef USE_LIBJPEG
 
+#include <memory>
 #include <vector>
 
 extern "C" {
@@ -51,7 +52,7 @@ class JpegFile : public CvrStgFile {
 	void write (void) ;
 
 	std::list<CvrStgFile::Property> getProperties (void) const ;
-	std::vector<MatchingAlgorithm*> getMatchingAlgorithms (Graph* g, Matching* m) const ;
+	std::vector<std::unique_ptr<MatchingAlgorithm> > getMatchingAlgorithms (Graph* g, Matching* m) const ;
 	
 	unsigned long getNumSamples (void) const ;
 	void replaceSample (const SamplePos pos, const SampleValue* s) ;

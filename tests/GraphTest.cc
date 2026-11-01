@@ -199,10 +199,9 @@ void GraphTest::testVertices()
 
 	// violate label consistency
 	Globs = gl_f ;
-	Vertex* tmp = g_f->Vertices[10] ;
-	g_f->Vertices[10] = g_f->Vertices[11] ;
-	g_f->Vertices[11] = tmp ;
+	std::swap (g_f->Vertices[10], g_f->Vertices[11]) ;
 	addTestResult (!g_f->check_Vertices()) ;
+	std::swap (g_f->Vertices[10], g_f->Vertices[11]) ;
 }
 
 void GraphTest::testSampleValues()

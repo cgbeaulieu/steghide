@@ -84,11 +84,11 @@ std::list<CvrStgFile::Property> WavFile::getProperties () const
 	return retval ;
 }
 
-std::vector<MatchingAlgorithm*> WavFile::getMatchingAlgorithms (Graph* g, Matching* m) const
+std::vector<std::unique_ptr<MatchingAlgorithm> > WavFile::getMatchingAlgorithms (Graph* g, Matching* m) const
 {
-	std::vector<MatchingAlgorithm*> retval ;
-	retval.push_back (new SMDConstructionHeuristic (g, m)) ;
-	retval.push_back (new DFSAPHeuristic (g, m)) ;
+	std::vector<std::unique_ptr<MatchingAlgorithm> > retval ;
+	retval.push_back (std::make_unique<SMDConstructionHeuristic> (g, m)) ;
+	retval.push_back (std::make_unique<DFSAPHeuristic> (g, m)) ;
 	return retval ;
 }
 
@@ -128,12 +128,12 @@ std::unique_ptr<SampleValue> WavFile::getSampleValue (SamplePos pos) const
 	return std::make_unique<WavPCMSampleValue> (value) ;
 }
 
-std::vector<SampleValueAdjacencyList*> WavFile::calcSVAdjacencyLists (const std::vector<SampleValue*>& svs) const
+std::vector<std::unique_ptr<SampleValueAdjacencyList> > WavFile::calcSVAdjacencyLists (const std::vector<SampleValue*>& svs) const
 {
 	EmbValue m = getEmbValueModulus() ;
-	std::vector<SampleValueAdjacencyList*> lists (svs.size()) ;
+	std::vector<std::unique_ptr<SampleValueAdjacencyList> > lists (svs.size()) ;
 	for (EmbValue i = 0 ; i < m ; i++) {
-		lists[i] = new SampleValueAdjacencyList (svs.size()) ;
+		lists[i] = std::make_unique<SampleValueAdjacencyList> (svs.size()) ;
 	}
 
 	std::vector<WavPCMSampleValue*> svs_sorted (svs.size()) ;

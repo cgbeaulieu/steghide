@@ -201,10 +201,10 @@ EmbValue JpegFile::getEmbeddedValue (const SamplePos pos) const
 	return JpegSampleValue::calcEValue (LinDctCoeffs[StegoIndices[pos]]) ;
 }
 
-std::vector<MatchingAlgorithm*> JpegFile::getMatchingAlgorithms (Graph* g, Matching* m) const
+std::vector<std::unique_ptr<MatchingAlgorithm> > JpegFile::getMatchingAlgorithms (Graph* g, Matching* m) const
 {
-	std::vector<MatchingAlgorithm*> retval ;
-	retval.push_back (new SMDConstructionHeuristic (g, m)) ;
+	std::vector<std::unique_ptr<MatchingAlgorithm> > retval ;
+	retval.push_back (std::make_unique<SMDConstructionHeuristic> (g, m)) ;
 	return retval ;
 }
 

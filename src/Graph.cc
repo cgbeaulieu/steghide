@@ -105,9 +105,9 @@ void Graph::constructSamples (const std::vector<std::unique_ptr<SamplePos[]> >& 
 void Graph::constructVertices (std::vector<std::unique_ptr<SamplePos[]> >& sposs, std::vector<std::unique_ptr<SampleValue*[]> >& svalues, const std::vector<EmbValue>& tvalues)
 {
 	const VertexLabel numvertices = sposs.size() ;
-	Vertices = std::vector<Vertex*> (numvertices) ;
+	Vertices = std::vector<std::unique_ptr<Vertex> > (numvertices) ;
 	for (VertexLabel i = 0 ; i < numvertices ; i++) {
-		Vertices[i] = new Vertex (i, std::move (sposs[i]), std::move (svalues[i]), tvalues[i]) ;
+		Vertices[i] = std::make_unique<Vertex> (i, std::move (sposs[i]), std::move (svalues[i]), tvalues[i]) ;
 	}
 }
 
@@ -136,9 +136,9 @@ void Graph::constructEdges ()
 	}
 
 	// fill SampleOccurences
-	for (std::vector<Vertex*>::iterator vit = Vertices.begin() ; vit != Vertices.end() ; vit++) {
+	for (std::vector<std::unique_ptr<Vertex> >::iterator vit = Vertices.begin() ; vit != Vertices.end() ; vit++) {
 		for (unsigned short j = 0 ; j < Globs.TheCvrStgFile->getSamplesPerVertex() ; j++) {
-			SampleOccurence occ (*vit, j) ;
+			SampleOccurence occ (vit->get(), j) ;
 			SampleValueLabel lbl = (*vit)->getSampleValue(j)->getLabel() ;
 			std::list<SampleOccurence>::iterator occit = SampleOccurences[lbl].insert (SampleOccurences[lbl].end(), occ) ;
 			NumSampleOccurences[lbl][(*vit)->getTargetValue(j)]++ ;
@@ -161,18 +161,11 @@ void Graph::constructEdges ()
 
 Graph::~Graph()
 {
-	for (std::vector<Vertex*>::iterator i = Vertices.begin() ; i != Vertices.end() ; i++) {
-		delete *i ;
-	}
-
-	for (EmbValue t = 0 ; t < EmbValueModulus ; t++) {
-		delete SVALists[t] ;
-	}
 }
 
 void Graph::unmarkDeletedAllVertices ()
 {
-	for (std::vector<Vertex*>::iterator it = Vertices.begin() ; it != Vertices.end() ; it++) {
+	for (std::vector<std::unique_ptr<Vertex> >::iterator it = Vertices.begin() ; it != Vertices.end() ; it++) {
 		(*it)->unmarkDeleted() ;
 	}
 }
@@ -202,7 +195,7 @@ std::list<SampleOccurence>::iterator Graph::unmarkDeletedSampleOccurence (std::l
 float Graph::getAvgVertexDegree () const
 {
 	unsigned long sumdeg = 0 ;
-	for (std::vector<Vertex*>::const_iterator vit = Vertices.begin() ; vit != Vertices.end() ; vit++) {
+	for (std::vector<std::unique_ptr<Vertex> >::const_iterator vit = Vertices.begin() ; vit != Vertices.end() ; vit++) {
 		sumdeg += (*vit)->getDegree() ;
 	}
 	return ((float) sumdeg / (float) Vertices.size()) ;
@@ -214,7 +207,7 @@ void Graph::printVerboseInfo()
 		unsigned long sumdeg = 0 ;
 		unsigned long mindeg = ULONG_MAX ;
 		unsigned long maxdeg = 0 ;
-		for (std::vector<Vertex*>::iterator i = Vertices.begin() ; i != Vertices.end() ; i++) {
+		for (std::vector<std::unique_ptr<Vertex> >::iterator i = Vertices.begin() ; i != Vertices.end() ; i++) {
 			unsigned long deg = (*i)->getDegree() ;
 
 			sumdeg += deg ;
@@ -353,7 +346,7 @@ bool Graph::check_SampleOccurences_completeness (bool verbose) const
 
 	for (unsigned long vlbl = 0 ; vlbl < Vertices.size() ; vlbl++) {
 		for (unsigned short j = 0 ; j < File->getSamplesPerVertex() ; j++) {
-			SampleOccurence soc (Vertices[vlbl], j) ;
+			SampleOccurence soc (Vertices[vlbl].get(), j) ;
 			SampleValueLabel svlbl = Vertices[vlbl]->getSampleValue(j)->getLabel() ;
 			completeness = (std::find(SampleOccurences[svlbl].begin(), SampleOccurences[svlbl].end(), soc) != SampleOccurences[svlbl].end()) && completeness ;
 		}
@@ -522,7 +515,7 @@ bool Graph::check_SVALists_completeness (bool verbose) const
 void Graph::print (void) const
 {
 	unsigned long sumdeg = 0 ;
-	for (std::vector<Vertex*>::const_iterator i = Vertices.begin() ; i != Vertices.end() ; i++) {
+	for (std::vector<std::unique_ptr<Vertex> >::const_iterator i = Vertices.begin() ; i != Vertices.end() ; i++) {
 		sumdeg += (*i)->getDegree() ;
 	}
 	myassert (sumdeg % 2 == 0) ;
@@ -560,7 +553,7 @@ void Graph::print_gml (std::ostream& out) const
 	std::vector<bool> nodeprinted (Vertices.size()) ;
 	std::vector<bool> edgesprinted (Vertices.size()) ;
 	for (unsigned int i = 0 ; i < Vertices.size() ; i++) {
-		printVertex_gml (out, Vertices[i], 1, nodeprinted, edgesprinted, false) ;
+		printVertex_gml (out, Vertices[i].get(), 1, nodeprinted, edgesprinted, false) ;
 	}
 	printEpilogue_gml(out) ;
 }
@@ -645,7 +638,7 @@ void Graph::print_Vertices (unsigned short spc) const
 	std::string space (spc, ' ') ;
 
 	std::cerr << space << "Vertices:" << std::endl ;
-	for (std::vector<Vertex*>::const_iterator vit = Vertices.begin() ; vit != Vertices.end() ; vit++) {
+	for (std::vector<std::unique_ptr<Vertex> >::const_iterator vit = Vertices.begin() ; vit != Vertices.end() ; vit++) {
 		(*vit)->print(spc + 1) ;
 	}
 }

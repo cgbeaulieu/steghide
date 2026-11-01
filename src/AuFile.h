@@ -21,6 +21,7 @@
 #ifndef SH_AUFILE_H
 #define SH_AUFILE_H
 
+#include <memory>
 #include <vector>
 
 #include "AudioData.h"
@@ -41,7 +42,7 @@ class AuFile : public CvrStgFile {
 	void write (void) ;
 
 	std::list<CvrStgFile::Property> getProperties (void) const ;
-	std::vector<MatchingAlgorithm*> getMatchingAlgorithms (Graph* g, Matching* m) const ;
+	std::vector<std::unique_ptr<MatchingAlgorithm> > getMatchingAlgorithms (Graph* g, Matching* m) const ;
 
 	unsigned long getNumSamples (void) const
 		{ return Data->getNumSamples() ; } ;

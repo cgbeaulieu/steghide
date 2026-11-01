@@ -157,8 +157,8 @@ bool CvrStgFileTest::genericTestSVALCalculation (const CvrStgFile* f, const Grap
 	for (const std::unique_ptr<SampleValue>& sv : g->SampleValues) {
 		svs.push_back (sv.get()) ;
 	}
-	std::vector<SampleValueAdjacencyList*> svals_generic = f->CvrStgFile::calcSVAdjacencyLists (svs) ;
-	std::vector<SampleValueAdjacencyList*> svals_specialized = f->calcSVAdjacencyLists (svs) ;
+	std::vector<std::unique_ptr<SampleValueAdjacencyList> > svals_generic = f->CvrStgFile::calcSVAdjacencyLists (svs) ;
+	std::vector<std::unique_ptr<SampleValueAdjacencyList> > svals_specialized = f->calcSVAdjacencyLists (svs) ;
 	bool ok = true ;
 	for (EmbValue i = 0 ; i < f->getEmbValueModulus() ; i++) {
 		ok = (*(svals_generic[i]) == *(svals_specialized[i])) && ok ;

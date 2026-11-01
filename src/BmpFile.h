@@ -21,6 +21,7 @@
 #ifndef SH_BMPFILE_H
 #define SH_BMPFILE_H
 
+#include <memory>
 #include <vector>
 
 #include "CvrStgFile.h"
@@ -38,13 +39,13 @@ class BmpFile : public CvrStgFile {
 	void write (void) ;
 
 	std::list<CvrStgFile::Property> getProperties (void) const ;
-	std::vector<MatchingAlgorithm*> getMatchingAlgorithms (Graph* g, Matching* m) const ;
+	std::vector<std::unique_ptr<MatchingAlgorithm> > getMatchingAlgorithms (Graph* g, Matching* m) const ;
 
 	unsigned long getNumSamples (void) const ;
 	void replaceSample (const SamplePos pos, const SampleValue* s) ;
 	std::unique_ptr<SampleValue> getSampleValue (SamplePos pos) const ;
 
-	std::vector<SampleValueAdjacencyList*> calcSVAdjacencyLists (const std::vector<SampleValue*>& svs) const ;
+	std::vector<std::unique_ptr<SampleValueAdjacencyList> > calcSVAdjacencyLists (const std::vector<SampleValue*>& svs) const ;
 
 	unsigned short getBitCount (void) const ;
 	unsigned long getWidth (void) const ;

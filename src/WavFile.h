@@ -21,6 +21,7 @@
 #ifndef SH_WAVFILE_H
 #define SH_WAVFILE_H
 
+#include <memory>
 #include <vector>
 
 #include "CvrStgFile.h"
@@ -45,8 +46,8 @@ class WavFile : public CvrStgFile {
 	void replaceSample (const SamplePos pos, const SampleValue* s) ;
 	std::unique_ptr<SampleValue> getSampleValue (SamplePos pos) const ;
 
-	std::vector<SampleValueAdjacencyList*> calcSVAdjacencyLists (const std::vector<SampleValue*>& svs) const ;
-	std::vector<MatchingAlgorithm*> getMatchingAlgorithms (Graph* g, Matching* m) const ;
+	std::vector<std::unique_ptr<SampleValueAdjacencyList> > calcSVAdjacencyLists (const std::vector<SampleValue*>& svs) const ;
+	std::vector<std::unique_ptr<MatchingAlgorithm> > getMatchingAlgorithms (Graph* g, Matching* m) const ;
 
 	unsigned short getBitsPerSample (void) const ;
 

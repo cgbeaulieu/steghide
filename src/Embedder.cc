@@ -20,6 +20,7 @@
 
 #include <cfloat>
 #include <cstdlib>
+#include <memory>
 
 #include "DFSAPHeuristic.h"
 #include "BitString.h"
@@ -104,7 +105,7 @@ Embedder::Embedder ()
 	VerboseMessage v (_("creating the graph...")) ;
 	v.setNewline (false) ;
 	v.printMessage() ;
-	new Graph (Globs.TheCvrStgFile, ToEmbed, sel) ;
+	TheGraph = std::make_unique<Graph> (Globs.TheCvrStgFile, ToEmbed, sel) ;
 	Globs.TheGraph->printVerboseInfo() ;
 	if (Args.Check.getValue()) {
 		if (!Globs.TheGraph->check()) {
@@ -135,13 +136,13 @@ Embedder::Embedder ()
 
 Embedder::~Embedder ()
 {
-	delete Globs.TheGraph ;
+	TheGraph.reset() ;	// before the cover file it was built from
 	delete Globs.TheCvrStgFile ;
 }
 	
 void Embedder::embed ()
 {
-	ProgressOutput* prout = NULL ;
+	std::unique_ptr<ProgressOutput> prout ;
 	if (Args.Verbosity.getValue() == NORMAL) {
 		std::string embstring, cvrstring ;
 		if (Args.EmbFn.getValue() == "") {
@@ -159,13 +160,14 @@ void Embedder::embed ()
 		char buf[1024] ;
 		snprintf (buf, sizeof(buf), _("embedding %s in %s..."), embstring.c_str(), cvrstring.c_str()) ;
 
-		prout = new ProgressOutput (std::string(buf)) ;
+		prout = std::make_unique<ProgressOutput> (std::string(buf)) ;
 	}
 	else if (Args.Verbosity.getValue() == VERBOSE) {
-		prout = new ProgressOutput () ;
+		prout = std::make_unique<ProgressOutput> () ;
 	}
 
-	const Matching* M = calculateMatching (prout) ;
+	// M keeps a pointer to prout, so it has to go first (it is declared later)
+	std::unique_ptr<Matching> M = calculateMatching (prout.get()) ;
 
 	// embed matched edges
 	const std::list<Edge>& medges = M->getEdges() ;
@@ -179,7 +181,7 @@ void Embedder::embed ()
 		embedExposedVertex (*it) ;
 	}
 
-	delete M ;
+	M.reset() ;
 
 	// write stego file
 	Globs.TheCvrStgFile->transform (Args.StgFn.getValue()) ;
@@ -206,20 +208,20 @@ void Embedder::embed ()
 	}
 }
 
-const Matching* Embedder::calculateMatching (ProgressOutput* prout)
+std::unique_ptr<Matching> Embedder::calculateMatching (ProgressOutput* prout)
 {
-	Matching* matching = new Matching (Globs.TheGraph, prout) ;
+	std::unique_ptr<Matching> matching = std::make_unique<Matching> (Globs.TheGraph, prout) ;
 
-	std::vector<MatchingAlgorithm*> MatchingAlgos = Globs.TheCvrStgFile->getMatchingAlgorithms (Globs.TheGraph, matching) ;
+	std::vector<std::unique_ptr<MatchingAlgorithm> > MatchingAlgos = Globs.TheCvrStgFile->getMatchingAlgorithms (Globs.TheGraph, matching.get()) ;
 
-	for (std::vector<MatchingAlgorithm*>::const_iterator ait = MatchingAlgos.begin() ; ait != MatchingAlgos.end() ; ait++) {
+	for (std::unique_ptr<MatchingAlgorithm>& algo : MatchingAlgos) {
 		if (Args.Verbosity.getValue() == VERBOSE) {
-			prout->setMessage (_("executing %s..."), (*ait)->getName()) ;
+			prout->setMessage (_("executing %s..."), algo->getName()) ;
 		}
 
-		(*ait)->setGoal (Args.Goal.getValue()) ;
-		(*ait)->run() ;
-		delete *ait ;
+		algo->setGoal (Args.Goal.getValue()) ;
+		algo->run() ;
+		algo.reset() ;	// free its data structures before the next one runs
 
 		if (Args.Verbosity.getValue() == VERBOSE) {
 			prout->done (matching->getMatchedRate(), matching->getAvgEdgeWeight()) ;
@@ -237,10 +239,6 @@ const Matching* Embedder::calculateMatching (ProgressOutput* prout)
 
 	if (Args.Verbosity.getValue() == NORMAL) {
 		prout->done() ;
-	}
-
-	if (prout) {
-		delete prout ;
 	}
 
 	return matching ;

@@ -76,16 +76,16 @@ void CvrStgFile::transform (const std::string& stgfn)
 	BinIO = new BinaryIO (stgfn, BinaryIO::WRITE) ;
 }
 
-std::vector<SampleValueAdjacencyList*> CvrStgFile::calcSVAdjacencyLists (const std::vector<SampleValue*>& svs) const
+std::vector<std::unique_ptr<SampleValueAdjacencyList> > CvrStgFile::calcSVAdjacencyLists (const std::vector<SampleValue*>& svs) const
 {
 	EmbValue m = getEmbValueModulus() ;
-	std::vector<SampleValueAdjacencyList*> lists (m) ;
+	std::vector<std::unique_ptr<SampleValueAdjacencyList> > lists (m) ;
 	for (EmbValue i = 0 ; i < m ; i++) {
-		lists[i] = new SampleValueAdjacencyList (svs.size()) ;
+		lists[i] = std::make_unique<SampleValueAdjacencyList> (svs.size()) ;
 	}
 
 	for (SampleValueLabel i = 0 ; i < svs.size() ; i++) { // to be integrated into lists
-		SampleValueAdjacencyList* sval = lists[svs[i]->getEmbeddedValue()] ;
+		SampleValueAdjacencyList* sval = lists[svs[i]->getEmbeddedValue()].get() ;
 		for (SampleValueLabel j = 0 ; j < svs.size() ; j++) { // line where integration should happen
 			if ((svs[i]->isNeighbour(svs[j])) && (i != j)) {
 				(*sval)[svs[j]].push_back (svs[i]) ;
@@ -100,11 +100,11 @@ std::vector<SampleValueAdjacencyList*> CvrStgFile::calcSVAdjacencyLists (const s
 	return lists ;
 }
 
-std::vector<MatchingAlgorithm*> CvrStgFile::getMatchingAlgorithms (Graph* g, Matching* m) const
+std::vector<std::unique_ptr<MatchingAlgorithm> > CvrStgFile::getMatchingAlgorithms (Graph* g, Matching* m) const
 {
-	std::vector<MatchingAlgorithm*> retval ;
-	retval.push_back (new WKSConstructionHeuristic (g, m)) ;
-	retval.push_back (new DFSAPHeuristic (g, m)) ;
+	std::vector<std::unique_ptr<MatchingAlgorithm> > retval ;
+	retval.push_back (std::make_unique<WKSConstructionHeuristic> (g, m)) ;
+	retval.push_back (std::make_unique<DFSAPHeuristic> (g, m)) ;
 	return retval ;
 }
 

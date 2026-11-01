@@ -89,14 +89,14 @@ std::list<CvrStgFile::Property> BmpFile::getProperties () const
 	return retval ;
 }
 
-std::vector<MatchingAlgorithm*> BmpFile::getMatchingAlgorithms (Graph* g, Matching* m) const
+std::vector<std::unique_ptr<MatchingAlgorithm> > BmpFile::getMatchingAlgorithms (Graph* g, Matching* m) const
 {
-	std::vector<MatchingAlgorithm*> retval ;
+	std::vector<std::unique_ptr<MatchingAlgorithm> > retval ;
 	if (getBitCount() == 24) {
-		retval.push_back (new SMDConstructionHeuristic (g, m)) ;
+		retval.push_back (std::make_unique<SMDConstructionHeuristic> (g, m)) ;
 	}
 	else {
-		retval.push_back (new SMDConstructionHeuristic (g, m)) ;
+		retval.push_back (std::make_unique<SMDConstructionHeuristic> (g, m)) ;
 	}
 	return retval ;
 }
@@ -169,16 +169,16 @@ std::unique_ptr<SampleValue> BmpFile::getSampleValue (SamplePos pos) const
 	return retval ;
 }
 
-std::vector<SampleValueAdjacencyList*> BmpFile::calcSVAdjacencyLists (const std::vector<SampleValue*>& svs) const
+std::vector<std::unique_ptr<SampleValueAdjacencyList> > BmpFile::calcSVAdjacencyLists (const std::vector<SampleValue*>& svs) const
 {
 	if (getBitCount() == 24) {
 		EmbValue m = getEmbValueModulus() ;
 		UWORD32 r = getRadius() ;
 
 		// create svalists
-		std::vector<SampleValueAdjacencyList*> lists (m) ;
+		std::vector<std::unique_ptr<SampleValueAdjacencyList> > lists (m) ;
 		for (EmbValue i = 0 ; i < m ; i++) {
-			lists[i] = new SampleValueAdjacencyList (svs.size()) ;
+			lists[i] = std::make_unique<SampleValueAdjacencyList> (svs.size()) ;
 		}
 
 		// redmap contains all sample values in a 3-dimensional RGB-tree

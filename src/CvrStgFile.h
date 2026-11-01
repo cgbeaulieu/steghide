@@ -83,7 +83,7 @@ class CvrStgFile : public CvrStgObject {
 	 *
 	 * May be overridden in derived class to provide a faster version.
 	 **/
-	virtual std::vector<SampleValueAdjacencyList*> calcSVAdjacencyLists (const std::vector<SampleValue*>& svs) const ;
+	virtual std::vector<std::unique_ptr<SampleValueAdjacencyList> > calcSVAdjacencyLists (const std::vector<SampleValue*>& svs) const ;
 
 	/**
 	 * get recommended list of matching algorithms
@@ -92,7 +92,7 @@ class CvrStgFile : public CvrStgObject {
 	 * The MatchingAlgorithm objects returned by this function should be deleted by the caller
 	 * if they are no longer needed.
 	 **/
-	virtual std::vector<MatchingAlgorithm*> getMatchingAlgorithms (Graph* g, Matching* m) const ;
+	virtual std::vector<std::unique_ptr<MatchingAlgorithm> > getMatchingAlgorithms (Graph* g, Matching* m) const ;
 
 	/**
 	 * get the name of this cvrstgfile

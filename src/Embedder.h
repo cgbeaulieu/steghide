@@ -21,6 +21,8 @@
 #ifndef SH_EMBEDDER_H
 #define SH_EMBEDDER_H
 
+#include <memory>
+
 #include "BitString.h"
 class Edge ;
 class CvrStgFile ;
@@ -42,10 +44,13 @@ class Embedder {
 
 	BitString ToEmbed ;
 
+	/// the graph for ToEmbed and Globs.TheCvrStgFile, which Globs.TheGraph points to
+	std::unique_ptr<Graph> TheGraph ;
+
 	/**
 	 * do the matching algorithms
 	 **/
-	const Matching* calculateMatching (ProgressOutput* prout) ;
+	std::unique_ptr<Matching> calculateMatching (ProgressOutput* prout) ;
 
 	/**
 	 * embed the two bits represented by the two vertices adjacent to e
