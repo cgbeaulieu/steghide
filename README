@@ -1,9 +1,16 @@
 
-# This repository is read-only.
+# steghide (community fork)
 
-**A GitHub org, [StegHigh](https://github.com/orgs/StegHigh/) has been set up to maintain steghide. Please submit all PRs, discussions, and issues [there](https://github.com/StegHigh/steghide).**
+This is a community fork of [StegHigh/steghide](https://github.com/StegHigh/steghide),
+which carries the steghide 0.5.1 code from SourceForge. It is not an official
+steghide release.
 
-**Additionally, [StegHigh/steghide](https://github.com/orgs/StegHigh) is looking for maintainters. Please contribute!**
+It modernizes steghide while staying compatible with steghide 0.5.1: each can
+extract what the other embeds, which tests/compat checks against a real 0.5.1.
+So far it has the Debian and Fedora patches, a CMake build, in-tree replacements
+for the unmaintained libmcrypt and libmhash, fixes for the memory errors and
+leaks that ASan, UBSan and LeakSanitizer found, and no compiler warnings. See
+ROADMAP.md for what is done and what comes next.
 
 Introduction :
 ==============
