@@ -35,9 +35,13 @@
 
 /* #define	NULL	0 */
 
-static void permute_ip(), permute_fp(), perminit_ip(), spinit(),
-perminit_fp();
-static word32 f();
+/* steghide: prototypes instead of K&R declarations, which C23 no longer accepts */
+static void permute_ip(char *, DES_KEY *, char *);
+static void permute_fp(char *, DES_KEY *, char *);
+static void perminit_ip(DES_KEY *);
+static void spinit(DES_KEY *);
+static void perminit_fp(DES_KEY *);
+static word32 f(DES_KEY *, register word32, register char *);
 
 
 /* Tables defined in the Data Encryption Standard documents */
@@ -453,7 +457,8 @@ static word32 f(DES_KEY * key, register word32 r, register char *subkey)
 	subkey += 7;
 
 	/* Compute E(R) for each block of 6 bits, and run thru boxes */
-	er = ((int) r << 1) | ((r & 0x80000000) ? 1 : 0);
+	/* steghide: shifted as word32, not int (signed overflow); every use of er masks it with 0x3f */
+	er = (int) ((r << 1) & 0x3f) | ((r & 0x80000000) ? 1 : 0);
 	spp = &key->sp[7][0];
 	rval = spp[(er ^ *subkey--) & 0x3f];
 	spp -= 64;
@@ -671,3 +676,7 @@ WIN32DLL_DEFINE int main (void)
 }
 # endif
 #endif
+
+/* steghide: this algorithm's descriptor, see mcrypt_algorithm.h */
+#include "mcrypt_algorithm.h"
+MCRYPT_BLOCK_ALGORITHM(des, "des")

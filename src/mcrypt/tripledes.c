@@ -36,8 +36,11 @@
 
 /* #define	NULL	0 */
 
-static void permute(), perminit(), spinit();
-static word32 f();
+/* steghide: prototypes instead of K&R declarations, which C23 no longer accepts */
+static void permute(char *, char[16][16][8], char *);
+static void perminit(char[16][16][8], char[64]);
+static void spinit(TRIPLEDES_KEY *, int);
+static word32 f(TRIPLEDES_KEY *, int, register word32, register char *);
 
 
 /* Tables defined in the Data Encryption Standard documents */
@@ -199,8 +202,8 @@ static int _mcrypt_desinit(TRIPLEDES_KEY * key)
 	spinit(key, 0);
 	spinit(key, 1);
 	spinit(key, 2);
-	perminit(&key->iperm, ip);
-	perminit(&key->fperm, fp);
+	perminit(key->iperm, ip); /* steghide: was &key->iperm, the same address with the wrong type */
+	perminit(key->fperm, fp);
 
 
 	return 0;
@@ -655,7 +658,8 @@ static word32 f(TRIPLEDES_KEY * key, int pos, register word32 r,
 	subkey += 7;
 
 	/* Compute E(R) for each block of 6 bits, and run thru boxes */
-	er = ((int) r << 1) | ((r & 0x80000000) ? 1 : 0);
+	/* steghide: shifted as word32, not int (signed overflow); every use of er masks it with 0x3f */
+	er = (int) ((r << 1) & 0x3f) | ((r & 0x80000000) ? 1 : 0);
 	spp = &key->sp[pos][7][0];
 	rval = spp[(er ^ *subkey--) & 0x3f];
 	spp -= 64;
@@ -857,3 +861,7 @@ WIN32DLL_DEFINE int main (void)
 }
 # endif
 #endif
+
+/* steghide: this algorithm's descriptor, see mcrypt_algorithm.h */
+#include "mcrypt_algorithm.h"
+MCRYPT_BLOCK_ALGORITHM(tripledes, "tripledes")

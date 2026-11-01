@@ -176,7 +176,8 @@ static word32 f(word32 x)
 	    k2[x >> 4 & 15] << 4 | k1[x & 15];
 # else
 	/* This is faster */
-	x = gost_k87[x >> 24 & 255] << 24 | gost_k65[x >> 16 & 255] << 16 |
+	/* steghide: (word32) so that the shift by 24 does not overflow int */
+	x = (word32) gost_k87[x >> 24 & 255] << 24 | gost_k65[x >> 16 & 255] << 16 |
 	    gost_k43[x >> 8 & 255] << 8 | gost_k21[x & 255];
 # endif
 
@@ -421,3 +422,7 @@ WIN32DLL_DEFINE int main (void)
 }
 # endif
 #endif
+
+/* steghide: this algorithm's descriptor, see mcrypt_algorithm.h */
+#include "mcrypt_algorithm.h"
+MCRYPT_BLOCK_ALGORITHM(gost, "gost")

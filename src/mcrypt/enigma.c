@@ -55,15 +55,18 @@ WIN32DLL_DEFINE
 
 	memmove(ckey->cbuf, password, plen);
 
+	/* steghide: seed is computed in word32 and converted back, which is the
+	 * two's complement wrap-around libmcrypt relied on (signed overflow is
+	 * undefined) */
 	seed = 123;
 	for (i = 0; i < 13; i++)
-		seed = seed * ckey->cbuf[i] + i;
+		seed = (sword32) ((word32) seed * (word32) ckey->cbuf[i] + (word32) i);
 	for (i = 0; i < ROTORSZ; i++) {
 		ckey->t1[i] = i;
 		ckey->deck[i] = i;
 	}
 	for (i = 0; i < ROTORSZ; i++) {
-		seed = 5 * seed + ckey->cbuf[i % 13];
+		seed = (sword32) (5 * (word32) seed + (word32) ckey->cbuf[i % 13]);
 		random = seed % 65521;
 		k = ROTORSZ - 1 - i;
 		ic = (random & MASK) % (k + 1);
@@ -89,14 +92,15 @@ WIN32DLL_DEFINE
 }
 
 
-int shuffle(CRYPT_KEY * ckey)
+/* steghide: static, it was exported as "shuffle"; only used if secureflg, which is always 0 */
+static int shuffle(CRYPT_KEY * ckey)
 {
 	int i, ic, k, temp;
 	unsigned random;
 	static sword32 seed = 123;
 
 	for (i = 0; i < ROTORSZ; i++) {
-		seed = 5 * seed + ckey->cbuf[i % 13];
+		seed = (sword32) (5 * (word32) seed + (word32) ckey->cbuf[i % 13]);
 		random = seed % 65521;
 		k = ROTORSZ - 1 - i;
 		ic = (random & MASK) % (k + 1);
@@ -291,3 +295,7 @@ WIN32DLL_DEFINE int main (void)
 }
 # endif
 #endif
+
+/* steghide: this algorithm's descriptor, see mcrypt_algorithm.h */
+#include "mcrypt_algorithm.h"
+MCRYPT_STREAM_ALGORITHM(enigma, "enigma")

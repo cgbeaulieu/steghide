@@ -44,7 +44,8 @@
 #define U8d(x) ( (u8) ((x)&255) )
 
 /* Circular left shift */
-#define ROL(x, n) ( ((x)<<(n)) | ((x)>>(32-(n))) )
+/* steghide: was ( ((x)<<(n)) | ((x)>>(32-(n))) ), undefined for n == 0, see mcrypt_modules.h */
+#define ROL(x, n) rotl32((x), (n))
 
 /* CAST-128 uses three different round functions */
 #define F1(l, r, i) \
@@ -398,3 +399,7 @@ WIN32DLL_DEFINE int main (void)
 }
 # endif
 #endif
+
+/* steghide: this algorithm's descriptor, see mcrypt_algorithm.h */
+#include "mcrypt_algorithm.h"
+MCRYPT_BLOCK_ALGORITHM(cast_128, "cast-128")

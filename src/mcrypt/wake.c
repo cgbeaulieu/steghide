@@ -343,7 +343,7 @@ WIN32DLL_DEFINE int _mcrypt_self_test()
 		printf("failed compatibility\n");
 		printf("Expected: %s\nGot: %s\n", CIPHER,
 		       (char *) cipher_tmp);
-		free(key);
+		/* steghide: key was freed above; libmcrypt freed it twice */
 		free(key2);
 		return -1;
 	}
@@ -375,3 +375,7 @@ WIN32DLL_DEFINE int main (void)
 }
 # endif
 #endif
+
+/* steghide: this algorithm's descriptor, see mcrypt_algorithm.h */
+#include "mcrypt_algorithm.h"
+MCRYPT_STREAM_ALGORITHM(wake, "wake")

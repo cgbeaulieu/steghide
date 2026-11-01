@@ -17,8 +17,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include <lib/libdefs.h>
-#include <lib/mcrypt_modules.h>
+#include <libdefs.h>
+#include <mcrypt_modules.h>
 #include <stdlib.h>
 #include "arcfour.h"
 
@@ -217,3 +217,7 @@ WIN32DLL_DEFINE int main (void)
 }
 # endif
 #endif
+
+/* steghide: this algorithm's descriptor, see mcrypt_algorithm.h */
+#include "mcrypt_algorithm.h"
+MCRYPT_STREAM_ALGORITHM(arcfour, "arcfour")
