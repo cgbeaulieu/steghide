@@ -1,6 +1,7 @@
-"""Generates docs/images/banner-{light,dark}.svg for README.md.
+"""Generates the images README.md uses, in a light and a dark version:
+banner-{light,dark}.svg and how-it-works-{light,dark}.svg.
 
-Usage: python3 docs/images/banner.py docs/images
+Usage: python3 docs/images/make_images.py docs/images
 """
 import math, random, sys
 
@@ -98,6 +99,66 @@ def svg(name):
     a('</svg>')
     return '\n'.join(out) + '\n'
 
+FONT = "ui-sans-serif, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif"
+
+DIAGRAM_THEMES = {
+    'light': dict(bg0='#ffffff', bg1='#f6f8fa', border='#d0d7de', line='#59636e', muted='#59636e',
+                  input='#8250df', step='#0969da', key='#bf8700', output='#1a7f37'),
+    'dark': dict(bg0='#0d1117', bg1='#161b22', border='#30363d', line='#8b949e', muted='#9198a1',
+                 input='#8957e5', step='#1f6feb', key='#9e6a03', output='#238636'),
+}
+
+def diagram(name):
+    t = DIAGRAM_THEMES[name]
+    out = []
+    a = out.append
+    w, h = 1200, 320
+    a(f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="{w}" height="{h}" role="img" aria-labelledby="title desc">')
+    a('<title id="title">How steghide hides a file</title>')
+    a('<desc id="desc">Your file is compressed, encrypted with a key made from the passphrase, and hidden by nudging pixels or samples of the cover file that the passphrase picks. The result is a stego file that looks the same as the cover.</desc>')
+    a('<defs>')
+    a(f'<linearGradient id="panel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{t["bg0"]}"/><stop offset="1" stop-color="{t["bg1"]}"/></linearGradient>')
+    a(f'<marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="{t["line"]}"/></marker>')
+    a('</defs>')
+    a(f'<rect x="1" y="1" width="{w-2}" height="{h-2}" rx="18" fill="url(#panel)" stroke="{t["border"]}" stroke-width="2"/>')
+
+    def box(x, y, bw, bh, fill, label, sub):
+        a(f'<rect x="{x}" y="{y}" width="{bw}" height="{bh}" rx="14" fill="{fill}"/>')
+        a(f'<text x="{x + bw/2:.0f}" y="{y + bh/2 - 4:.0f}" text-anchor="middle" font-family="{FONT}" font-size="23" font-weight="700" fill="#ffffff">{label}</text>')
+        a(f'<text x="{x + bw/2:.0f}" y="{y + bh/2 + 22:.0f}" text-anchor="middle" font-family="{FONT}" font-size="16" fill="#ffffff" fill-opacity="0.85">{sub}</text>')
+
+    def line(points, dashed=False):
+        d = ' '.join(f'{"M" if i == 0 else "L"}{x},{y}' for i, (x, y) in enumerate(points))
+        dash = ' stroke-dasharray="7 6"' if dashed else ''
+        a(f'<path d="{d}" fill="none" stroke="{t["line"]}" stroke-width="2.5"{dash} marker-end="url(#arrow)"/>')
+
+    def note(x, y, text, anchor='middle'):
+        a(f'<text x="{x}" y="{y}" text-anchor="{anchor}" font-family="{FONT}" font-size="15" font-style="italic" fill="{t["muted"]}">{text}</text>')
+
+    top, th = 48, 92
+    row = [(40, 180, 'input', 'your file', 'note.txt'),
+           (275, 180, 'step', 'compress', 'takes less room'),
+           (510, 180, 'step', 'encrypt', 'AES by default'),
+           (745, 200, 'step', 'hide', 'nudge chosen pixels'),
+           (995, 165, 'output', 'stego file', 'looks the same')]
+    for x, bw, kind, label, sub in row:
+        box(x, top, bw, th, t[kind], label, sub)
+    for (x1, w1, *_), (x2, *_ ) in zip(row, row[1:]):
+        line([(x1 + w1 + 6, top + th / 2), (x2 - 8, top + th / 2)])
+
+    bot, bh = 210, 74
+    box(510, bot, 180, bh, t['key'], 'passphrase', 'only you know it')
+    box(840, bot, 200, bh, t['input'], 'cover file', 'photo.jpg')
+    line([(600, bot - 6), (600, top + th + 8)], dashed=True)
+    note(588, 184, 'makes the key', 'end')
+    line([(696, bot + bh / 2), (790, bot + bh / 2), (790, top + th + 8)], dashed=True)
+    note(742, bot + bh / 2 + 24, 'picks pixels')
+    line([(900, bot - 6), (900, top + th + 8)])
+    a('</svg>')
+    return '\n'.join(out) + '\n'
+
 outdir = sys.argv[1]
 for name in THEMES:
     open(f'{outdir}/banner-{name}.svg', 'w').write(svg(name))
+for name in DIAGRAM_THEMES:
+    open(f'{outdir}/how-it-works-{name}.svg', 'w').write(diagram(name))

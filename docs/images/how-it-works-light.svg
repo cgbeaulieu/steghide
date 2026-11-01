@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 320" width="1200" height="320" role="img" aria-labelledby="title desc">
+<title id="title">How steghide hides a file</title>
+<desc id="desc">Your file is compressed, encrypted with a key made from the passphrase, and hidden by nudging pixels or samples of the cover file that the passphrase picks. The result is a stego file that looks the same as the cover.</desc>
+<defs>
+<linearGradient id="panel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#f6f8fa"/></linearGradient>
+<marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#59636e"/></marker>
+</defs>
+<rect x="1" y="1" width="1198" height="318" rx="18" fill="url(#panel)" stroke="#d0d7de" stroke-width="2"/>
+<rect x="40" y="48" width="180" height="92" rx="14" fill="#8250df"/>
+<text x="130" y="90" text-anchor="middle" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="23" font-weight="700" fill="#ffffff">your file</text>
+<text x="130" y="116" text-anchor="middle" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" fill="#ffffff" fill-opacity="0.85">note.txt</text>
+<rect x="275" y="48" width="180" height="92" rx="14" fill="#0969da"/>
+<text x="365" y="90" text-anchor="middle" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="23" font-weight="700" fill="#ffffff">compress</text>
+<text x="365" y="116" text-anchor="middle" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" fill="#ffffff" fill-opacity="0.85">takes less room</text>
+<rect x="510" y="48" width="180" height="92" rx="14" fill="#0969da"/>
+<text x="600" y="90" text-anchor="middle" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="23" font-weight="700" fill="#ffffff">encrypt</text>
+<text x="600" y="116" text-anchor="middle" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" fill="#ffffff" fill-opacity="0.85">AES by default</text>
+<rect x="745" y="48" width="200" height="92" rx="14" fill="#0969da"/>
+<text x="845" y="90" text-anchor="middle" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="23" font-weight="700" fill="#ffffff">hide</text>
+<text x="845" y="116" text-anchor="middle" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" fill="#ffffff" fill-opacity="0.85">nudge chosen pixels</text>
+<rect x="995" y="48" width="165" height="92" rx="14" fill="#1a7f37"/>
+<text x="1078" y="90" text-anchor="middle" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="23" font-weight="700" fill="#ffffff">stego file</text>
+<text x="1078" y="116" text-anchor="middle" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" fill="#ffffff" fill-opacity="0.85">looks the same</text>
+<path d="M226,94.0 L267,94.0" fill="none" stroke="#59636e" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M461,94.0 L502,94.0" fill="none" stroke="#59636e" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M696,94.0 L737,94.0" fill="none" stroke="#59636e" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M951,94.0 L987,94.0" fill="none" stroke="#59636e" stroke-width="2.5" marker-end="url(#arrow)"/>
+<rect x="510" y="210" width="180" height="74" rx="14" fill="#bf8700"/>
+<text x="600" y="243" text-anchor="middle" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="23" font-weight="700" fill="#ffffff">passphrase</text>
+<text x="600" y="269" text-anchor="middle" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" fill="#ffffff" fill-opacity="0.85">only you know it</text>
+<rect x="840" y="210" width="200" height="74" rx="14" fill="#8250df"/>
+<text x="940" y="243" text-anchor="middle" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="23" font-weight="700" fill="#ffffff">cover file</text>
+<text x="940" y="269" text-anchor="middle" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" fill="#ffffff" fill-opacity="0.85">photo.jpg</text>
+<path d="M600,204 L600,148" fill="none" stroke="#59636e" stroke-width="2.5" stroke-dasharray="7 6" marker-end="url(#arrow)"/>
+<text x="588" y="184" text-anchor="end" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="15" font-style="italic" fill="#59636e">makes the key</text>
+<path d="M696,247.0 L790,247.0 L790,148" fill="none" stroke="#59636e" stroke-width="2.5" stroke-dasharray="7 6" marker-end="url(#arrow)"/>
+<text x="742" y="271.0" text-anchor="middle" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="15" font-style="italic" fill="#59636e">picks pixels</text>
+<path d="M900,204 L900,148" fill="none" stroke="#59636e" stroke-width="2.5" marker-end="url(#arrow)"/>
+</svg>

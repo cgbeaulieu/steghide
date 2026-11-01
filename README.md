@@ -26,12 +26,36 @@
 
 Steghide hides a file inside an ordinary-looking picture or sound file. It changes the cover so slightly that nobody can see or hear the difference, and only someone with the passphrase can get the hidden file back out.
 
-|     |     |
-| --- | --- |
-| 🖼️ **Four cover formats** | JPEG and BMP images, WAV and AU audio |
-| 🔐 **Encrypted** | your file is encrypted with your passphrase first (AES with a 256-bit key by default) |
-| 🗜️ **Compressed and checked** | compressed to take less room, with a checksum that catches damage |
-| 🎨 **Hard to spot** | it mostly swaps values between pixels or samples, so the overall colour and sound statistics stay the same |
+<table>
+<tr>
+<td width="50%" valign="top">
+
+### 🖼️ Four cover formats
+JPEG and BMP images, WAV and AU audio.
+
+</td>
+<td width="50%" valign="top">
+
+### 🔐 Encrypted
+Your file is encrypted with your passphrase first: AES with a 256-bit key by default.
+
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+
+### 🗜️ Compressed and checked
+Compressed to take less room, with a checksum that catches damage.
+
+</td>
+<td width="50%" valign="top">
+
+### 🎨 Hard to spot
+It mostly swaps values between pixels or samples, so the overall colour and sound statistics stay the same.
+
+</td>
+</tr>
+</table>
 
 ## 🚀 Quick start
 
@@ -72,23 +96,10 @@ wrote extracted data to "note.txt".
 
 ## 🧩 How it works
 
-```mermaid
-flowchart LR
-    secret["📄 note.txt"] --> compress["🗜️ compress"] --> encrypt["🔐 encrypt"] --> embed["✏️ nudge the chosen<br/>pixels or samples"]
-    cover["🖼️ photo.jpg"] --> embed
-    pass["🔑 passphrase"] -.-> encrypt
-    pass -. picks which pixels .-> embed
-    embed --> stego["🖼️ photo.jpg<br/>looks the same"]
-
-    classDef input fill:#8250df,stroke:#6639ba,color:#ffffff
-    classDef step fill:#0969da,stroke:#0550ae,color:#ffffff
-    classDef key fill:#bf8700,stroke:#9a6700,color:#ffffff
-    classDef output fill:#1a7f37,stroke:#116329,color:#ffffff
-    class secret,cover input
-    class compress,encrypt,embed step
-    class pass key
-    class stego output
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/how-it-works-dark.svg">
+  <img alt="How steghide hides a file: your file is compressed, encrypted with a key made from the passphrase, and hidden by nudging pixels or samples of the cover file that the passphrase picks. The result looks the same as the cover." src="docs/images/how-it-works-light.svg" width="100%">
+</picture>
 
 The passphrase does two jobs: it encrypts your file, and it decides which pixels or samples carry the data. Steghide pairs up values that can simply trade places, so most changes are swaps that leave the colour (or sound) statistics untouched. Extraction runs the same steps backwards.
 
@@ -163,14 +174,14 @@ sudo cmake --install build
 
 | CMake option | What it does |
 | --- | --- |
-| `-DSTEGHIDE_SANITIZE=address,undefined` | build with sanitizers; the tests then also check for leaks |
-| `-DSTEGHIDE_COMPAT_REFERENCE=/usr/bin/steghide` | also check that this steghide 0.5.1 can read what the new build writes |
-| `-DSTEGHIDE_NLS=OFF` | leave out translations (German, Spanish, French, Romanian, Russian) |
-| `-DSTEGHIDE_DEBUG=ON` | include steghide's debugging commands |
+| `STEGHIDE_SANITIZE` | build with sanitizers, for example `-DSTEGHIDE_SANITIZE=address,undefined`; the tests then also check for leaks |
+| `STEGHIDE_COMPAT_REFERENCE` | path to a steghide 0.5.1, for example `/usr/bin/steghide`; the tests then also check that it can read what the new build writes |
+| `STEGHIDE_NLS` | `OFF` leaves out the translations (German, Spanish, French, Romanian, Russian) |
+| `STEGHIDE_DEBUG` | `ON` includes steghide's debugging commands |
 
 ## 🗺️ Roadmap
 
-| Phase | | |
+| Phase | Status | What it covers |
 | --- | --- | --- |
 | **1. Baseline** | ✅ done | Debian and Fedora patches, compatibility test files from a real 0.5.1 |
 | **2. Modernize without changing the format** | 🚧 in progress | done: CMake, built-in ciphers, memory fixes, no leaks or warnings · next: fuzzing, CI, a secure random source |
