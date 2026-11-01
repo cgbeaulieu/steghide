@@ -25,18 +25,17 @@
 #include "Vertex.h"
 #include "common.h"
 
-Vertex::Vertex (VertexLabel l, SamplePos* sposs, SampleValue** svalues, EmbValue t)
+Vertex::Vertex (VertexLabel l, std::unique_ptr<SamplePos[]> sposs, std::unique_ptr<SampleValue*[]> svalues, EmbValue t)
+	: SamplePositions(std::move (sposs)), SampleValues(std::move (svalues))
 {
 	setLabel (l) ;
-	SamplePositions = sposs ;
-	SampleValues = svalues ;
 
-	SampleOccurenceIts = new std::list<SampleOccurence>::iterator[Globs.TheCvrStgFile->getSamplesPerVertex()] ;
+	SampleOccurenceIts = std::make_unique<std::list<SampleOccurence>::iterator[]> (Globs.TheCvrStgFile->getSamplesPerVertex()) ;
 	ShortestEdge = NULL ;
 	valid = true ;
 
 	// calculate sample target values...
-	TargetValues = new EmbValue[Globs.TheCvrStgFile->getSamplesPerVertex()] ;
+	TargetValues = std::make_unique<EmbValue[]> (Globs.TheCvrStgFile->getSamplesPerVertex()) ;
 	EmbValue msum = 0 ;
 	for (unsigned short i = 0 ; i < Globs.TheCvrStgFile->getSamplesPerVertex() ; i++) { // fill TargetValues with source values temporarily
 		TargetValues[i] = SampleValues[i]->getEmbeddedValue() ;
@@ -70,10 +69,6 @@ Vertex::Vertex (VertexLabel l, SamplePos* sposs, SampleValue** svalues, EmbValue
 
 Vertex::~Vertex ()
 {
-	delete[] TargetValues ;
-	delete[] SampleOccurenceIts ;
-	delete[] SamplePositions ;
-	delete[] SampleValues ;
 	delete ShortestEdge ;
 }
 

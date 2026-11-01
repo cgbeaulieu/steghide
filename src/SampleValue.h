@@ -22,6 +22,7 @@
 #define SH_SAMPLEVALUE_H
 
 #include <functional>
+#include <memory>
 
 #include "common.h"
 
@@ -142,7 +143,7 @@ class SampleValue {
 	 * NumEdges[t] contains the number of edges that are added to a vertex if
 	 * this sample value with corresponding target value t is added to the vertex
 	 **/
-	UWORD32* NumEdges ;
+	std::unique_ptr<UWORD32[]> NumEdges ;
 } ;
 
 struct SampleValuesEqual {

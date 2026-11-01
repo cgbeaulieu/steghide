@@ -46,11 +46,11 @@ Graph::Graph (CvrStgFile *cvr, const BitString& emb, Selector& sel)
 	SamplesPerVertex = File->getSamplesPerVertex() ;
 
 	// construct sposs and tvalues
-	std::vector<SamplePos*> sposs ;
+	std::vector<std::unique_ptr<SamplePos[]> > sposs ;
 	std::vector<EmbValue> tvalues ;
 	unsigned long n = emb.getNAryLength() ;
 	for (unsigned long i = 0 ; i < n ; i++) {
-		SamplePos *poss = new SamplePos[File->getSamplesPerVertex()] ;
+		std::unique_ptr<SamplePos[]> poss = std::make_unique<SamplePos[]> (File->getSamplesPerVertex()) ;
 
 		EmbValue modulosum = 0 ;
 		for (unsigned int j = 0 ; j < File->getSamplesPerVertex() ; j++) {
@@ -59,17 +59,14 @@ Graph::Graph (CvrStgFile *cvr, const BitString& emb, Selector& sel)
 		}
 
 		if (modulosum != emb.getNAry(i)) {
-			sposs.push_back (poss) ;
+			sposs.push_back (std::move (poss)) ;
 			tvalues.push_back (emb.getNAry(i)) ;
-		}
-		else {
-			delete[] poss ;
 		}
 	}
 
 	myassert (sposs.size() == tvalues.size()) ;
 
-	std::vector<SampleValue**> svalues ; // will contain pointers to unique sample value objects
+	std::vector<std::unique_ptr<SampleValue*[]> > svalues ; // will contain pointers to unique sample value objects
 	constructSamples (sposs, svalues) ;
 
 	myassert (sposs.size() == svalues.size()) ;
@@ -79,7 +76,7 @@ Graph::Graph (CvrStgFile *cvr, const BitString& emb, Selector& sel)
 	constructEdges () ;
 }
 
-void Graph::constructSamples (const std::vector<SamplePos*>& sposs, std::vector<SampleValue**>& svalues)
+void Graph::constructSamples (const std::vector<std::unique_ptr<SamplePos[]> >& sposs, std::vector<std::unique_ptr<SampleValue*[]> >& svalues)
 {
 	const VertexLabel numvertices = sposs.size() ;
 	svalues.resize (numvertices) ;
@@ -89,7 +86,7 @@ void Graph::constructSamples (const std::vector<SamplePos*>& sposs, std::vector<
 	std::unordered_set<SampleValue*,SampleValueHash,SampleValuesEqual> SampleValues_set ;
 	SampleValues.clear() ;
 	for (unsigned long i = 0 ; i < numvertices ; i++) {
-		svalues[i] = new SampleValue*[File->getSamplesPerVertex()] ;
+		svalues[i] = std::make_unique<SampleValue*[]> (File->getSamplesPerVertex()) ;
 		for (unsigned short j = 0 ; j < File->getSamplesPerVertex() ; j++) {
 			SampleValue *sv = File->getSampleValue (sposs[i][j]) ;
 			std::pair<std::unordered_set<SampleValue*,SampleValueHash,SampleValuesEqual>::iterator,bool> res = SampleValues_set.insert (sv) ;
@@ -106,12 +103,12 @@ void Graph::constructSamples (const std::vector<SamplePos*>& sposs, std::vector<
 	}
 }
 
-void Graph::constructVertices (std::vector<SamplePos*>& sposs, std::vector<SampleValue**>& svalues, const std::vector<EmbValue>& tvalues)
+void Graph::constructVertices (std::vector<std::unique_ptr<SamplePos[]> >& sposs, std::vector<std::unique_ptr<SampleValue*[]> >& svalues, const std::vector<EmbValue>& tvalues)
 {
 	const VertexLabel numvertices = sposs.size() ;
 	Vertices = std::vector<Vertex*> (numvertices) ;
 	for (VertexLabel i = 0 ; i < numvertices ; i++) {
-		Vertices[i] = new Vertex (i, sposs[i], svalues[i], tvalues[i]) ;
+		Vertices[i] = new Vertex (i, std::move (sposs[i]), std::move (svalues[i]), tvalues[i]) ;
 	}
 }
 
@@ -123,12 +120,12 @@ void Graph::constructEdges ()
 	// allocate memory for SampleOccurences
 	SampleOccurences = std::vector<std::list<SampleOccurence> > (SampleValues.size()) ;
 	DeletedSampleOccurences = std::vector<std::list<SampleOccurence> > (SampleValues.size()) ;
-	NumSampleOccurences = std::vector<UWORD32*> (SampleValues.size()) ;
-	NumDeletedSampleOccurences = std::vector<UWORD32*> (SampleValues.size()) ;
+	NumSampleOccurences = std::vector<std::unique_ptr<UWORD32[]> > (SampleValues.size()) ;
+	NumDeletedSampleOccurences = std::vector<std::unique_ptr<UWORD32[]> > (SampleValues.size()) ;
 
 	for (SampleValueLabel lbl = 0 ; lbl < SampleValues.size() ; lbl++) {
-		NumSampleOccurences[lbl] = new UWORD32[EmbValueModulus] ;
-		NumDeletedSampleOccurences[lbl] = new UWORD32[EmbValueModulus] ;
+		NumSampleOccurences[lbl] = std::make_unique<UWORD32[]> (EmbValueModulus) ;
+		NumDeletedSampleOccurences[lbl] = std::make_unique<UWORD32[]> (EmbValueModulus) ;
 		for (unsigned short t = 0 ; t < EmbValueModulus ; t++) {
 			NumSampleOccurences[lbl][t] = 0 ;
 			NumDeletedSampleOccurences[lbl][t] = 0 ;
@@ -171,11 +168,6 @@ Graph::~Graph()
 
 	for (EmbValue t = 0 ; t < EmbValueModulus ; t++) {
 		delete SVALists[t] ;
-	}
-
-	for (SampleValueLabel lbl = 0 ; lbl < SampleValues.size() ; lbl++) {
-		delete[] NumSampleOccurences[lbl] ;
-		delete[] NumDeletedSampleOccurences[lbl] ;
 	}
 }
 

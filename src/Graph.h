@@ -24,6 +24,7 @@
 #include <iostream>
 #include <list>
 #include <map>
+#include <memory>
 #include <queue>
 #include <vector>
 
@@ -151,11 +152,11 @@ class Graph {
 	/**
 	 * NumSampleOccurences[l][t] contains the number vertices that contain the sample value with label l and associated target t
 	 **/
-	std::vector<UWORD32*> NumSampleOccurences ;
+	std::vector<std::unique_ptr<UWORD32[]> > NumSampleOccurences ;
 
 	/// contains those sample occurences that have been marked as deleted from SampleOccurences
 	std::vector<std::list<SampleOccurence> > DeletedSampleOccurences ;
-	std::vector<UWORD32*> NumDeletedSampleOccurences ;
+	std::vector<std::unique_ptr<UWORD32[]> > NumDeletedSampleOccurences ;
 
 	std::list<SampleOccurence>::iterator markDeletedSampleOccurence (std::list<SampleOccurence>::iterator it) ;
 	std::list<SampleOccurence>::iterator unmarkDeletedSampleOccurence (std::list<SampleOccurence>::iterator it) ;
@@ -172,7 +173,7 @@ class Graph {
 	 * needs: sposs(unsorted)
 	 * provides: svalues(unsorted,unique), SampleValues
 	 **/
-	void constructSamples (const std::vector<SamplePos*> &sposs, std::vector<SampleValue**>& svalues) ;
+	void constructSamples (const std::vector<std::unique_ptr<SamplePos[]> >& sposs, std::vector<std::unique_ptr<SampleValue*[]> >& svalues) ;
 
 	/**
 	 * construct vertex-related data structures
@@ -180,7 +181,7 @@ class Graph {
 	 * needs: sposs(unsorted), svalues(unsorted,unique), tvalues
 	 * provides: sposs(sorted), Vertices (except SampleOccurenceIts)
 	 **/
-	void constructVertices (std::vector<SamplePos*>& sposs, std::vector<SampleValue**>& svalues, const std::vector<EmbValue>& tvalues) ;
+	void constructVertices (std::vector<std::unique_ptr<SamplePos[]> >& sposs, std::vector<std::unique_ptr<SampleValue*[]> >& svalues, const std::vector<EmbValue>& tvalues) ;
 
 	/**
 	 * construct edge-related data structures

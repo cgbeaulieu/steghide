@@ -66,14 +66,12 @@ void SampleValueAdjacencyList::sort ()
 		std::vector<SampleValue*>& row = AdjacencyList[lbl] ;
 
 		if (row.size() > 0) {
-			UWORD32* distances = new UWORD32[row.size() + 1] ;
+			std::vector<UWORD32> distances (row.size() + 1) ;
 			for (unsigned int i = 0 ; i < row.size() ; i++) {
 				distances[i] = Globs.TheGraph->SampleValues[lbl]->calcDistance (row[i]) ;
 			}
 
-			quicksort (row, distances, 0, row.size() - 1) ;
-
-			delete[] distances ;
+			quicksort (row, distances.data(), 0, row.size() - 1) ;
 		}
 	}
 }

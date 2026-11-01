@@ -23,14 +23,12 @@
 #include "CvrStgFile.h"
 
 SampleValue::SampleValue ()
-	: Label(0)
+	: Label(0), NumEdges(std::make_unique<UWORD32[]> (Globs.TheCvrStgFile->getEmbValueModulus()))
 {
-	NumEdges = new UWORD32[Globs.TheCvrStgFile->getEmbValueModulus()] ;
 }
 
 SampleValue::~SampleValue ()
 {
-	delete[] NumEdges ;
 }
 
 void SampleValue::incNumEdges (EmbValue t)

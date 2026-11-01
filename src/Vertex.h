@@ -21,6 +21,8 @@
 #ifndef SH_VERTEX_H
 #define SH_VERTEX_H
 
+#include <memory>
+
 #include "CvrStgFile.h"
 #include "common.h"
 
@@ -49,7 +51,7 @@ class Vertex {
 	 * \param svalues the array (with length g->getSamplesPerVertex()) of (unique (!)) pointers to the sample values
 	 * \param t the target value for the whole vertex - the value that should be returned by getEmbeddedValue() after the embedding
 	 **/
-	Vertex (VertexLabel l, SamplePos* sposs, SampleValue** svalues, EmbValue t) ;
+	Vertex (VertexLabel l, std::unique_ptr<SamplePos[]> sposs, std::unique_ptr<SampleValue*[]> svalues, EmbValue t) ;
 
 	~Vertex (void) ;
 
@@ -117,16 +119,16 @@ class Vertex {
 	VertexLabel Label ;
 
 	/// the sample positions of the samples described by this vertex in the CvrStgFile
-	SamplePos* SamplePositions ;
+	std::unique_ptr<SamplePos[]> SamplePositions ;
 
-	/// the sample values at the SamplePositions
-	SampleValue** SampleValues ;
+	/// the sample values at the SamplePositions (owned by the Graph)
+	std::unique_ptr<SampleValue*[]> SampleValues ;
 
 	/// the target values for the sample values (exactly one of them has to be reached (and the other left unchanged) to embed this vertex)
-	EmbValue* TargetValues ;
+	std::unique_ptr<EmbValue[]> TargetValues ;
 
 	/// point to entries in std::lists of sample occurences in the graph
-	std::list<SampleOccurence>::iterator* SampleOccurenceIts ;
+	std::unique_ptr<std::list<SampleOccurence>::iterator[]> SampleOccurenceIts ;
 
 	/// the shortest edge of this vertex (as calculated by updateShortestEdge)
 	Edge *ShortestEdge ;
