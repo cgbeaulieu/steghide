@@ -18,6 +18,8 @@
  *
  */
 
+#include <algorithm>
+
 #include "Edge.h"
 #include "Graph.h"
 #include "Matching.h"
@@ -33,7 +35,7 @@ SMDConstructionHeuristic::SMDConstructionHeuristic (Graph* g, Matching* m, float
 		myassert (m->isExposed (Vertices[l])) ;
 	}
 
-	sort (Vertices.begin(), Vertices.end(), SmallerVertexDegree()) ;
+	std::sort (Vertices.begin(), Vertices.end(), SmallerVertexDegree()) ;
 }
 
 void SMDConstructionHeuristic::run (void)

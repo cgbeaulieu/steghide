@@ -18,10 +18,12 @@
  *
  */
 
+#include <algorithm>
 #include <ctime>
 #include <climits>
 #include <list>
 #include <map>
+#include <unordered_set>
 #include <vector>
 
 #include "BitString.h"
@@ -32,7 +34,6 @@
 #include "Vertex.h"
 #include "common.h"
 #include "msg.h"
-#include "wrapper_hash_set.h"
 
 #include <climits>
 
@@ -83,31 +84,25 @@ void Graph::constructSamples (const std::vector<SamplePos*>& sposs, std::vector<
 	const VertexLabel numvertices = sposs.size() ;
 	svalues.resize (numvertices) ;
 
-	// fill a hash table with the (unique) sample values and svalues with pointers to them
-	sgi::hash_set<SampleValue*,SampleValueHash,SampleValuesEqual> SampleValues_set ;
+	// collect the (unique) sample values in SampleValues, labelled in the order
+	// they first occur, and fill svalues with pointers to them
+	std::unordered_set<SampleValue*,SampleValueHash,SampleValuesEqual> SampleValues_set ;
+	SampleValues.clear() ;
 	for (unsigned long i = 0 ; i < numvertices ; i++) {
 		svalues[i] = new SampleValue*[File->getSamplesPerVertex()] ;
 		for (unsigned short j = 0 ; j < File->getSamplesPerVertex() ; j++) {
 			SampleValue *sv = File->getSampleValue (sposs[i][j]) ;
-			sgi::hash_set<SampleValue*,SampleValueHash,SampleValuesEqual>::iterator res = SampleValues_set.find (sv) ;
-			if (res == SampleValues_set.end()) { // sample has not been found - add it !
-				SampleValues_set.insert (sv) ;
+			std::pair<std::unordered_set<SampleValue*,SampleValueHash,SampleValuesEqual>::iterator,bool> res = SampleValues_set.insert (sv) ;
+			if (res.second) { // sample has not been found - add it !
+				sv->setLabel (SampleValues.size()) ;
+				SampleValues.push_back (sv) ;
 				svalues[i][j] = sv ;
 			}
 			else { // sample value is already in SampleValues_set
 				delete sv ;
-				svalues[i][j] = *res ;
-			} 
+				svalues[i][j] = *res.first ;
+			}
 		}
-	}
-
-	// move the hash_set SampleValues_set into the vector SampleValues, set sample labels
-	SampleValues = std::vector<SampleValue*> (SampleValues_set.size()) ;
-	unsigned long label = 0 ;
-	for (sgi::hash_set<SampleValue*,SampleValueHash,SampleValuesEqual>::const_iterator i = SampleValues_set.begin() ; i != SampleValues_set.end() ; i++) {
-		SampleValues[label] = *i ;
-		SampleValues[label]->setLabel (label) ;
-		label++ ;
 	}
 }
 
@@ -369,7 +364,7 @@ bool Graph::check_SampleOccurences_completeness (bool verbose) const
 		for (unsigned short j = 0 ; j < File->getSamplesPerVertex() ; j++) {
 			SampleOccurence soc (Vertices[vlbl], j) ;
 			SampleValueLabel svlbl = Vertices[vlbl]->getSampleValue(j)->getLabel() ;
-			completeness = (find(SampleOccurences[svlbl].begin(), SampleOccurences[svlbl].end(), soc) != SampleOccurences[svlbl].end()) && completeness ;
+			completeness = (std::find(SampleOccurences[svlbl].begin(), SampleOccurences[svlbl].end(), soc) != SampleOccurences[svlbl].end()) && completeness ;
 		}
 	}
 

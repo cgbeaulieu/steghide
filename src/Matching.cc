@@ -18,6 +18,8 @@
  *
  */
 
+#include <algorithm>
+
 #include "Edge.h"
 #include "Graph.h"
 #include "Matching.h"
@@ -169,7 +171,7 @@ Matching& Matching::augment (const Edge** path, unsigned long len)
 	}
 
 	ExposedVertices.erase (VertexInformation[e->getVertex2()->getLabel()].getExposedIterator()) ;
-	VertexInformation[e->getVertex2()->getLabel()].setMatched (find (MatchingEdges.begin(), MatchingEdges.end(), e)) ;
+	VertexInformation[e->getVertex2()->getLabel()].setMatched (std::find (MatchingEdges.begin(), MatchingEdges.end(), e)) ;
 
 	setCardinality (Cardinality + 1) ;
 

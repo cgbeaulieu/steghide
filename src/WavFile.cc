@@ -18,6 +18,7 @@
  *
  */
 
+#include <algorithm>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -141,7 +142,7 @@ std::vector<SampleValueAdjacencyList*> WavFile::calcSVAdjacencyLists (const std:
 	}
 
 	WavPCMSmaller smaller ;
-	sort (svs_sorted.begin(), svs_sorted.end(), smaller) ;
+	std::sort (svs_sorted.begin(), svs_sorted.end(), smaller) ;
 
 	// fill the lists
 	int r = Globs.TheCvrStgFile->getRadius() ;

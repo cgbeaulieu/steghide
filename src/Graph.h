@@ -30,7 +30,6 @@
 #include "EdgeIterator.h"
 #include "SampleValueAdjacencyList.h"
 #include "common.h"
-#include "wrapper_hash_set.h"
 
 class BitString ;
 class SampleOccurence ;
