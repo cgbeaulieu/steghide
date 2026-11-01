@@ -137,6 +137,15 @@ class BmpFile : public CvrStgFile {
 	void readdata () ;
 	void writedata () ;
 	/**
+	 * throw a SteghideError saying that the bmp file is corrupt, unless ok
+	 * \param what what is wrong with it
+	 **/
+	void checkCorrupt (bool ok, const char* what) const ;
+	/**
+	 * get the colour index of the pos-th sample of a bitmap with a palette
+	 **/
+	BYTE getPaletteIndex (SamplePos pos) const ;
+	/**
 	 * translate a sample position into a <index,firstbit> pair "pointing" into the BitmapData array
 	 * \param pos a sample position
 	 * \param index a pointer to a variable that will contain the array index used to access the pos-th sample

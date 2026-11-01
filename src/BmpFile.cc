@@ -59,6 +59,12 @@ void BmpFile::read (BinaryIO *io)
 
 	readheaders() ;
 	readdata() ;
+
+	if (getBitCount() != 24) {
+		for (SamplePos pos = 0 ; pos < getNumSamples() ; pos++) {
+			checkCorrupt (getPaletteIndex (pos) < Palette->getSize(), _("a pixel uses a colour that is not in the palette")) ;
+		}
+	}
 }
 
 void BmpFile::write ()
@@ -145,6 +151,19 @@ void BmpFile::replaceSample (const SamplePos pos, const SampleValue* s)
 	}
 }
 
+BYTE BmpFile::getPaletteIndex (SamplePos pos) const
+{
+	unsigned long index = 0 ;
+	unsigned short firstbit = 0 ;
+	calcIndex (pos, &index, &firstbit) ;
+
+	BYTE idx_pal = 0 ;
+	for (unsigned short i = 0 ; i < getBitCount() ; i++) {
+		idx_pal |= ((BitmapData[index] & (1 << (firstbit + i))) >> firstbit) ;
+	}
+	return idx_pal ;
+}
+
 std::unique_ptr<SampleValue> BmpFile::getSampleValue (SamplePos pos) const
 {
 	unsigned long index = 0 ;
@@ -155,11 +174,7 @@ std::unique_ptr<SampleValue> BmpFile::getSampleValue (SamplePos pos) const
 	std::unique_ptr<SampleValue> retval ;
 	switch (bitcount) {
 		case 1: case 4: case 8: {
-			BYTE idx_pal = 0 ;
-			for (unsigned short i = 0 ; i < bitcount ; i++) {
-				idx_pal |= ((BitmapData[index] & (1 << (firstbit + i))) >> firstbit) ;
-			}
-			retval = std::make_unique<BmpPaletteSampleValue> (idx_pal) ;
+			retval = std::make_unique<BmpPaletteSampleValue> (getPaletteIndex (pos)) ;
 		break ; }
 
 		case 24: {
@@ -399,6 +414,18 @@ ColorPalette *BmpFile::getPalette() const
 	return Palette.get() ;
 }
 
+void BmpFile::checkCorrupt (bool ok, const char* what) const
+{
+	if (!ok) {
+		if (getBinIO()->is_std()) {
+			throw SteghideError (_("the bmp data from standard input is corrupt: %s."), what) ;
+		}
+		else {
+			throw SteghideError (_("the bmp file \"%s\" is corrupt: %s."), getBinIO()->getName().c_str(), what) ;
+		}
+	}
+}
+
 /* reads the headers of a bmp file from disk */
 void BmpFile::readheaders ()
 {
@@ -457,10 +484,19 @@ void BmpFile::readheaders ()
 void BmpFile::bmpwin_readheaders ()
 {
 	bmih.biSize = SizeBMINFOHEADER ;
-	bmih.biWidth = getBinIO()->read32_le () ;
-	bmih.biHeight = getBinIO()->read32_le () ;
+	bmih.biWidth = (SWORD32) getBinIO()->read32_le () ;
+	bmih.biHeight = (SWORD32) getBinIO()->read32_le () ;
+	if (bmih.biHeight < 0) {
+		if (getBinIO()->is_std()) {
+			throw SteghideError (_("the bmp data from standard input is stored top-down, which is not supported.")) ;
+		}
+		else {
+			throw SteghideError (_("the bmp file \"%s\" is stored top-down, which is not supported."), getBinIO()->getName().c_str()) ;
+		}
+	}
+	checkCorrupt (bmih.biWidth > 0 && bmih.biHeight > 0, _("its width or height is not positive")) ;
 	bmih.biPlanes = getBinIO()->read16_le () ;
-	myassert (bmih.biPlanes == 1) ;
+	checkCorrupt (bmih.biPlanes == 1, _("it has more than one plane")) ;
 	bmih.biBitCount = getBinIO()->read16_le () ;
 	switch (bmih.biBitCount) {
 		case 1:
@@ -541,6 +577,7 @@ void BmpFile::bmpwin_readheaders ()
 			break ; }
 		}
 		if (bmih.biClrUsed != 0) {
+			checkCorrupt (bmih.biClrUsed <= ncolors, _("its palette has more colours than its pixels can use")) ;
 			ncolors = bmih.biClrUsed ;
 		}
 
@@ -562,8 +599,9 @@ void BmpFile::bmpos2_readheaders ()
 	bmch.bcSize = SizeBMCOREHEADER ;
 	bmch.bcWidth = getBinIO()->read16_le () ;
 	bmch.bcHeight = getBinIO()->read16_le () ;
+	checkCorrupt (bmch.bcWidth > 0 && bmch.bcHeight > 0, _("its width or height is not positive")) ;
 	bmch.bcPlanes = getBinIO()->read16_le () ;
-	myassert (bmch.bcPlanes == 1) ;
+	checkCorrupt (bmch.bcPlanes == 1, _("it has more than one plane")) ;
 	bmch.bcBitCount = getBinIO()->read16_le () ;
 	switch (bmch.bcBitCount) {
 		case 1:
@@ -724,11 +762,12 @@ unsigned long BmpFile::calcLinelength ()
 
 	switch (getSubformat()) {
 		case WIN: {
-			if (bmih.biBitCount * bmih.biWidth % 8 == 0) {
-				retval = bmih.biBitCount * bmih.biWidth / 8 ;
+			const unsigned long nbits = (unsigned long) bmih.biBitCount * bmih.biWidth ;
+			if (nbits % 8 == 0) {
+				retval = nbits / 8 ;
 			}
 			else {
-				retval = (bmih.biBitCount * bmih.biWidth / 8) + 1;
+				retval = (nbits / 8) + 1;
 			}
 		break ; }
 
@@ -765,10 +804,11 @@ void BmpFile::readdata ()
 			paddinglength = 4 - (linelength % 4) ;
 		}
 
-		BitmapData.resize (height * linelength) ;
+		// the size comes from the headers: allocate only as the data arrives
+		BitmapData.clear() ;
 		for (unsigned long line = 0 ; line < height ; line++) {
 			for (unsigned long posinline = 0 ; posinline < linelength ; posinline++) {
-				BitmapData[line * linelength + posinline] = getBinIO()->read8() ;
+				BitmapData.push_back (getBinIO()->read8()) ;
 			}
 
 			for (int i = 0 ; i < paddinglength ; i++) {
