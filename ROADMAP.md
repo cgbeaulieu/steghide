@@ -48,10 +48,8 @@ Every step must keep `tests/compat/check.sh` at 100% in both directions.
 - [ ] Fuzz the cover-file parsers (BMP, JPEG, WAV, AU); they read untrusted input
 - [x] Replace `hash_map`/`hash_set` with `std::unordered_*`; drop `binary_function`/`unary_function`; replace `sprintf` and variable-length arrays. Sample values are now labelled in first-seen order instead of hash-table order.
 - [x] No compiler warnings with GCC or Clang (`-Wall`), outside `src/mcrypt/`
-- [x] No leaks in steghide itself; CTest checks the system and compat tests for leaks under `STEGHIDE_SANITIZE`
-- [x] Arrays owned with `new[]` are `std::vector`, except the per-vertex arrays `Graph` hands to `Vertex`
-- [ ] The remaining raw ownership: the arrays `Graph` hands to `Vertex`, and the ~95 scalar `new`s of graph, file and sample-value objects (owned through raw pointers in `Globs`, `Graph`, `Matching` and the cover files)
-- [ ] Free the unit tests' fixtures, so the unit tests can run with leak detection too
+- [x] No leaks, in steghide or in the unit tests; CTest checks all three suites for leaks under `STEGHIDE_SANITIZE`
+- [x] Ownership: `src/` has no `new` or `delete` left. Owners hold `std::unique_ptr`s or containers (cover files their `BinaryIO` and contents, `Embedder` and `Extractor` their file, `Embedder` its graph and matching, `Graph` its vertices, sample values and adjacency lists, `Matching` its edges by value), factories return `std::unique_ptr`, and `Globs` only points to the current file and graph (they clear it when destroyed). The unit tests still use raw pointers for their fixtures, freed in `cleanup()`.
 - [ ] Replace `srand(time(NULL))` in `RandomSource.cc` with the OS CSPRNG
 
 State so far, with GCC 16.2, Clang 23.1 (-O2 and -O3), both compilers with ASan/UBSan and leak checks, and `STEGHIDE_DEBUG`: all three CTest suites pass (the sanitizer builds 3 runs in a row), with no warnings, and so does the autotools `make check`. The unit tests use their own harness in `tests/`, not cppunit. Translations build and install, but loading them has not been checked on a system with a matching locale.
