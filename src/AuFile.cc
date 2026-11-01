@@ -100,7 +100,7 @@ void AuFile::read (BinaryIO *io)
 		} ;
 		Header.encoding = (ENCODING) encoding ;
 	}
-	catch (BinaryInputError e) {
+	catch (BinaryInputError& e) {
 		switch (e.getType()) {
 			case BinaryInputError::FILE_ERR:
 			{
@@ -158,7 +158,7 @@ void AuFile::write ()
 			getBinIO()->write8 (Infofield[i]) ;
 		}
 	}
-	catch (BinaryOutputError e) {
+	catch (BinaryOutputError& e) {
 		switch (e.getType()) {
 			case BinaryOutputError::FILE_ERR:
 			{

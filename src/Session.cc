@@ -187,7 +187,7 @@ void Session::printInfo ()
 
 			delete embdata ;
 		}
-		catch (CorruptDataError e) {
+		catch (CorruptDataError& e) {
 			printf (_("could not extract any data with that passphrase!\n")) ;
 		}
 	}
@@ -195,7 +195,7 @@ void Session::printInfo ()
 
 std::string Session::stripDir (std::string s) const
 {
-	unsigned int start = 0 ;
+	std::string::size_type start = 0 ;
 	if ((start = s.find_last_of ("/\\")) == std::string::npos) {
 		start = 0 ;
 	}

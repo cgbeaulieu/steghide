@@ -36,7 +36,7 @@ SampleValueAdjacencyList::SampleValueAdjacencyList (SampleValueLabel numsvs)
 	AdjacencyList = std::vector<std::vector<SampleValue*> > (numsvs) ;
 }
 
-bool SampleValueAdjacencyList::operator== (const SampleValueAdjacencyList& sval)
+bool SampleValueAdjacencyList::operator== (const SampleValueAdjacencyList& sval) const
 {
 	bool equal = false ;
 	if (AdjacencyList.size() == sval.AdjacencyList.size()) {

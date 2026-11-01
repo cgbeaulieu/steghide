@@ -35,8 +35,6 @@ class MCryptPPTest : public UnitTest {
 	void testDecryption (void) ;
 
 	private:
-	bool genericTestEncryption () ;
-	bool genericTestDecryption () ;
 } ;
 
 #endif // ndef SH_MCRYPTPPTEST_H

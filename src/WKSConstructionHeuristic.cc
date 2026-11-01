@@ -51,9 +51,6 @@ WKSConstructionHeuristic::WKSConstructionHeuristic (Graph* g, Matching* m, float
 
 void WKSConstructionHeuristic::run ()
 {
-	unsigned long numDegG = 0 ;
-	unsigned long numDeg1 = 0 ;
-
 	while ((TheMatching->getCardinality() < CardinalityGoal) && !(VerticesDegG.empty() && VerticesDeg1.empty())) {
 		Vertex *v = NULL ;
 
@@ -64,7 +61,6 @@ void WKSConstructionHeuristic::run ()
 #ifdef DEBUG
 				printDebug (5, "WKSConstructionHeuristic: vertex %lu has been chosen from VerticesDeg1.", v->getLabel()) ;
 #endif
-				numDeg1++ ;
 			}
 		}
 		else {
@@ -73,7 +69,6 @@ void WKSConstructionHeuristic::run ()
 #ifdef DEBUG
 				printDebug (5, "WKSConstructionHeuristic: vertex %lu has been chosen from VerticesDegG.", v->getLabel()) ;
 #endif
-				numDegG++ ;
 			}
 		}
 

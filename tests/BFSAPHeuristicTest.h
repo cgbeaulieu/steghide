@@ -40,13 +40,13 @@ class BFSAPHeuristicTest : public UnitTest {
 	void testAlgorithm (void) ;
 
 	private:
-	BitString *bs1, *bs2, *bs3, *bs4, *bs5 ;
-	CvrStgFile *f1, *f2, *f3, *f4, *f5 ;
-	Selector *s1, *s2, *s3, *s4, *s5 ;
-	Graph *g1, *g2, *g3, *g4, *g5 ;
-	Matching *m1, *m2, *m3, *m4, *m5 ;
-	BFSAPHeuristic *aph1, *aph2, *aph3, *aph4, *aph5 ;
-	Globals gl1, gl2, gl3, gl4, gl5 ;
+	BitString *bs1, *bs2, *bs3, *bs4 ;
+	CvrStgFile *f1, *f2, *f3, *f4 ;
+	Selector *s1, *s2, *s3, *s4 ;
+	Graph *g1, *g2, *g3, *g4 ;
+	Matching *m1, *m2, *m3, *m4 ;
+	BFSAPHeuristic *aph1, *aph2, *aph3, *aph4 ;
+	Globals gl1, gl2, gl3, gl4 ;
 } ;
 
 #endif // ndef SH_BFSAPHEURISTICTEST_H

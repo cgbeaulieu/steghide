@@ -433,7 +433,7 @@ void BmpFile::readheaders ()
 			break ; }
 		}
 	}
-	catch (BinaryInputError e) {
+	catch (BinaryInputError& e) {
 		switch (e.getType()) {
 			case BinaryInputError::FILE_ERR: {
 				throw SteghideError (_("an error occurred while reading the bmp headers from the file \"%s\"."), getBinIO()->getName().c_str()) ;
@@ -663,7 +663,7 @@ void BmpFile::writeheaders ()
 			break ; }
 		}
 	}
-	catch (BinaryOutputError e) {
+	catch (BinaryOutputError& e) {
 		switch (e.getType()) {
 			case BinaryOutputError::FILE_ERR: {
 				throw SteghideError (_("an error occurred while writing the bmp headers to the file \"%s\"."), getBinIO()->getName().c_str()) ;
@@ -784,7 +784,7 @@ void BmpFile::readdata ()
 			atend.push_back (getBinIO()->read8()) ;
 		}
 	}
-	catch (BinaryInputError e) {
+	catch (BinaryInputError& e) {
 		switch (e.getType()) {
 			case BinaryInputError::FILE_ERR: {
 				throw SteghideError (_("an error occurred while reading the bmp data from the file \"%s\"."), getBinIO()->getName().c_str()) ;
@@ -834,7 +834,7 @@ void BmpFile::writedata ()
 			getBinIO()->write8 (*i) ;
 		}
 	}
-	catch (BinaryOutputError e) {
+	catch (BinaryOutputError& e) {
 		switch (e.getType()) {
 			case BinaryOutputError::FILE_ERR: {
 				throw SteghideError (_("an error occurred while writing the bitmap data to the file \"%s\"."), getBinIO()->getName().c_str()) ;

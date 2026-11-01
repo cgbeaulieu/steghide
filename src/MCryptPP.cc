@@ -61,8 +61,8 @@ class CallocBuffer {
 } ;
 
 /**
- * libmcrypt's eight modes, translated from modules/modes/*.c of libmcrypt
- * 2.5.8. Reg and Enc are the two registers each mode keeps (s_register and
+ * libmcrypt's eight modes, translated from the sources in modules/modes/ of
+ * libmcrypt 2.5.8. Reg and Enc are the two registers each mode keeps (s_register and
  * enc_s_register, or the counter and the encrypted counter).
  *
  * libmcrypt kept state between mcrypt_generic calls so that a stream could

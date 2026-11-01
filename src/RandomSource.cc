@@ -48,10 +48,10 @@ RandomSource::RandomSource ()
 
 RandomSource::~RandomSource()
 {
+	// nothing was written to it, and a destructor cannot throw (it used to,
+	// which would have called std::terminate)
 	if (RandomInput != NULL) {
-		if (fclose (RandomInput) != 0) {
-			throw SteghideError (_("could not close random input file.")) ;
-		}
+		fclose (RandomInput) ;
 	}
 }
 

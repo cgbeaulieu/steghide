@@ -49,7 +49,7 @@ class SampleValueAdjacencyList {
 	/**
 	 * check if every row contains the same set of sample values
 	 **/
-	bool operator== (const SampleValueAdjacencyList& sval) ;
+	bool operator== (const SampleValueAdjacencyList& sval) const ;
 
 	/**
 	 * sort the list in a way that the first entry of a row has the least distance to source sample value

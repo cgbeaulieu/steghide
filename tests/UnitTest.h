@@ -65,7 +65,7 @@ class UnitTest : public Test {
 
 	void addTestResult (bool r) ;
 
-	char *strip_test (char* s)
+	const char *strip_test (const char* s)
 		{ return (s + 4) ; } ;
 
 	private:
