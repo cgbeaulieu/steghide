@@ -60,9 +60,21 @@ void Session::run ()
 			else {
 				// write extracted data to file with embedded file name
 				myassert (Args.ExtFn.getValue() == "") ;
-				fn = embdata->getFileName() ;
-				if (fn.length() == 0) {
+				const std::string embfn = embdata->getFileName() ;
+				if (embfn.length() == 0) {
 					throw SteghideError (_("please specify a file name for the extracted data (there is no name embedded in the stego file).")) ;
+				}
+				// The name comes from the stego file. Embedding strips the
+				// directories, so a name with one was not written by steghide:
+				// strip them here too, instead of writing outside the current
+				// directory (or to an absolute path).
+				fn = stripDir (embfn) ;
+				if (fn == "" || fn == "." || fn == "..") {
+					throw SteghideError (_("the file name \"%s\" embedded in the stego file can not be used. please specify a file name for the extracted data."), embfn.c_str()) ;
+				}
+				if (fn != embfn) {
+					Warning w (_("the file name \"%s\" embedded in the stego file contains a directory. writing to \"%s\" instead."), embfn.c_str(), fn.c_str()) ;
+					w.printMessage() ;
 				}
 			}
 

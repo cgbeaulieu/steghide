@@ -200,6 +200,8 @@ if(BUILD_TESTING)
 		add_test(NAME compat
 			COMMAND ${BASH_EXECUTABLE} ${PROJECT_SOURCE_DIR}/tests/compat/check.sh
 				$<TARGET_FILE:steghide> ${STEGHIDE_COMPAT_REFERENCE})
+		add_test(NAME extract_name
+			COMMAND ${BASH_EXECUTABLE} ${PROJECT_SOURCE_DIR}/tests/extract_name/check.sh $<TARGET_FILE:steghide>)
 	endif()
 
 	# The fuzz targets, see fuzz/README.md. Without STEGHIDE_FUZZ they get a
