@@ -20,6 +20,7 @@ option(STEGHIDE_DEBUG "Compile code used only for debugging (--debug)" OFF)
 option(STEGHIDE_NORANDOM "Disable randomness, making every run exactly reproducible" OFF)
 option(STEGHIDE_NLS "Translate messages with gettext" ON)
 set(STEGHIDE_SANITIZE "" CACHE STRING "Sanitizers to build with, e.g. address,undefined")
+option(STEGHIDE_FUZZ "Build the fuzz targets with libFuzzer (Clang only), see fuzz/README.md" OFF)
 set(STEGHIDE_COMPAT_REFERENCE "" CACHE FILEPATH
 	"steghide 0.5.1 binary; when set, the compat test also checks that 0.5.1 reads what this build writes")
 
@@ -118,6 +119,16 @@ if(STEGHIDE_SANITIZE)
 	endforeach()
 endif()
 
+if(STEGHIDE_FUZZ)
+	if(NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+		message(FATAL_ERROR "STEGHIDE_FUZZ needs Clang's libFuzzer")
+	endif()
+	foreach(target steghide_mcrypt steghide_core)
+		target_compile_options(${target} PUBLIC -fsanitize=fuzzer-no-link -fno-sanitize-recover=all)
+		target_link_options(${target} PUBLIC -fsanitize=fuzzer-no-link)
+	endforeach()
+endif()
+
 add_executable(steghide src/main.cc)
 target_link_libraries(steghide PRIVATE steghide_core)
 target_compile_definitions(steghide PRIVATE LOCALEDIR="${CMAKE_INSTALL_FULL_LOCALEDIR}")
@@ -191,8 +202,29 @@ if(BUILD_TESTING)
 				$<TARGET_FILE:steghide> ${STEGHIDE_COMPAT_REFERENCE})
 	endif()
 
+	# The fuzz targets, see fuzz/README.md. Without STEGHIDE_FUZZ they get a
+	# main() that runs each input once. Either way CTest replays the seeds and
+	# the inputs that once crashed them.
+	foreach(target fuzz_cover fuzz_embdata)
+		add_executable(${target} fuzz/${target}.cc)
+		target_link_libraries(${target} PRIVATE steghide_core)
+		if(STEGHIDE_FUZZ)
+			target_link_options(${target} PRIVATE -fsanitize=fuzzer)
+		else()
+			target_sources(${target} PRIVATE fuzz/standalone.cc)
+		endif()
+	endforeach()
+	add_executable(embdata_seeds fuzz/embdata_seeds.cc)
+	target_link_libraries(embdata_seeds PRIVATE steghide_core)
+
+	add_test(NAME fuzz_cover COMMAND fuzz_cover -runs=0
+		${PROJECT_SOURCE_DIR}/fuzz/regressions/cover
+		${PROJECT_SOURCE_DIR}/tests/data ${PROJECT_SOURCE_DIR}/tests/compat/fixtures)
+	add_test(NAME fuzz_embdata COMMAND fuzz_embdata -runs=0
+		${PROJECT_SOURCE_DIR}/fuzz/regressions/embdata ${PROJECT_SOURCE_DIR}/fuzz/seeds/embdata)
+
 	if(STEGHIDE_SANITIZE)
-		# all three check for leaks too
+		# all of them check for leaks too
 		get_property(tests DIRECTORY PROPERTY TESTS)
 		set_tests_properties(${tests} PROPERTIES ENVIRONMENT
 			"ASAN_OPTIONS=detect_leaks=1;UBSAN_OPTIONS=print_stacktrace=1:halt_on_error=1")
