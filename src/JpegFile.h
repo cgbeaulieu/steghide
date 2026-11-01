@@ -25,6 +25,7 @@
 
 #ifdef USE_LIBJPEG
 
+#include <csetjmp>
 #include <memory>
 #include <vector>
 
@@ -78,10 +79,23 @@ class JpegFile : public CvrStgFile {
 	static const UWORD32 Radius = 1 ;
 	static const EmbValue EmbValueModulus = 2 ;
 
+	/**
+	 * libjpeg's error manager calls exit() on errors. This one jumps back
+	 * to JpegFile, which throws a SteghideError: C++ exceptions can not
+	 * unwind through libjpeg.
+	 **/
+	struct ErrorManager {
+		struct jpeg_error_mgr pub ;
+		jmp_buf jump ;
+	} ;
+	static void errorExit (j_common_ptr cinfo) ;
+	static std::string errorMessage (j_common_ptr cinfo) ;
+
 	struct jpeg_compress_struct CInfo ;
+	ErrorManager CErrMgr ;
 	struct jpeg_decompress_struct DeCInfo ;
 	/// DeCInfo's error manager, which libjpeg uses for as long as DeCInfo exists
-	struct jpeg_error_mgr DeCErrMgr ;
+	ErrorManager DeCErrMgr ;
 	/// true from jpeg_create_decompress until jpeg_destroy_decompress
 	bool DeCInfoCreated ;
 	std::vector<unsigned int> HeightInBlocks ;

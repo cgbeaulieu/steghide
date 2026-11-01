@@ -33,7 +33,7 @@
 #include "error.h"
 
 JpegFile::JpegFile (std::unique_ptr<BinaryIO> io)
-	: CvrStgFile()
+	: CvrStgFile(), CInfo(), DeCInfo()
 {
 	setSamplesPerVertex (SamplesPerVertex) ;
 	setRadius (Radius) ;
@@ -49,6 +49,18 @@ JpegFile::~JpegFile ()
 	if (DeCInfoCreated) {
 		jpeg_destroy_decompress (&DeCInfo) ;
 	}
+}
+
+void JpegFile::errorExit (j_common_ptr cinfo)
+{
+	longjmp (((ErrorManager*) cinfo->err)->jump, 1) ;
+}
+
+std::string JpegFile::errorMessage (j_common_ptr cinfo)
+{
+	char buf[JMSG_LENGTH_MAX] ;
+	(*cinfo->err->format_message) (cinfo, buf) ;
+	return buf ;
 }
 
 std::list<CvrStgFile::Property> JpegFile::getProperties () const
@@ -76,7 +88,15 @@ void JpegFile::read (BinaryIO* io)
 	}
 
 	// the error manager has to outlive this function: write() still uses DeCInfo
-	DeCInfo.err = jpeg_std_error (&DeCErrMgr) ;
+	DeCInfo.err = jpeg_std_error (&DeCErrMgr.pub) ;
+	DeCErrMgr.pub.error_exit = errorExit ;
+	if (setjmp (DeCErrMgr.jump)) {
+		// the constructor is throwing, so the destructor will not clean up
+		std::string msg = errorMessage ((j_common_ptr) &DeCInfo) ;
+		jpeg_destroy_decompress (&DeCInfo) ;
+		DeCInfoCreated = false ;
+		throw SteghideError (_("could not read the jpeg file \"%s\": %s."), io->getName().c_str(), msg.c_str()) ;
+	}
 	jpeg_create_decompress (&DeCInfo) ;
 	DeCInfoCreated = true ;
 	jpeg_stdio_src (&DeCInfo, infile) ;
@@ -140,8 +160,20 @@ void JpegFile::write ()
 	FILE* outfile = getBinIO()->getStream() ;
 
 	// prepare for writing (libjpeg needs err set before jpeg_create_compress)
-	struct jpeg_error_mgr jerr2 ;
-	CInfo.err = jpeg_std_error(&jerr2) ;
+	CInfo.err = jpeg_std_error (&CErrMgr.pub) ;
+	CErrMgr.pub.error_exit = errorExit ;
+	// errors in DeCInfo come back here too: read() has returned. jpeg_destroy_*
+	// may be called twice, and the destructor destroys DeCInfo.
+	if (setjmp (CErrMgr.jump)) {
+		std::string msg = errorMessage ((j_common_ptr) &CInfo) ;
+		jpeg_destroy_compress (&CInfo) ;
+		throw SteghideError (_("could not write the jpeg file \"%s\": %s."), getBinIO()->getName().c_str(), msg.c_str()) ;
+	}
+	if (setjmp (DeCErrMgr.jump)) {
+		std::string msg = errorMessage ((j_common_ptr) &DeCInfo) ;
+		jpeg_destroy_compress (&CInfo) ;
+		throw SteghideError (_("could not write the jpeg file \"%s\": %s."), getBinIO()->getName().c_str(), msg.c_str()) ;
+	}
 	jpeg_create_compress (&CInfo) ;
 	jpeg_copy_critical_parameters (&DeCInfo, &CInfo) ;
 	jpeg_stdio_dest (&CInfo, outfile) ;
