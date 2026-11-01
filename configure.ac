@@ -7,6 +7,8 @@ AM_CONFIG_HEADER(config.h)
 
 dnl checks for programs.
 AC_PROG_CXX
+AC_PROG_CC
+AC_PROG_RANLIB
 AC_PROG_INSTALL
 AC_PROG_AWK
 AC_PROG_LN_S
@@ -166,14 +168,6 @@ dnl Check for zlib
 AC_CHECK_LIB(z, zlibVersion)
 AC_CHECK_HEADER(zlib.h)
 
-dnl Check for libmhash
-AC_CHECK_LIB(mhash, mhash_init)
-AC_CHECK_HEADER(mhash.h)
-
-dnl Check for libmcrypt
-AC_CHECK_LIB(mcrypt, mcrypt_generic, , ,)
-AC_CHECK_HEADER(mcrypt.h)
-
 dnl Check for libjpeg
 AC_CHECK_LIB(jpeg, jpeg_read_coefficients)
 AC_CHECK_HEADER(jpeglib.h)
@@ -190,17 +184,6 @@ else
 	AC_DEFINE(USE_LIBJPEG,1,[use the libjpeg library (header and lib are present)])
 fi
 
-if test "$ac_cv_header_mcrypt_h" = no || test "$ac_cv_lib_mcrypt_mcrypt_module_open" = no ;
-then
-	echo "**********";
-	echo "libmcrypt could not be found on your system. Steghide will be compiled without";
-	echo "support for encryption. You will not be able to extract encrypted data!";
-	echo "libmcrypt can be downloaded from http://mcrypt.sourceforge.net/";
-	echo "**********";
-else
-	AC_DEFINE(USE_LIBMCRYPT,1,[use the libmcrypt library (header and lib are present)])
-fi	
-
 if test "$ac_cv_header_zlib_h" = no || test "$ac_cv_lib_z_zlibVersion" = no ;
 then
 	echo "**********";
@@ -210,15 +193,6 @@ then
 	echo "**********";
 else
 	AC_DEFINE(USE_ZLIB,1,[use the z compression library (header and lib are present)])
-fi
-
-if test "$ac_cv_header_mhash_h" = no || test "$ac_cv_lib_mhash_mhash_init" = no ;
-then
-	echo "**********";
-	echo "libmhash could not be found on your system but is needed to compile steghide.";
-	echo "libmhash can be downloaded from http://mhash.sourceforge.net/.";
-	echo "**********";
-	AC_MSG_ERROR([[libmhash not found]])
 fi
 
 dnl create Makefiles

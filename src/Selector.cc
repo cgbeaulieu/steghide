@@ -26,7 +26,7 @@
 Selector::Selector (UWORD32 m, std::string pp)
 	: Maximum(m), NumInArray(0)
 {
-	MHashPP hash (MHASH_MD5) ;
+	MHashPP hash (MHashPP::MD5) ;
 	hash << pp << MHashPP::endhash ;
 	BitString h = hash.getHashBits() ;
 

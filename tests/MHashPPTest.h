@@ -50,7 +50,7 @@ class MHashPPTest : public UnitTest {
 	 * \param shouldbe the reference value of the result of the hash algorithm
 	 * \return true iff shouldbe is the result of the hash algorithm a applied to data by MHashPP
 	 **/
-	bool genericTestMHashPP (hashid a, BitString data, BYTE* shouldbe) ;
+	bool genericTestMHashPP (MHashPP::Algorithm a, BitString data, BYTE* shouldbe) ;
 } ;
 
 #endif // ndef SH_MHASHPPTEST_H

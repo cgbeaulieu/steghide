@@ -207,7 +207,6 @@ std::string Session::stripDir (std::string s) const
 
 void Session::printEncInfo ()
 {
-#ifdef USE_LIBMCRYPT
 	std::vector<std::string> algos = MCryptPP::getListAlgorithms() ;
 	std::vector<std::string> modes = MCryptPP::getListModes() ;
 
@@ -227,11 +226,6 @@ void Session::printEncInfo ()
 			std::cout << std::endl ;
 		}
 	}
-#else
-	printf (_("steghide has been compiled without support for encryption.\n"
-		"If you want to encrypt your data before embedding it, use an external encryption\n"
-		"program or install libmcrypt (http://mcrypt.sourceforge.net/) and recompile steghide.\n")) ;
-#endif
 }
 
 void Session::printVersion ()

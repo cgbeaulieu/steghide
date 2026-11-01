@@ -20,7 +20,6 @@
 #cmakedefine NORANDOM 1
 #cmakedefine ENABLE_NLS 1
 #cmakedefine USE_LIBJPEG 1
-#cmakedefine USE_LIBMCRYPT 1
 #cmakedefine USE_ZLIB 1
 #cmakedefine HAVE_TERMIOS_H 1
 #cmakedefine HAVE_DEV_URANDOM 1

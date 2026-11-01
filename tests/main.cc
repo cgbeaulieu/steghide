@@ -42,6 +42,7 @@
 #include "JpegSampleValueTest.h"
 #include "MatchingTest.h"
 #include "MCryptPPTest.h"
+#include "CryptoVectorTest.h"
 #include "MHashKeyGenTest.h"
 #include "MHashPPTest.h"
 #include "SampleValueAdjacencyListTest.h"
@@ -99,6 +100,9 @@ int main (int argc, char *argv[])
 
 	MCryptPPTest mct (&ts) ;
 	ts.addUnitTest (&mct) ;
+
+	CryptoVectorTest cvt (&ts) ;
+	ts.addUnitTest (&cvt) ;
 
 	// SampleValues
 	AudioSampleValueTest asvt (&ts) ;

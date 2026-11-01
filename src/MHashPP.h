@@ -21,20 +21,27 @@
 #ifndef SH_MHASHPP_H
 #define SH_MHASHPP_H
 
-#include "wrapper_mhash.h"
-
 #include "common.h"
 
 class BitString ;
 
+/**
+ * \class MHashPP
+ * \brief the hash functions steghide used from libmhash
+ *
+ * MD5 and libmhash's MHASH_CRC32, which is the CRC-32 with the polynomial
+ * 0x04C11DB7 fed most significant bit first (as in bzip2, not as in zlib),
+ * returned least significant byte first.
+ **/
 class MHashPP {
 	public:
+	enum Algorithm { CRC32, MD5 } ;
 	enum Command { endhash } ;
 
 	MHashPP (void) ;
-	MHashPP (hashid a) ;
+	MHashPP (Algorithm a) ;
 
-	void init (hashid a) ;
+	void init (Algorithm a) ;
 
 	const std::vector<BYTE>& end (void) ;
 
@@ -77,16 +84,23 @@ class MHashPP {
 	unsigned int getHashSize (void) ;
 
 	private:
-	/// true iff HashD contains a legal hash descriptor and data can be passed via <<
+	/// true iff init has been called and data can be passed via <<
 	bool hashing ;
-	MHASH HashD ;
+	Algorithm Algo ;
 
 	/// true iff HashBytes contains a valid hash value
 	bool HashBytesValid ;
 	std::vector<BYTE> HashBytes ;
 
-	std::string getAlgorithmName (void) ;
-	static std::string getAlgorithmName (hashid id) ;
+	UWORD32 Crc ;
+
+	UWORD32 Md5State[4] ;
+	BYTE Md5Block[64] ;
+	/// the number of bytes hashed so far
+	unsigned long long Md5Length ;
+
+	void update (const BYTE* data, unsigned long n) ;
+	void md5Transform (const BYTE* block) ;
 } ;
 
 #endif // ndef SH_MHASHPP_H

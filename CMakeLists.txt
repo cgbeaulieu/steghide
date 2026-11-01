@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20...4.4)
 
-project(steghide VERSION 0.6.0 LANGUAGES CXX)
+project(steghide VERSION 0.6.0 LANGUAGES C CXX)
 
 include(CheckIncludeFileCXX)
 include(GNUInstallDirs)
@@ -12,6 +12,9 @@ endif()
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_C_EXTENSIONS OFF)
 
 option(STEGHIDE_DEBUG "Compile code used only for debugging (--debug)" OFF)
 option(STEGHIDE_NORANDOM "Disable randomness, making every run exactly reproducible" OFF)
@@ -20,14 +23,8 @@ set(STEGHIDE_SANITIZE "" CACHE STRING "Sanitizers to build with, e.g. address,un
 set(STEGHIDE_COMPAT_REFERENCE "" CACHE FILEPATH
 	"steghide 0.5.1 binary; when set, the compat test also checks that 0.5.1 reads what this build writes")
 
-# Dependencies. As in configure.ac, zlib, libjpeg and libmcrypt are optional
-# and only mhash is required.
-
-find_path(MHASH_INCLUDE_DIR mhash.h)
-find_library(MHASH_LIBRARY mhash)
-if(NOT MHASH_INCLUDE_DIR OR NOT MHASH_LIBRARY)
-	message(FATAL_ERROR "libmhash not found")
-endif()
+# Dependencies. As in configure.ac, zlib and libjpeg are optional. The
+# ciphers and hashes steghide used from libmcrypt and libmhash are in-tree.
 
 find_package(ZLIB)
 if(ZLIB_FOUND)
@@ -41,14 +38,6 @@ if(JPEG_FOUND)
 	set(USE_LIBJPEG 1)
 else()
 	message(WARNING "libjpeg not found: steghide will not be able to read or write JPEG files")
-endif()
-
-find_path(MCRYPT_INCLUDE_DIR mcrypt.h)
-find_library(MCRYPT_LIBRARY mcrypt)
-if(MCRYPT_INCLUDE_DIR AND MCRYPT_LIBRARY)
-	set(USE_LIBMCRYPT 1)
-else()
-	message(WARNING "libmcrypt not found: steghide will not be able to encrypt or decrypt embedded data")
 endif()
 
 if(STEGHIDE_NLS)
@@ -73,6 +62,17 @@ if(CMAKE_SYSTEM_NAME MATCHES "Windows|CYGWIN")
 endif()
 configure_file(cmake/config.h.in config.h)
 
+# libmcrypt's ciphers, see src/mcrypt/README.md
+
+add_library(steghide_mcrypt STATIC
+	src/mcrypt/arcfour.c src/mcrypt/blowfish.c src/mcrypt/cast-128.c src/mcrypt/cast-256.c
+	src/mcrypt/des.c src/mcrypt/enigma.c src/mcrypt/gost.c src/mcrypt/loki97.c src/mcrypt/rc2.c
+	src/mcrypt/rijndael-128.c src/mcrypt/rijndael-192.c src/mcrypt/rijndael-256.c
+	src/mcrypt/saferplus.c src/mcrypt/serpent.c src/mcrypt/tripledes.c src/mcrypt/twofish.c
+	src/mcrypt/wake.c src/mcrypt/xtea.c
+)
+target_include_directories(steghide_mcrypt PRIVATE src/mcrypt)
+
 # Everything but main.cc goes into an object library that the unit tests link too.
 
 add_library(steghide_core OBJECT
@@ -89,18 +89,14 @@ add_library(steghide_core OBJECT
 	src/WavChunkHeader.cc src/WavChunkUnused.cc src/WavFile.cc src/WavFormatChunk.cc
 	src/WavPCMSampleValue.cc src/error.cc src/msg.cc src/SMDConstructionHeuristic.cc
 )
-target_include_directories(steghide_core PUBLIC ${PROJECT_BINARY_DIR} src ${MHASH_INCLUDE_DIR})
+target_include_directories(steghide_core PUBLIC ${PROJECT_BINARY_DIR} src)
 target_compile_definitions(steghide_core PUBLIC HAVE_CONFIG_H)
-target_link_libraries(steghide_core PUBLIC ${MHASH_LIBRARY})
+target_link_libraries(steghide_core PUBLIC steghide_mcrypt)
 if(USE_ZLIB)
 	target_link_libraries(steghide_core PUBLIC ZLIB::ZLIB)
 endif()
 if(USE_LIBJPEG)
 	target_link_libraries(steghide_core PUBLIC JPEG::JPEG)
-endif()
-if(USE_LIBMCRYPT)
-	target_include_directories(steghide_core PUBLIC ${MCRYPT_INCLUDE_DIR})
-	target_link_libraries(steghide_core PUBLIC ${MCRYPT_LIBRARY})
 endif()
 if(ENABLE_NLS)
 	target_link_libraries(steghide_core PUBLIC Intl::Intl)
@@ -110,11 +106,16 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 	# the hardening flags Debian's add-hardening.patch adds to the autotools build
 	target_compile_options(steghide_core PUBLIC
 		-Wall -fstack-protector-strong -Wformat -Werror=format-security)
+	# the ciphers compare unsigned test vectors with strcmp in their self-tests
+	target_compile_options(steghide_mcrypt PRIVATE
+		-Wall -Wno-pointer-sign -fstack-protector-strong -Wformat -Werror=format-security)
 endif()
 
 if(STEGHIDE_SANITIZE)
-	target_compile_options(steghide_core PUBLIC -fsanitize=${STEGHIDE_SANITIZE} -fno-omit-frame-pointer)
-	target_link_options(steghide_core PUBLIC -fsanitize=${STEGHIDE_SANITIZE})
+	foreach(target steghide_mcrypt steghide_core)
+		target_compile_options(${target} PUBLIC -fsanitize=${STEGHIDE_SANITIZE} -fno-omit-frame-pointer)
+		target_link_options(${target} PUBLIC -fsanitize=${STEGHIDE_SANITIZE})
+	endforeach()
 endif()
 
 add_executable(steghide src/main.cc)
@@ -160,7 +161,7 @@ if(BUILD_TESTING)
 		tests/BmpFileTest.cc tests/CvrStgFileTest.cc
 		tests/DummyFile.cc tests/DummySampleValue.cc tests/EdgeIteratorTest.cc tests/EmbDataTest.cc
 		tests/GraphTest.cc tests/JpegFileTest.cc tests/JpegSampleValueTest.cc tests/MCryptPPTest.cc
-		tests/MHashKeyGenTest.cc tests/MHashPPTest.cc tests/MatchingTest.cc
+		tests/MHashKeyGenTest.cc tests/MHashPPTest.cc tests/MatchingTest.cc tests/CryptoVectorTest.cc
 		tests/SampleValueAdjacencyListTest.cc tests/SampleValueTest.cc tests/SelectorTest.cc
 		tests/TestSuite.cc tests/UnitTest.cc tests/WavFileTest.cc tests/WavPCMSampleValueTest.cc
 		tests/main.cc
@@ -172,7 +173,7 @@ if(BUILD_TESTING)
 	# they run in a mirror of it in the build tree.
 	set(test_dir ${PROJECT_BINARY_DIR}/tests)
 	file(MAKE_DIRECTORY ${test_dir})
-	foreach(f data systemtests.pl st_embparameters.pl st_fileformats.pl STSupport.pm)
+	foreach(f data vectors systemtests.pl st_embparameters.pl st_fileformats.pl STSupport.pm)
 		file(CREATE_LINK ${PROJECT_SOURCE_DIR}/tests/${f} ${test_dir}/${f} SYMBOLIC COPY_ON_ERROR)
 	endforeach()
 

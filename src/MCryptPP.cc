@@ -18,30 +18,209 @@
  *
  */
 
-#include "common.h"
-
-#ifdef USE_LIBMCRYPT
-
-#include <algorithm>
 #include <cstdlib>
-#include <vector>
 #include <string>
-
-#include <mcrypt.h>
+#include <vector>
 
 #include "BitString.h"
 #include "EncryptionAlgorithm.h"
 #include "EncryptionMode.h"
 #include "MCryptPP.h"
 #include "MHashKeyGen.h"
+#include "RandomSource.h"
+#include "common.h"
 #include "error.h"
+#include "mcrypt/mcrypt_algorithm.h"
+
+namespace {
+
+/// the algorithms in the order libmcrypt 2.5.8 lists them
+const mcrypt_algorithm* const Algorithms[] = {
+	&mcrypt_cast_128, &mcrypt_gost, &mcrypt_rijndael_128, &mcrypt_twofish,
+	&mcrypt_arcfour, &mcrypt_cast_256, &mcrypt_loki97, &mcrypt_rijndael_192,
+	&mcrypt_saferplus, &mcrypt_wake, &mcrypt_des, &mcrypt_rijndael_256,
+	&mcrypt_serpent, &mcrypt_xtea, &mcrypt_blowfish, &mcrypt_enigma,
+	&mcrypt_rc2, &mcrypt_tripledes
+} ;
+
+/// the modes in the order libmcrypt 2.5.8 lists them
+const char* const Modes[] = { "cbc", "cfb", "ctr", "ecb", "ncfb", "nofb", "ofb", "stream" } ;
+
+/// memory from calloc, as libmcrypt allocated key schedules and keys (aligned for any type)
+class CallocBuffer {
+	public:
+	CallocBuffer (size_t n) : Ptr(calloc (1, n == 0 ? 1 : n))
+		{ if (Ptr == NULL) throw SteghideError (_("could not allocate memory.")) ; } ;
+	~CallocBuffer (void) { free (Ptr) ; } ;
+	CallocBuffer (const CallocBuffer&) = delete ;
+	CallocBuffer& operator= (const CallocBuffer&) = delete ;
+	BYTE* get (void) const { return (BYTE*) Ptr ; } ;
+
+	private:
+	void* Ptr ;
+} ;
+
+/**
+ * libmcrypt's eight modes, translated from modules/modes/*.c of libmcrypt
+ * 2.5.8. Reg and Enc are the two registers each mode keeps (s_register and
+ * enc_s_register, or the counter and the encrypted counter).
+ *
+ * libmcrypt kept state between mcrypt_generic calls so that a stream could
+ * continue after a partial block. MCryptPP en- or decrypts everything in one
+ * run, where only the last block can be partial, so that state is left out.
+ **/
+class ModeRunner {
+	public:
+	ModeRunner (const mcrypt_algorithm* a, void* ctx, EncryptionMode::IRep m, const BYTE* iv)
+		: Algo(a), Ctx(ctx), M(m), BS(a->get_block_size()), Reg(BS), Enc(BS)
+	{
+		if (iv != NULL && M != EncryptionMode::ECB && M != EncryptionMode::STREAM) {
+			copy (Reg.data(), iv, BS) ;
+		}
+	} ;
+
+	void run (BYTE* data, unsigned int len, bool encrypt)
+	{
+		switch (M) {
+			case EncryptionMode::ECB:
+			requireBlock (len) ;
+			for (unsigned int j = 0 ; j < len / BS ; j++) {
+				if (encrypt) {
+					Algo->block_encrypt (Ctx, data + j * BS) ;
+				}
+				else {
+					Algo->block_decrypt (Ctx, data + j * BS) ;
+				}
+			}
+			break ;
+
+			case EncryptionMode::CBC:
+			requireBlock (len) ;
+			for (unsigned int j = 0 ; j < len / BS ; j++) {
+				BYTE* block = data + j * BS ;
+				if (encrypt) {
+					xorInto (block, Reg.data(), BS) ;
+					Algo->block_encrypt (Ctx, block) ;
+					copy (Reg.data(), block, BS) ;
+				}
+				else {
+					copy (Enc.data(), block, BS) ;
+					Algo->block_decrypt (Ctx, block) ;
+					xorInto (block, Reg.data(), BS) ;
+					copy (Reg.data(), Enc.data(), BS) ;
+				}
+			}
+			break ;
+
+			case EncryptionMode::CFB:	// 8 bit cfb
+			case EncryptionMode::OFB:	// 8 bit ofb
+			for (unsigned int j = 0 ; j < len ; j++) {
+				copy (Enc.data(), Reg.data(), BS) ;
+				Algo->block_encrypt (Ctx, Enc.data()) ;
+				BYTE in = data[j] ;
+				data[j] ^= Enc[0] ;
+				for (unsigned int i = 0 ; i < BS - 1 ; i++) {
+					Reg[i] = Reg[i + 1] ;
+				}
+				if (M == EncryptionMode::OFB) {
+					Reg[BS - 1] = Enc[0] ;
+				}
+				else {
+					Reg[BS - 1] = encrypt ? data[j] : in ;	// the ciphertext byte
+				}
+			}
+			break ;
+
+			case EncryptionMode::NCFB:	// n bit cfb
+			case EncryptionMode::NOFB:	// n bit ofb
+			case EncryptionMode::CTR:
+			for (unsigned int j = 0 ; j < len / BS ; j++) {
+				feedback (data + j * BS, BS, encrypt) ;
+			}
+			if (len % BS > 0) {
+				feedback (data + (len / BS) * BS, len % BS, encrypt) ;
+			}
+			break ;
+
+			case EncryptionMode::STREAM:
+			if (encrypt) {
+				Algo->stream_encrypt (Ctx, data, len) ;
+			}
+			else {
+				Algo->stream_decrypt (Ctx, data, len) ;
+			}
+			break ;
+		}
+	} ;
+
+	private:
+	const mcrypt_algorithm* Algo ;
+	void* Ctx ;
+	EncryptionMode::IRep M ;
+	unsigned int BS ;
+	std::vector<BYTE> Reg ;
+	std::vector<BYTE> Enc ;
+
+	static void xorInto (BYTE* dst, const BYTE* src, unsigned int n)
+		{ for (unsigned int i = 0 ; i < n ; i++) dst[i] ^= src[i] ; } ;
+	static void copy (BYTE* dst, const BYTE* src, unsigned int n)
+		{ for (unsigned int i = 0 ; i < n ; i++) dst[i] = src[i] ; } ;
+
+	void requireBlock (unsigned int len) const
+	{
+		// libmcrypt returned an error instead of encrypting nothing
+		if (len != 0 && len < BS) {
+			throw SteghideError (_("could not encrypt data.")) ;
+		}
+	} ;
+
+	/// increment the counter (big endian, the whole block)
+	void increaseCounter (void)
+	{
+		for (int i = BS - 1 ; i >= 0 ; i--) {
+			if (Reg[i] == 0xff) {
+				Reg[i] = 0 ;
+			}
+			else {
+				Reg[i]++ ;
+				break ;
+			}
+		}
+	} ;
+
+	/**
+	 * process n <= BS bytes in ncfb, nofb or ctr, as the s_register_pos == 0
+	 * branches of xor_stuff_en/xor_stuff_de (ncfb) and xor_stuff (nofb, ctr)
+	 **/
+	void feedback (BYTE* p, unsigned int n, bool encrypt)
+	{
+		copy (Enc.data(), Reg.data(), BS) ;
+		Algo->block_encrypt (Ctx, Enc.data()) ;
+		if (M == EncryptionMode::NCFB && !encrypt) {
+			copy (Reg.data(), p, n) ;	// the ciphertext
+		}
+		xorInto (p, Enc.data(), n) ;
+		if (M == EncryptionMode::NCFB && encrypt) {
+			copy (Reg.data(), p, n) ;	// the ciphertext
+		}
+		if (M == EncryptionMode::NOFB) {
+			copy (Reg.data(), Enc.data(), BS) ;
+		}
+		if (M == EncryptionMode::CTR && n == BS) {
+			increaseCounter() ;
+		}
+	} ;
+} ;
+
+}
 
 MCryptPP::MCryptPP ()
+	: ModuleOpen(false), Algorithm(NULL)
 {
-	ModuleOpen = false ;
 }
 
 MCryptPP::MCryptPP (EncryptionAlgorithm a, EncryptionMode m)
+	: ModuleOpen(false), Algorithm(NULL)
 {
 	open (a, m) ;
 }
@@ -53,275 +232,233 @@ MCryptPP::~MCryptPP ()
 	}
 }
 
+const mcrypt_algorithm* MCryptPP::findAlgorithm (EncryptionAlgorithm a)
+{
+	std::string name = a.getStringRep() ;
+	for (const mcrypt_algorithm* algo : Algorithms) {
+		if (name == algo->name) {
+			return algo ;
+		}
+	}
+	return NULL ;
+}
+
+bool MCryptPP::isBlockAlgorithmMode (EncryptionMode m)
+{
+	return m.getIntegerRep() != EncryptionMode::STREAM ;
+}
+
+bool MCryptPP::modeHasIV (EncryptionMode m)
+{
+	return m.getIntegerRep() != EncryptionMode::ECB ;
+}
+
 void MCryptPP::open (EncryptionAlgorithm a, EncryptionMode m)
 {
-	std::string tmp1 = a.getStringRep(), tmp2 = m.getStringRep() ;
-	char algo[tmp1.size() + 1], mode[tmp2.size() + 1] ;
-	strcpy (algo, tmp1.c_str()) ;
-	strcpy (mode, tmp2.c_str()) ;
-
-	if ((MCryptD = mcrypt_module_open (algo, MCRYPTPP_LIBDIR, mode, MCRYPTPP_LIBDIR)) == MCRYPT_FAILED) {
-		throw SteghideError (_("could not open libmcrypt module \"%s\",\"%s\"."), algo, mode) ;
+	Algorithm = findAlgorithm (a) ;
+	if (Algorithm == NULL || !AlgoSupportsMode (a, m)) {
+		throw SteghideError (_("could not open libmcrypt module \"%s\",\"%s\"."), a.getStringRep().c_str(), m.getStringRep().c_str()) ;
 	}
+	Mode = m ;
 	ModuleOpen = true ;
 }
 
 void MCryptPP::close ()
 {
-	mcrypt_module_close (MCryptD) ;
+	Algorithm = NULL ;
 	ModuleOpen = false ;
+}
+
+unsigned int MCryptPP::getBlockSize () const
+{
+	myassert (ModuleOpen) ;
+	return Algorithm->get_block_size() ;
+}
+
+unsigned int MCryptPP::getKeySize () const
+{
+	myassert (ModuleOpen) ;
+	return Algorithm->get_key_size() ;
+}
+
+bool MCryptPP::hasIV () const
+{
+	myassert (ModuleOpen) ;
+	return modeHasIV (Mode) ;
+}
+
+unsigned int MCryptPP::getIVSize () const
+{
+	myassert (ModuleOpen) ;
+	if (isBlockAlgorithmMode (Mode)) {
+		return Algorithm->get_block_size() ;
+	}
+	else {
+		return Algorithm->stream_get_iv_size() ;
+	}
 }
 
 BitString MCryptPP::encrypt (BitString p, std::string pp)
 {
-	p.padRandom (8 * mcrypt_enc_get_block_size (MCryptD)) ; // blocksize is 1 for stream algorithms
-	std::vector<unsigned char> ciphertext = _encrypt (p.getBytes(), pp) ;
+	p.padRandom (8 * getBlockSize()) ; // blocksize is 1 for stream algorithms
+	std::vector<BYTE> ciphertext = _encrypt (p.getBytes(), pp) ;
 	return BitString (ciphertext) ;
 }
 
 BitString MCryptPP::decrypt (BitString c, std::string pp)
 {
-	myassert (c.getLength() % (8 * mcrypt_enc_get_block_size (MCryptD)) == 0) ;
-	std::vector<unsigned char> plaintext = _decrypt (c.getBytes(), pp) ;
+	myassert (c.getLength() % (8 * getBlockSize()) == 0) ;
+	std::vector<BYTE> plaintext = _decrypt (c.getBytes(), pp) ;
 	return BitString (plaintext) ;
 }
 
-void* MCryptPP::createKey (std::string pp)
+std::vector<BYTE> MCryptPP::createKey (std::string pp)
 {
-	unsigned int keysize = mcrypt_enc_get_key_size (MCryptD) ;
-	MHashKeyGen keygen (KEYGEN_MCRYPT, MHASH_MD5, keysize) ;
-	std::vector<unsigned char> key = keygen.createKey (pp) ;
-	unsigned char *retval = (unsigned char *) s_malloc (keysize) ;
-	for (unsigned int i = 0 ; i < keysize ; i++) {
-		retval[i] = key[i] ;
-	}
-	return retval ;
+	MHashKeyGen keygen (getKeySize()) ;
+	return keygen.createKey (pp) ;
 }
-std::vector<unsigned char> MCryptPP::_encrypt (std::vector<unsigned char> p, std::string pp)
+
+void MCryptPP::crypt (const std::vector<BYTE>& key, const BYTE* iv, std::vector<BYTE>& data, bool encrypt)
 {
-	// genereate key and IV (if needed)
-	void *key = createKey (pp) ;
-	unsigned char *IV = NULL ;
-	if (mcrypt_enc_mode_has_iv (MCryptD)) {
-		unsigned int ivsize = mcrypt_enc_get_iv_size (MCryptD) ;
-		std::vector<unsigned char> rndIV = RndSrc.getBytes (ivsize) ;
-		IV = (unsigned char *) s_malloc (ivsize) ;
-		for (unsigned int i = 0 ; i < ivsize ; i++) {
-			IV[i] = rndIV[i] ;
+	myassert (ModuleOpen) ;
+
+	// key size selection as in libmcrypt's internal_init_mcrypt
+	int maxkeysize = Algorithm->get_key_size() ;
+	int lenofkey = key.size() ;
+	if (lenofkey > maxkeysize || lenofkey == 0) {
+		throw SteghideError (_("could not initialize libmcrypt encryption. see above error messages if any.")) ;
+	}
+	int nsizes = 0 ;
+	const int* sizes = Algorithm->get_supported_key_sizes (&nsizes) ;
+	int keysize = lenofkey ;
+	bool supported = false ;
+	if (sizes != NULL) {
+		for (int i = 0 ; i < nsizes ; i++) {
+			if (lenofkey == sizes[i]) {
+				supported = true ;
+			}
+		}
+		if (!supported) {
+			keysize = maxkeysize ;
+			for (int i = 0 ; i < nsizes ; i++) {
+				if (lenofkey <= sizes[i]) {
+					keysize = sizes[i] ;
+					break ;
+				}
+			}
 		}
 	}
 
-	// initialize libmcrypt thread
-	unsigned int keysize = mcrypt_enc_get_key_size (MCryptD) ;
-	int err = -1 ;
-	if ((err = mcrypt_generic_init (MCryptD, key, keysize, IV)) < 0) {
-		mcrypt_perror (err) ;
+	// the key is zero-extended to the maximum key size
+	CallocBuffer keyword (maxkeysize) ;
+	for (int i = 0 ; i < lenofkey ; i++) {
+		keyword.get()[i] = key[i] ;
+	}
+	CallocBuffer ctx (Algorithm->get_size()) ;
+
+	int err = 0 ;
+	if (Algorithm->is_block_algorithm()) {
+		err = Algorithm->block_set_key (ctx.get(), keyword.get(), keysize) ;
+	}
+	else {
+		err = Algorithm->stream_set_key (ctx.get(), keyword.get(), keysize, iv, (iv != NULL) ? getIVSize() : 0) ;
+	}
+	if (err != 0) {
 		throw SteghideError (_("could not initialize libmcrypt encryption. see above error messages if any.")) ;
 	}
 
-	// copy plaintext
-	unsigned int plntextlen = p.size() ;
-	myassert (plntextlen % mcrypt_enc_get_block_size (MCryptD) == 0) ;
-	unsigned char *plntext = (unsigned char *) s_malloc (plntextlen) ;
-	for (unsigned int i = 0 ; i < plntextlen ; i++) {
-		plntext[i] = p[i] ;
+	// the block functions read and write whole word32s, so they need aligned memory
+	CallocBuffer buf (data.size()) ;
+	for (unsigned int i = 0 ; i < data.size() ; i++) {
+		buf.get()[i] = data[i] ;
 	}
-	
-	// encrypt plaintext
-	if (mcrypt_generic (MCryptD, plntext, plntextlen) != 0) {
-		throw SteghideError (_("could not encrypt data.")) ;
+	ModeRunner runner (Algorithm, ctx.get(), Mode.getIntegerRep(), iv) ;
+	runner.run (buf.get(), data.size(), encrypt) ;
+	for (unsigned int i = 0 ; i < data.size() ; i++) {
+		data[i] = buf.get()[i] ;
+	}
+}
+
+std::vector<BYTE> MCryptPP::_encrypt (std::vector<BYTE> p, std::string pp)
+{
+	myassert (p.size() % getBlockSize() == 0) ;
+
+	std::vector<BYTE> key = createKey (pp) ;
+	std::vector<BYTE> iv ;
+	if (hasIV()) {
+		iv = RndSrc.getBytes (getIVSize()) ;
 	}
 
-	// create the return value
-	std::vector<unsigned char> retval ;
-	unsigned int i = 0 ;
-	if (mcrypt_enc_mode_has_iv (MCryptD)) {
-		unsigned int ivsize = mcrypt_enc_get_iv_size (MCryptD) ;
-		retval = std::vector<unsigned char> (ivsize + plntextlen) ;
-		for ( ; i < ivsize ; i++) {
-			retval[i] = IV[i] ;
-		}
-	}
-	else {
-		retval = std::vector<unsigned char> (plntextlen) ;
-	}
-	for (unsigned int j = 0 ; j < plntextlen ; i++, j++) {
-		retval[i] = plntext[j] ;
-	}
+	crypt (key, hasIV() ? iv.data() : NULL, p, true) ;
 
-	// clean up
-	if (mcrypt_generic_deinit (MCryptD) < 0) {
-		throw SteghideError (_("could not finish libmcrypt encryption.")) ;
-	}
-	free (plntext) ;
-	free (key) ;
-	if (mcrypt_enc_mode_has_iv (MCryptD)) {
-		free (IV) ;
-	}
-
+	std::vector<BYTE> retval = iv ;
+	retval.insert (retval.end(), p.begin(), p.end()) ;
 	return retval ;
 }
 
-std::vector<unsigned char> MCryptPP::_decrypt (std::vector<unsigned char> c, std::string pp)
+std::vector<BYTE> MCryptPP::_decrypt (std::vector<BYTE> c, std::string pp)
 {
-	// generate key
-	void *key = createKey (pp) ;
-	unsigned char *IV = NULL ;
-	unsigned int cstart = 0 ;
-	if (mcrypt_enc_mode_has_iv (MCryptD)) {
-		unsigned int ivsize = mcrypt_enc_get_iv_size (MCryptD) ;
-		IV = (unsigned char *) s_malloc (ivsize) ;
-		for (unsigned int i = 0 ; i < ivsize ; i++) {
-			IV[i] = c[i] ;
-		}
-		cstart = ivsize ;
-	}
+	std::vector<BYTE> key = createKey (pp) ;
+	unsigned int ivsize = hasIV() ? getIVSize() : 0 ;
+	myassert (c.size() >= ivsize) ;
+	std::vector<BYTE> iv (c.begin(), c.begin() + ivsize) ;
+	std::vector<BYTE> ciphertext (c.begin() + ivsize, c.end()) ;
+	myassert (ciphertext.size() % getBlockSize() == 0) ;
 
-	// initialize libmcrypt thread
-	unsigned int keysize = mcrypt_enc_get_key_size (MCryptD) ;
-	int err = -1 ;
-	if ((err = mcrypt_generic_init (MCryptD, key, keysize, IV)) < 0) {
-		mcrypt_perror (err) ;
-		throw SteghideError (_("could not initialize libmcrypt decryption. see above error messages if any.")) ;
-	}
+	crypt (key, hasIV() ? iv.data() : NULL, ciphertext, false) ;
 
-	// copy ciphertext
-	unsigned long ciphertextlen = c.size() - cstart ;
-	myassert (ciphertextlen % mcrypt_enc_get_block_size (MCryptD) == 0) ;
-	unsigned char *ciphertext = (unsigned char *) s_malloc (ciphertextlen) ;
-	for (unsigned int i = 0 ; i < ciphertextlen ; i++) {
-		ciphertext[i] = c[cstart + i] ;
-	}
-
-	// decrypt ciphertext
-	if (mdecrypt_generic (MCryptD, ciphertext, ciphertextlen) != 0) {
-		throw SteghideError (_("could not decrypt data.")) ;
-	}
-
-	// create return value
-	std::vector<unsigned char> retval (ciphertextlen) ;
-	for (unsigned int i = 0 ; i < ciphertextlen ; i++) {
-		retval[i] = ciphertext[i] ;
-	}
-	
-	// clean up
-	if (mcrypt_generic_deinit (MCryptD) < 0) {
-		throw SteghideError (_("could not finish libmcrypt decryption.")) ;
-	}
-	free (ciphertext) ;
-	free (key) ;
-	if (mcrypt_enc_mode_has_iv (MCryptD)) {
-		free (IV) ;
-	}
-
-	return retval ;
+	return ciphertext ;
 }
 
 EncryptionAlgorithm MCryptPP::getAlgorithm () const
 {
 	myassert (ModuleOpen) ;
-	char *name = mcrypt_enc_get_algorithms_name (MCryptD) ;
-	return EncryptionAlgorithm (name) ;
+	return EncryptionAlgorithm (std::string (Algorithm->name)) ;
 }
 
 EncryptionMode MCryptPP::getMode () const
 {
 	myassert (ModuleOpen) ;
-	char *name = mcrypt_enc_get_modes_name (MCryptD) ;
-	return EncryptionMode (name) ;
+	return Mode ;
 }
 
 unsigned long MCryptPP::getEncryptedSize (EncryptionAlgorithm a, EncryptionMode m, unsigned long plnsize)
 {
 	unsigned long retval = 0 ;
-
 	if (a.getIntegerRep() == EncryptionAlgorithm::NONE) {
 		retval = plnsize ;
 	}
 	else {
-		std::string tmp1 = a.getStringRep(), tmp2 = m.getStringRep() ;
-		char algo[tmp1.size() + 1], mode[tmp2.size() + 1] ;
-		strcpy (algo, tmp1.c_str()) ;
-		strcpy (mode, tmp2.c_str()) ;
-
-		MCRYPT td ;
-		if ((td = mcrypt_module_open (algo, MCRYPTPP_LIBDIR, mode, MCRYPTPP_LIBDIR)) == MCRYPT_FAILED) {
-			throw SteghideError (_("could not open libmcrypt module \"%s\",\"%s\"."), algo, mode) ;
+		MCryptPP crypto (a, m) ;
+		if (crypto.hasIV()) {
+			retval += (8 * crypto.getIVSize()) ;
 		}
-
-		if (mcrypt_enc_mode_has_iv (td)) {
-			retval += (8 * mcrypt_enc_get_iv_size(td)) ;
-		}
-
-		unsigned long blocks = 0 ;
-		const unsigned long blocksize = 8 * mcrypt_enc_get_block_size(td) ; // is 1 for stream algorithms
-		if (plnsize % blocksize == 0) {
-			blocks = plnsize / blocksize ;
-		}
-		else {
-			blocks = (plnsize / blocksize) + 1;
-		}
+		const unsigned long blocksize = 8 * crypto.getBlockSize() ; // is 1 for stream algorithms
+		unsigned long blocks = (plnsize + blocksize - 1) / blocksize ;
 		retval += (blocks * blocksize) ;
-
-		mcrypt_module_close (td) ;
 	}
-
 	return retval ;
 }
 
 std::vector<std::string> MCryptPP::getListAlgorithms ()
 {
-	int size = 0 ;
-	char **list = mcrypt_list_algorithms (MCRYPTPP_LIBDIR, &size) ;
-
-	/**
-	 * There is a bug in libmcrypt, at least in version 2.5.5 that has the
-	 * effect that the algorithm list contains every algorithm twice.
-	 **/
-
 	std::vector<std::string> retval ;
-	for (int i = 0 ; i < size ; i++) {
-		if ((i == 0) || (strcmp(list[i], list[i - 1]) != 0)) { // workaround for the bug mentioned above
-			retval.push_back (std::string (list[i])) ;
-		}
+	for (const mcrypt_algorithm* algo : Algorithms) {
+		retval.push_back (std::string (algo->name)) ;
 	}
-	mcrypt_free_p (list, size) ;
-
 	return retval ;
 }
 
 std::vector<std::string> MCryptPP::getListModes ()
 {
-	int size = 0 ;
-	char **list = mcrypt_list_modes (MCRYPTPP_LIBDIR, &size) ;
-
-	std::vector<std::string> retval ;
-	for (int i = 0 ; i < size ; i++) {
-		retval.push_back (std::string (list[i])) ;
-	}
-	mcrypt_free_p (list, size) ;
-
-	return retval ;
+	return std::vector<std::string> (std::begin (Modes), std::end (Modes)) ;
 }
 
 bool MCryptPP::AlgoSupportsMode (EncryptionAlgorithm a, EncryptionMode m)
 {
-	std::string tmp1 = a.getStringRep(), tmp2 = m.getStringRep() ;
-	char algo[tmp1.size() + 1], mode[tmp2.size() + 1] ;
-	strcpy (algo, tmp1.c_str()) ;
-	strcpy (mode, tmp2.c_str()) ;
-
-	return (mcrypt_module_is_block_algorithm (algo, MCRYPTPP_LIBDIR) ==
-			mcrypt_module_is_block_algorithm_mode (mode, MCRYPTPP_LIBDIR)) ;
-}
-
-void *MCryptPP::s_malloc (size_t size)
-{
-	void *retval = NULL ;
-	if ((retval = malloc (size)) == NULL) {
-		throw SteghideError (_("could not allocate memory.")) ;
+	const mcrypt_algorithm* algo = findAlgorithm (a) ;
+	if (algo == NULL) {
+		return false ;
 	}
-	return retval ;
+	return (algo->is_block_algorithm() != 0) == isBlockAlgorithmMode (m) ;
 }
-
-#endif // def USE_LIBMCRYPT

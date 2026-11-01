@@ -21,31 +21,26 @@
 #ifndef SH_MHASHKEYGEN_H
 #define SH_MHASHKEYGEN_H
 
+#include <string>
 #include <vector>
 
-#include "wrapper_mhash.h"
+#include "common.h"
 
+/**
+ * \class MHashKeyGen
+ * \brief libmhash's KEYGEN_MCRYPT key generator with MD5 and no salt, which is how steghide derived encryption keys
+ *
+ * The key is MD5(p) || MD5(p || K) || ..., cut to the key size, where K is
+ * the part of the key generated so far.
+ **/
 class MHashKeyGen {
 	public:
-	MHashKeyGen (void) ;
-	MHashKeyGen (keygenid kgalgo, hashid halgo, unsigned int keysize) ;
-	~MHashKeyGen (void) ;
+	MHashKeyGen (unsigned int keysize) ;
 
-	void setKeySize (unsigned int KeySize) ;
-	void setKeyGenAlgorithm (keygenid algo) ;
-	void setHashAlgorithm (hashid hashalgo) ;
-	void setHashAlgorithms (std::vector<hashid> hashalgos) ;
-	void setSalt (std::vector<unsigned char> salt) ;
-
-	std::vector<unsigned char> createKey (std::string password) ;
+	std::vector<BYTE> createKey (std::string password) ;
 
 	private:
-	bool ready ;
-	keygenid Algorithm ;
-	KEYGEN AlgorithmData ;
 	unsigned int KeySize ;
-
-	void *s_malloc (size_t size) ;
 } ;
 
 #endif // ndef SH_MHASHKEYGEN_H

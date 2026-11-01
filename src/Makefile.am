@@ -3,7 +3,9 @@ AM_CPPFLAGS = -g -fstack-protector-strong -Wformat -Werror=format-security -I../
 else
 AM_CPPFLAGS = -g -fstack-protector-strong -Wformat -Werror=format-security -DLOCALEDIR=\"$(localedir)\"
 endif
+AUTOMAKE_OPTIONS = subdir-objects
 bin_PROGRAMS = steghide
+noinst_LIBRARIES = libmcryptciphers.a
 noinst_HEADERS = \
 AUtils.h Arg.h Arguments.h AssertionFailed.h AuData.h AuFile.h \
 AuSampleValues.h AudioData.h AudioSampleValue.h DFSAPHeuristic.h BFSAPHeuristic.h \
@@ -17,7 +19,7 @@ RGBTriple.h RandomSource.h SampleOccurence.h SampleValue.h \
 SampleValueAdjacencyList.h Selector.h Session.h SteghideError.h Terminal.h \
 Utils.h Vertex.h WavChunk.h WavChunkHeader.h WavChunkUnused.h WavFile.h \
 WavFormatChunk.h WavPCMSampleValue.h common.h error.h msg.h wrapper_hash_map.h \
-wrapper_hash_set.h wrapper_mhash.h SMDConstructionHeuristic.h gettext.h
+wrapper_hash_set.h SMDConstructionHeuristic.h gettext.h
 steghide_SOURCES = \
 Arg.cc Arguments.cc AssertionFailed.cc AuFile.cc AuSampleValues.cc \
 DFSAPHeuristic.cc BFSAPHeuristic.cc BinaryIO.cc BitString.cc BmpFile.cc \
@@ -32,6 +34,20 @@ Session.cc SteghideError.cc Terminal.cc Utils.cc Vertex.cc WavChunk.cc \
 WavChunkHeader.cc WavChunkUnused.cc WavFile.cc WavFormatChunk.cc \
 WavPCMSampleValue.cc error.cc main.cc msg.cc SMDConstructionHeuristic.cc
 AM_LIBTOOLFLAGS = --tag=CXX
+steghide_LDADD = libmcryptciphers.a
+
+# libmcrypt's ciphers, see mcrypt/README.md
+libmcryptciphers_a_CPPFLAGS = $(AM_CPPFLAGS) -I$(srcdir)/mcrypt
+libmcryptciphers_a_SOURCES = \
+mcrypt/arcfour.c mcrypt/blowfish.c mcrypt/cast-128.c mcrypt/cast-256.c mcrypt/des.c \
+mcrypt/enigma.c mcrypt/gost.c mcrypt/loki97.c mcrypt/rc2.c mcrypt/rijndael-128.c \
+mcrypt/rijndael-192.c mcrypt/rijndael-256.c mcrypt/saferplus.c mcrypt/serpent.c \
+mcrypt/tripledes.c mcrypt/twofish.c mcrypt/wake.c mcrypt/xtea.c \
+mcrypt/arcfour.h mcrypt/blowfish.h mcrypt/cast-128.h mcrypt/cast-128_sboxes.h \
+mcrypt/cast-256.h mcrypt/des.h mcrypt/enigma.h mcrypt/rc2.h mcrypt/rijndael.h \
+mcrypt/saferplus.h mcrypt/serpent.h mcrypt/tripledes.h mcrypt/twofish.h mcrypt/wake.h \
+mcrypt/xtea.h mcrypt/libdefs.h mcrypt/mcrypt_modules.h mcrypt/mcrypt_algorithm.h
+EXTRA_DIST = mcrypt/README.md mcrypt/COPYING.LIB
 
 LIBS = @LIBINTL@ @LIBS@
 localedir = $(datadir)/locale

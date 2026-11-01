@@ -37,20 +37,6 @@ Dependencies :
 --------------
 You should have the following libraries installed to use steghide.
 
-* libmhash
-  A library that provides various hash algorithms and cryptographic key
-  generation algorithms. Steghide needs this library to convert a passphrase
-  into a form that can be used as input for cryptographic and steganographic
-  algorithms.
-  Available at: http://mhash.sourceforge.net/
-
-* libmcrypt  
-  A library that provides a lot of symmetric encryption algorithms. If you
-  compile steghide without libmcrypt, you will not be able to use steghide to
-  encrypt data before embedding or to extract encrypted data (even if you know
-  the correct passphrase).
-  Available at: http://mcrypt.sourceforge.net/
-
 * libjpeg
   A library implementing jpeg image compression. Without this library, you will
   not be able to embed data in jpeg files or to extract data from jpeg files.
@@ -62,9 +48,12 @@ You should have the following libraries installed to use steghide.
   before embedding or to extract compressed data from a stego-file.
   Available at: http://www.gzip.org/zlib/
 
-Libmhash is absolutely required to compile steghide. While you can compile it
-without the other libraries, they are highly recommended as major functionality
-will not be available without them.
+You can compile steghide without them, but they are highly recommended as major
+functionality will not be available without them.
+
+Steghide 0.5.1 also needed libmhash and libmcrypt, which are no longer
+maintained. The hashes and ciphers steghide used from them are now part of
+steghide (see src/mcrypt/README.md), and it reads and writes the same files.
 
 Linux / Unix :
 --------------

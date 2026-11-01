@@ -2,7 +2,8 @@ SUBDIRS = data
 TESTS = unittests systemtests.pl
 AM_CPPFLAGS = -I../src
 check_PROGRAMS = unittests
-EXTRA_DIST = systemtests.pl STSupport.pm st_fileformats.pl st_embparameters.pl
+EXTRA_DIST = systemtests.pl STSupport.pm st_fileformats.pl st_embparameters.pl \
+vectors/crypto_vectors.txt vectors/gen_crypto_vectors.c
 noinst_HEADERS = \
 AuFileTest.h AUtilsTest.h AudioSampleValueTest.h BFSAPHeuristicTest.h DFSAPHeuristicTest.h \
 BitStringTest.h BmpOS2FileTest.h BmpPaletteSampleValueTest.h \
@@ -10,7 +11,7 @@ BmpRGBSampleValueTest.h BmpWinFileTest.h WKSConstructionHeuristicTest.h \
 BmpFileTest.h CvrStgFileTest.h DummyFile.h \
 DummySampleValue.h EdgeIteratorTest.h EmbDataTest.h GraphTest.h JpegFileTest.h \
 JpegSampleValueTest.h MCryptPPTest.h MHashKeyGenTest.h MHashPPTest.h \
-MatchingTest.h SampleValueAdjacencyListTest.h SampleValueTest.h SelectorTest.h \
+MatchingTest.h CryptoVectorTest.h SampleValueAdjacencyListTest.h SampleValueTest.h SelectorTest.h \
 Test.h TestCategory.h TestCategoryCaller.h TestSuite.h UnitTest.h \
 WavFileTest.h WavPCMSampleValueTest.h utcommon.h
 unittests_SOURCES = \
@@ -20,7 +21,7 @@ BmpRGBSampleValueTest.cc BmpWinFileTest.cc WKSConstructionHeuristicTest.cc \
 BmpFileTest.cc CvrStgFileTest.cc \
 DummyFile.cc DummySampleValue.cc EdgeIteratorTest.cc EmbDataTest.cc \
 GraphTest.cc JpegFileTest.cc JpegSampleValueTest.cc MCryptPPTest.cc \
-MHashKeyGenTest.cc MHashPPTest.cc MatchingTest.cc \
+MHashKeyGenTest.cc MHashPPTest.cc MatchingTest.cc CryptoVectorTest.cc \
 SampleValueAdjacencyListTest.cc SampleValueTest.cc SelectorTest.cc \
 TestSuite.cc UnitTest.cc WavFileTest.cc WavPCMSampleValueTest.cc main.cc
 unittests_LDADD = \
@@ -39,6 +40,7 @@ unittests_LDADD = \
 ../src/Selector.o ../src/Session.o ../src/SteghideError.o ../src/Terminal.o \
 ../src/Utils.o ../src/Vertex.o ../src/WavChunk.o ../src/WavChunkHeader.o \
 ../src/WavChunkUnused.o ../src/WavFile.o ../src/WavFormatChunk.o \
-../src/WavPCMSampleValue.o ../src/error.o ../src/msg.o ../src/SMDConstructionHeuristic.o
+../src/WavPCMSampleValue.o ../src/error.o ../src/msg.o ../src/SMDConstructionHeuristic.o \
+../src/libmcryptciphers.a
 LIBS = @LIBINTL@ @LIBS@
 MAINTAINERCLEANFILES = Makefile.in

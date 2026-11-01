@@ -18,101 +18,36 @@
  *
  */
 
-#include <cstring>
-#include <cstdlib>
+#include <string>
 #include <vector>
 
 #include "common.h"
-#include "error.h"
 #include "MHashKeyGen.h"
+#include "MHashPP.h"
 
-MHashKeyGen::MHashKeyGen ()
+MHashKeyGen::MHashKeyGen (unsigned int keysize)
+	: KeySize(keysize)
 {
-	AlgorithmData.count = 0 ;
-	AlgorithmData.salt = NULL ;
-	AlgorithmData.salt_size = 0 ;
 }
 
-MHashKeyGen::MHashKeyGen (keygenid kgalgo, hashid halgo, unsigned int keysize)
+std::vector<BYTE> MHashKeyGen::createKey (std::string password)
 {
-	setKeyGenAlgorithm (kgalgo) ;
-	setKeySize (keysize) ;
-	setHashAlgorithm (halgo) ;
-	AlgorithmData.count = 0 ;
-	AlgorithmData.salt = NULL ;
-	AlgorithmData.salt_size = 0 ;
-}
+	// steghide 0.5.1 passed the password to libmhash with strcpy and strlen,
+	// so a password with a '\0' in it was cut off there
+	std::string pw (password.c_str()) ;
 
-MHashKeyGen::~MHashKeyGen ()
-{
-	if (AlgorithmData.salt != NULL) {
-		free (AlgorithmData.salt) ;
+	std::vector<BYTE> key ;
+	while (key.size() < KeySize) {
+		MHashPP hash (MHashPP::MD5) ;
+		hash << pw ;
+		for (std::vector<BYTE>::const_iterator i = key.begin() ; i != key.end() ; i++) {
+			hash << *i ;
+		}
+		hash << MHashPP::endhash ;
+		const std::vector<BYTE>& digest = hash.getHashBytes() ;
+		for (std::vector<BYTE>::const_iterator i = digest.begin() ; i != digest.end() && key.size() < KeySize ; i++) {
+			key.push_back (*i) ;
+		}
 	}
-}
-
-std::vector<unsigned char> MHashKeyGen::createKey (std::string password)
-{
-	char *passwd = (char *) s_malloc (password.size() + 1) ;
-	strcpy (passwd, password.c_str()) ;
-	int passwdlen = strlen (passwd) ;
-	unsigned char *key = (unsigned char *) s_malloc (KeySize) ;
-
-	if (mhash_keygen_ext (Algorithm, AlgorithmData, key, KeySize, (unsigned char *) passwd, passwdlen) < 0) {
-		throw SteghideError (_("could not generate key using libmhash.")) ;
-	}
-
-	std::vector<unsigned char> retval (KeySize) ;
-	for (unsigned int i = 0 ; i < KeySize ; i++) {
-		retval[i] = key[i] ;
-	}
-
-	free (passwd) ;
-	free (key) ;
-
-	return retval ;
-}
-
-void MHashKeyGen::setKeySize (unsigned int keysize)
-{
-	KeySize = keysize ;
-}
-
-void MHashKeyGen::setKeyGenAlgorithm (keygenid algo)
-{
-	Algorithm = algo ;
-}
-
-void MHashKeyGen::setHashAlgorithm (hashid hashalgo)
-{
-	AlgorithmData.hash_algorithm[0] = hashalgo ;
-}
-
-void MHashKeyGen::setHashAlgorithms (std::vector<hashid> hashalgos)
-{
-	myassert (hashalgos.size() <= 2) ;
-	for (unsigned int i = 0 ; i < hashalgos.size() ; i++) {
-		AlgorithmData.hash_algorithm[i] = hashalgos[i] ;
-	}
-}
-
-void MHashKeyGen::setSalt (std::vector<unsigned char> salt)
-{
-	AlgorithmData.salt_size = salt.size() ;
-	if (AlgorithmData.salt != NULL) {
-		free (AlgorithmData.salt) ;
-	}
-	AlgorithmData.salt = s_malloc (AlgorithmData.salt_size) ;
-	unsigned char *tmp = (unsigned char *) AlgorithmData.salt ;
-	for (int i = 0 ; i < AlgorithmData.salt_size ; i++) {
-		tmp[i] = salt[i] ;
-	}
-}
-
-void *MHashKeyGen::s_malloc (size_t size)
-{
-	void *retval = NULL ;
-	if ((retval = malloc (size)) == NULL) {
-		throw SteghideError (_("could not allocate memory.")) ;
-	}
-	return retval ;
+	return key ;
 }
