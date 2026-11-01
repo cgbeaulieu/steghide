@@ -57,8 +57,8 @@ class BFSAPHeuristic : public MatchingAlgorithm {
 	 **/
 	unsigned long searchAugmentingPath (Vertex* v0, const Edge** path) ;
 
-	bool* VertexVisited ;
-	Edge* BackEdge ;
+	std::vector<bool> VertexVisited ;
+	std::vector<Edge> BackEdge ;
 } ;
 
 #endif // ndef SH_BFSAPHeuristic

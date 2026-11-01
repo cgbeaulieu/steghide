@@ -22,6 +22,7 @@
 #define SH_EDGEITERATOR_H
 
 #include <list>
+#include <vector>
 
 #include "Edge.h"
 class Graph ;
@@ -64,13 +65,6 @@ class EdgeIterator {
 	 * \param v the source vertex
 	 **/
 	EdgeIterator (Vertex *v, ITERATIONMODE m = SAMPLEOCCURENCE) ;
-
-	/**
-	 * the copy constructor
-	 **/
-	EdgeIterator (const EdgeIterator& eit) ;
-
-	~EdgeIterator (void) ;
 
 	/**
 	 * get the current edge
@@ -127,7 +121,7 @@ class EdgeIterator {
 	ITERATIONMODE Mode ;
 
 	/// contains (for every sample value) an index to the current opposite neighbour
-	unsigned long* SVALIndices ;
+	std::vector<unsigned long> SVALIndices ;
 
 	/// the maximum number of edges the EdgeIterator should iterate through
 	static UWORD32 MaxNumEdges ;

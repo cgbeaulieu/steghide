@@ -86,9 +86,9 @@ class DFSAPHeuristic : public MatchingAlgorithm {
 		{ return (TimeCounters[vlbl] == TimeCounter) ; } ;
 
 	UWORD32 TimeCounter ;
-	UWORD32* TimeCounters ;
-	bool* VertexOnPath ;
-	EdgeIterator* EdgeIterators ;
+	std::vector<UWORD32> TimeCounters ;
+	std::vector<bool> VertexOnPath ;
+	std::vector<EdgeIterator> EdgeIterators ;
 
 #ifdef DEBUG
 	/// the number of edges that have been examined in all successful searches

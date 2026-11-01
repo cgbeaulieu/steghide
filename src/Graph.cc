@@ -651,11 +651,7 @@ void Graph::printEpilogue_gml (std::ostream& out) const
 
 void Graph::print_Vertices (unsigned short spc) const
 {
-	char* space = new char[spc + 1] ;
-	for (unsigned short i = 0 ; i < spc ; i++) {
-		space[i] = ' ' ;
-	}
-	space[spc] = '\0' ;
+	std::string space (spc, ' ') ;
 
 	std::cerr << space << "Vertices:" << std::endl ;
 	for (std::vector<Vertex*>::const_iterator vit = Vertices.begin() ; vit != Vertices.end() ; vit++) {

@@ -26,32 +26,14 @@
 #include "common.h"
 
 EdgeIterator::EdgeIterator ()
-	: SVALIndices(NULL)
+	: SVALIndices(Globs.TheCvrStgFile->getSamplesPerVertex())
 {
-	SVALIndices = new unsigned long[Globs.TheCvrStgFile->getSamplesPerVertex()] ;
 }
 
 EdgeIterator::EdgeIterator (Vertex *v, ITERATIONMODE m)
+	: SVALIndices(Globs.TheCvrStgFile->getSamplesPerVertex())
 {
-	SVALIndices = new unsigned long[Globs.TheCvrStgFile->getSamplesPerVertex()] ;
 	reset(v, m) ;
-}
-
-EdgeIterator::EdgeIterator (const EdgeIterator& eit)
-{
-	CurrentEdge = eit.CurrentEdge ;
-	Mode = eit.Mode ;
-	SVALIndices = new unsigned long[Globs.TheCvrStgFile->getSamplesPerVertex()] ;
-	for (unsigned short i = 0 ; i < Globs.TheCvrStgFile->getSamplesPerVertex() ; i++) {
-		SVALIndices[i] = eit.SVALIndices[i] ;
-	}
-	Finished = eit.Finished ;
-	SampleOccurenceIt = eit.SampleOccurenceIt ;
-}
-
-EdgeIterator::~EdgeIterator ()
-{
-	delete[] SVALIndices ;
 }
 
 void EdgeIterator::operator++ ()
@@ -179,11 +161,7 @@ void EdgeIterator::findNextEdge ()
 #ifdef DEBUG
 void EdgeIterator::print (unsigned short spc) const
 {
-	char* space = new char[spc + 1] ;
-	for (unsigned short i = 0 ; i < spc ; i++) {
-		space[i] = ' ' ;
-	}
-	space[spc] = '\0' ;
+	std::string space (spc, ' ') ;
 
 	std::cerr << space << "Current Edge:" << std::endl ;
 	CurrentEdge.print(spc + 1) ;

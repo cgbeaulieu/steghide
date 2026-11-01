@@ -18,6 +18,7 @@
  *
  */
 
+#include <memory>
 #include <string>
 
 #include "BitString.h"
@@ -29,7 +30,7 @@
 #include "common.h"
 #include "error.h"
 
-EmbData* Extractor::extract ()
+std::unique_ptr<EmbData> Extractor::extract ()
 {
 	VerboseMessage vrs ;
 	if (Args.StgFn.getValue() == "") {
@@ -46,7 +47,7 @@ EmbData* Extractor::extract ()
 	VerboseMessage vd (_(" done")) ;
 	vd.printMessage() ;
 
-	EmbData* embdata = new EmbData (EmbData::EXTRACT, Passphrase) ;
+	std::unique_ptr<EmbData> embdata (new EmbData (EmbData::EXTRACT, Passphrase)) ;
 	Selector sel (Globs.TheCvrStgFile->getNumSamples(), Passphrase) ;
 
 	VerboseMessage ve (_("extracting data...")) ;

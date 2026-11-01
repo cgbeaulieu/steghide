@@ -187,11 +187,7 @@ bool WKSConstructionHeuristic::LongerShortestEdge::operator() (const Vertex* v1,
 #ifdef DEBUG
 void WKSConstructionHeuristic::print (unsigned short spc)
 {
-	char* space = new char[spc + 1] ;
-	for (unsigned short i = 0 ; i < spc ; i++) {
-		space[i] = ' ' ;
-	}
-	space[spc] = '\0' ;
+	std::string space (spc, ' ') ;
 
 	std::cerr << space << "VerticesDeg1 (top->down): " ;
 	printPQ (VerticesDeg1) ;

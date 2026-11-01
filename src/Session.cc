@@ -20,6 +20,7 @@
 
 #include <cstdio>
 #include <iostream>
+#include <memory>
 #include <vector>
 
 #include "EmbData.h"
@@ -42,7 +43,7 @@ void Session::run ()
 
 		case EXTRACT: {
 			Extractor ext (Args.StgFn.getValue(), Args.Passphrase.getValue()) ;
-			EmbData* embdata = ext.extract() ;
+			std::unique_ptr<EmbData> embdata = ext.extract() ;
 
 			// write data
 			std::string fn ;
@@ -132,7 +133,7 @@ void Session::run ()
 void Session::printInfo ()
 {
 	// if file format not supported: exception will be catched in main
-	CvrStgFile* file = CvrStgFile::readFile (Args.CvrFn.getValue()) ;
+	std::unique_ptr<CvrStgFile> file (CvrStgFile::readFile (Args.CvrFn.getValue())) ;
 
 	if (Args.CvrFn.getValue() == "") {
 		printf (_("data from standard input:\n")) ;
@@ -165,7 +166,7 @@ void Session::printInfo ()
 			}
 
 			Extractor e (Args.CvrFn.getValue(), pp) ;
-			EmbData* embdata = e.extract() ;
+			std::unique_ptr<EmbData> embdata = e.extract() ;
 
 			if (embdata->getFileName() == "") {
 				printf (_("  embedded data:\n")) ;
@@ -184,8 +185,6 @@ void Session::printInfo ()
 			}
 			printf (_("    encrypted: %s\n"), encstring.c_str()) ;
 			printf (_("    compressed: %s\n"), ((embdata->getCompression() > 0) ? _("yes") : _("no"))) ;
-
-			delete embdata ;
 		}
 		catch (CorruptDataError& e) {
 			printf (_("could not extract any data with that passphrase!\n")) ;

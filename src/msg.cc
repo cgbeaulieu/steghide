@@ -22,6 +22,7 @@
 #include <cstdio>
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include "common.h"
 #include "msg.h"
@@ -70,11 +71,9 @@ std::string MessageBase::compose (const char *msgfmt, ...) const
 
 std::string MessageBase::vcompose (const char *msgfmt, va_list ap) const
 {
-	char *str = new char[MsgMaxSize] ;
-	vsnprintf (str, MsgMaxSize, msgfmt, ap) ;
-	std::string retval (str) ;
-	delete[] str ;
-	return retval ;
+	std::vector<char> str (MsgMaxSize) ;
+	vsnprintf (str.data(), MsgMaxSize, msgfmt, ap) ;
+	return std::string (str.data()) ;
 }
 
 //

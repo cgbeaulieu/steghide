@@ -118,29 +118,30 @@ Matching& Matching::augment (const Edge** path, unsigned long len)
 	// TODO - rewrite this to use structure like: while (+--+==+ -> +==+--+); +--+ -> +==+ where == is matched edge
 	myassert (len % 2 == 1) ;
 	bool e_was_matched = false ;
-	Edge *e = NULL ;
-	Edge *e_before = NULL ;
+	Edge *e = NULL ;	// the last edge added to MatchingEdges, which owns it
+	Edge cur ;
+	Edge before ;
 	for (unsigned int i = 0 ; i < len ; i++) {
-		// give e the correct orientation (using pointer equivalence of vertices(!))
-		e = new Edge (*(path[i])) ;
-		if (e_before == NULL) {
+		// give cur the correct orientation (using pointer equivalence of vertices(!))
+		cur = *(path[i]) ;
+		if (i == 0) {
 			if (len > 1) {
-				// e is the first, but not the only edge in path
-				if ((e->getVertex1() == path[1]->getVertex1()) || (e->getVertex1() == path[1]->getVertex2())) {
-					e->swap() ;
+				// cur is the first, but not the only edge in path
+				if ((cur.getVertex1() == path[1]->getVertex1()) || (cur.getVertex1() == path[1]->getVertex2())) {
+					cur.swap() ;
 				}
 			}
 		}
 		else {
-			if (e->getVertex1() != e_before->getVertex2()) {
-				e->swap() ;
+			if (cur.getVertex1() != before.getVertex2()) {
+				cur.swap() ;
 			}
-			myassert (e->getVertex1() == e_before->getVertex2()) ;
+			myassert (cur.getVertex1() == before.getVertex2()) ;
 		}
 
 		// make changes in VertexInformation, ExposedVertices and MatchingEdges
 		if (e_was_matched) { // at the time this is called, v1 is matched with "v0"
-			Vertex *v2 = e->getVertex2() ;
+			Vertex *v2 = cur.getVertex2() ;
 			VertexLabel v2lbl = v2->getLabel() ;
 
 			// remove old edge from matching
@@ -152,6 +153,7 @@ Matching& Matching::augment (const Edge** path, unsigned long len)
 			VertexInformation[v2lbl].setExposed (expvit2) ;
 		}
 		else {
+			e = new Edge (cur) ;
 			Vertex *v1 = e->getVertex1() ;
 			Vertex *v2 = e->getVertex2() ;
 			VertexLabel v1lbl = v1->getLabel() ;
@@ -167,7 +169,7 @@ Matching& Matching::augment (const Edge** path, unsigned long len)
 		}
 
 		e_was_matched = !e_was_matched ;
-		e_before = e ;
+		before = cur ;
 	}
 
 	ExposedVertices.erase (VertexInformation[e->getVertex2()->getLabel()].getExposedIterator()) ;
@@ -180,12 +182,8 @@ Matching& Matching::augment (const Edge** path, unsigned long len)
 
 Matching& Matching::augment (const std::vector<Edge*>& path)
 {
-	unsigned long len = path.size() ;
-	const Edge** p = new const Edge*[len] ;
-	for (unsigned long i = 0 ; i < len ; i++) {
-		p[i] = path[i] ;
-	}
-	return augment (p, len) ;
+	std::vector<const Edge*> p (path.begin(), path.end()) ;
+	return augment (p.data(), p.size()) ;
 }
 
 void Matching::printVerboseInfo (void) const

@@ -38,18 +38,15 @@ JpegFile::JpegFile (BinaryIO* io)
 	setSamplesPerVertex (SamplesPerVertex) ;
 	setRadius (Radius) ;
 	setEmbValueModulus (EmbValueModulus) ;
-	HeightInBlocks = NULL ;
-	WidthInBlocks = NULL ;
+	DeCInfoCreated = false ;
 	read (io) ;
 }
 
 JpegFile::~JpegFile ()
 {
-	if (WidthInBlocks) {
-		delete[] WidthInBlocks ;
-	}
-	if (HeightInBlocks) {
-		delete[] HeightInBlocks ;
+	// write() destroys it; when only reading, it is still there
+	if (DeCInfoCreated) {
+		jpeg_destroy_decompress (&DeCInfo) ;
 	}
 }
 
@@ -77,9 +74,10 @@ void JpegFile::read (BinaryIO* io)
 		rewind (infile) ;
 	}
 
-	struct jpeg_error_mgr errmgr ;
-	DeCInfo.err = jpeg_std_error (&errmgr) ;
+	// the error manager has to outlive this function: write() still uses DeCInfo
+	DeCInfo.err = jpeg_std_error (&DeCErrMgr) ;
 	jpeg_create_decompress (&DeCInfo) ;
+	DeCInfoCreated = true ;
 	jpeg_stdio_src (&DeCInfo, infile) ;
 	jpeg_read_header (&DeCInfo, TRUE) ;
 
@@ -92,8 +90,8 @@ void JpegFile::read (BinaryIO* io)
 		max_v_samp_factor = AUtils::max<unsigned short> (max_v_samp_factor, DeCInfo.comp_info[icomp].v_samp_factor) ;
 		max_h_samp_factor = AUtils::max<unsigned short> (max_h_samp_factor, DeCInfo.comp_info[icomp].h_samp_factor) ;
 	}
-	HeightInBlocks = new unsigned int[DeCInfo.num_components] ;
-	WidthInBlocks = new unsigned int[DeCInfo.num_components] ;
+	HeightInBlocks = std::vector<unsigned int> (DeCInfo.num_components) ;
+	WidthInBlocks = std::vector<unsigned int> (DeCInfo.num_components) ;
 	for (unsigned short icomp = 0 ; icomp < DeCInfo.num_components ; icomp++) {
 		HeightInBlocks[icomp] = AUtils::div_roundup<unsigned int> (DeCInfo.image_height * DeCInfo.comp_info[icomp].v_samp_factor,
 																	8 * max_v_samp_factor) ;
@@ -140,11 +138,11 @@ void JpegFile::write ()
 
 	FILE* outfile = getBinIO()->getStream() ;
 
-	// prepare for writing
-	jpeg_create_compress (&CInfo) ;
-	jpeg_copy_critical_parameters (&DeCInfo, &CInfo) ;
+	// prepare for writing (libjpeg needs err set before jpeg_create_compress)
 	struct jpeg_error_mgr jerr2 ;
 	CInfo.err = jpeg_std_error(&jerr2) ;
+	jpeg_create_compress (&CInfo) ;
+	jpeg_copy_critical_parameters (&DeCInfo, &CInfo) ;
 	jpeg_stdio_dest (&CInfo, outfile) ;
 
 	// write file header
@@ -175,6 +173,7 @@ void JpegFile::write ()
 	jpeg_destroy_compress(&CInfo);
 	jpeg_finish_decompress (&DeCInfo) ;
 	jpeg_destroy_decompress(&DeCInfo);
+	DeCInfoCreated = false ;
 }
 
 unsigned long JpegFile::getNumSamples (void) const

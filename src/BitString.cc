@@ -273,19 +273,12 @@ BitString& BitString::compress (int level)
 	myassert (level >= 1 && level <= 9) ;
 	pad (8, 0) ;
 
-	// prepare source buffer
-	zlib::uLong srclen = Data.size() ;
-	zlib::Byte *srcbuf = new zlib::Byte[srclen] ;
-	for (unsigned long i = 0 ; i < srclen ; i++) {
-		srcbuf[i] = Data[i] ;
-	}
-
 	// prepare dest buffer (see zlib manual for this magic length)
 	zlib::uLong destlen = ((zlib::uLong) ((Data.size() + 12) * 1.001)) + 1 ;
-	zlib::Byte* destbuf = new zlib::Byte[destlen] ;
+	std::vector<zlib::Byte> destbuf (destlen) ;
 
 	// do compression
-	int ret = zlib::compress2 (destbuf, &destlen, (const zlib::Bytef*) srcbuf, srclen, level) ;
+	int ret = zlib::compress2 (destbuf.data(), &destlen, (const zlib::Bytef*) Data.data(), Data.size(), level) ;
 	if (ret != Z_OK) {
 		switch (ret) {
 			case Z_MEM_ERROR:
@@ -305,8 +298,6 @@ BitString& BitString::compress (int level)
 	}
 	Length = destlen * 8 ;
 
-	delete[] srcbuf ;
-	delete[] destbuf ;
 	return *this ;
 }
 
@@ -314,12 +305,7 @@ BitString& BitString::uncompress (unsigned long idestlen)
 {
 	myassert (Length % 8 == 0) ;
 
-	// prepare source buffer
 	zlib::uLong srclen = Length / 8 ;
-	zlib::Byte* srcbuf = new zlib::Byte[srclen] ;
-	for (unsigned long i = 0 ; i < srclen ; i++) {
-		srcbuf[i] = Data[i] ;
-	}
 
 	// prepare destination buffer
 	zlib::uLong ydestlen = 0 ;
@@ -329,11 +315,11 @@ BitString& BitString::uncompress (unsigned long idestlen)
 	else {
 		ydestlen = (idestlen / 8) + 1 ;
 	}
-	zlib::Byte* destbuf = new zlib::Byte[ydestlen] ;
+	std::vector<zlib::Byte> destbuf (ydestlen) ;
 
 	// do uncompression
 	zlib::uLong ydestlen_before = ydestlen ;
-	int ret = zlib::uncompress (destbuf, &ydestlen, (const zlib::Bytef*) srcbuf, srclen) ;
+	int ret = zlib::uncompress (destbuf.data(), &ydestlen, (const zlib::Bytef*) Data.data(), srclen) ;
 	if (ret != Z_OK) {
 		switch (ret) {
 			case Z_MEM_ERROR:
@@ -360,8 +346,6 @@ BitString& BitString::uncompress (unsigned long idestlen)
 
 	clearUnused() ;
 
-	delete[] srcbuf ;
-	delete[] destbuf ;
 	return *this ;
 }
 #endif // def USE_ZLIB
@@ -432,11 +416,7 @@ void BitString::clearUnused ()
 
 void BitString::print (unsigned short spc) const
 {
-	char* space = new char[spc + 1] ;
-	for (unsigned short i = 0 ; i < spc ; i++) {
-		space[i] = ' ' ;
-	}
-	space[spc] = '\0' ;
+	std::string space (spc, ' ') ;
 	std::cerr << space << "Length: " << getLength() << std::endl ;
 	std::cerr << space << "Data.size(): " << Data.size() << std::endl ;
 	std::cerr << space << "Data:" << std::endl ;

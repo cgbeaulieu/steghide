@@ -165,11 +165,7 @@ UWORD32 Vertex::getDegree () const
 
 void Vertex::print (unsigned short spc) const
 {
-	char* space = new char[spc + 1] ;
-	for (unsigned short i = 0 ; i < spc ; i++) {
-		space[i] = ' ' ;
-	}
-	space[spc] = '\0' ;
+	std::string space (spc, ' ') ;
 
 	std::cerr << space << "Vertex:" << std::endl ;
 	std::cerr << space << " Label: " << getLabel() << std::endl ;

@@ -32,12 +32,10 @@ DFSAPHeuristic::DFSAPHeuristic (Graph* g, Matching* m, float goal, UWORD32 mne, 
 
 	TimeCounter = 0 ;
 
-	TimeCounters = new UWORD32[numvertices] ;
-	VertexOnPath = new bool[numvertices] ;
-	EdgeIterators = new EdgeIterator[numvertices] ;
+	TimeCounters = std::vector<UWORD32> (numvertices, 0) ;
+	VertexOnPath = std::vector<bool> (numvertices, false) ;
+	EdgeIterators = std::vector<EdgeIterator> (numvertices) ;
 	for (VertexLabel l = 0 ; l < numvertices ; l++) {
-		TimeCounters[l] = 0 ;
-		VertexOnPath[l] = false ;
 		EdgeIterators[l].reset (g->getVertex(l), mo) ;
 	}
 	EdgeIterator::setMaxNumEdges (mne) ;
@@ -53,9 +51,6 @@ DFSAPHeuristic::DFSAPHeuristic (Graph* g, Matching* m, float goal, UWORD32 mne, 
 
 DFSAPHeuristic::~DFSAPHeuristic ()
 {
-	delete[] EdgeIterators ;
-	delete[] TimeCounters ;
-	delete[] VertexOnPath ;
 }
 
 void DFSAPHeuristic::reset (UWORD32 mne, EdgeIterator::ITERATIONMODE mo)
@@ -79,7 +74,8 @@ void DFSAPHeuristic::run ()
 		EdgeIterators[l].reset (EdgeIterators[l].getMode()) ;
 	}
 
-	const Edge** path = new const Edge*[TheGraph->getNumVertices()] ;
+	std::vector<const Edge*> pathv (TheGraph->getNumVertices()) ;
+	const Edge** path = pathv.data() ;
 
 	const std::list<Vertex*> ExposedVertices = TheMatching->getExposedVertices() ;
 	for (std::list<Vertex*>::const_iterator expv = ExposedVertices.begin() ;
@@ -110,7 +106,6 @@ void DFSAPHeuristic::run ()
 		}
 	}
 
-	delete[] path ;
 }
 
 #ifdef DEBUG

@@ -192,9 +192,14 @@ if(BUILD_TESTING)
 	endif()
 
 	if(STEGHIDE_SANITIZE)
-		# steghide frees little of what it allocates; leaks are not what these runs look for
-		get_property(tests DIRECTORY PROPERTY TESTS)
-		set_tests_properties(${tests} PROPERTIES ENVIRONMENT
-			"ASAN_OPTIONS=detect_leaks=0;UBSAN_OPTIONS=print_stacktrace=1:halt_on_error=1")
+		# steghide itself must not leak, so the tests that run it check for
+		# leaks; the unit tests do not free their fixtures
+		set(ubsan_options "UBSAN_OPTIONS=print_stacktrace=1:halt_on_error=1")
+		set_tests_properties(unittests PROPERTIES ENVIRONMENT "ASAN_OPTIONS=detect_leaks=0;${ubsan_options}")
+		foreach(t systemtests compat)
+			if(TEST ${t})
+				set_tests_properties(${t} PROPERTIES ENVIRONMENT "ASAN_OPTIONS=detect_leaks=1;${ubsan_options}")
+			endif()
+		endforeach()
 	endif()
 endif()

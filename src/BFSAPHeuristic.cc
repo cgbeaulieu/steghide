@@ -30,22 +30,18 @@ BFSAPHeuristic::BFSAPHeuristic (Graph* g, Matching* m)
 {
 	unsigned long numvertices = g->getNumVertices() ;
 
-	VertexVisited = new bool[numvertices] ;
-	BackEdge = new Edge[numvertices] ;
-	for (VertexLabel l = 0 ; l < numvertices ; l++) {
-		VertexVisited[l] = false ;
-	}
+	VertexVisited = std::vector<bool> (numvertices, false) ;
+	BackEdge = std::vector<Edge> (numvertices) ;
 }
 
 BFSAPHeuristic::~BFSAPHeuristic ()
 {
-	delete[] VertexVisited ;
-	delete[] BackEdge ;
 }
 
 void BFSAPHeuristic::run ()
 {
-	const Edge** path = new const Edge*[TheGraph->getNumVertices()] ;
+	std::vector<const Edge*> pathv (TheGraph->getNumVertices()) ;
+	const Edge** path = pathv.data() ;
 
 	const std::list<Vertex*> ExposedVertices = TheMatching->getExposedVertices() ;
 	for (std::list<Vertex*>::const_iterator expv = ExposedVertices.begin() ;
@@ -76,7 +72,6 @@ void BFSAPHeuristic::run ()
 		}
 	}
 
-	delete[] path ;
 }
 
 unsigned long BFSAPHeuristic::searchAugmentingPath (Vertex *v0, const Edge** path)

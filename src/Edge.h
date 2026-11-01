@@ -43,6 +43,8 @@ class Edge {
 	 **/
 	Edge (const Edge& e) ;
 
+	Edge& operator= (const Edge& e) = default ;
+
 	Vertex *getVertex1 (void) const
 		{ return Vertex1 ; } ;
 

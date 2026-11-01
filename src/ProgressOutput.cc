@@ -19,6 +19,8 @@
  */
 
 #include <cmath>
+#include <string>
+#include <vector>
 
 #include "ProgressOutput.h"
 #include "common.h"
@@ -45,11 +47,9 @@ void ProgressOutput::setMessage (const char *msgfmt, ...)
 
 std::string ProgressOutput::vcompose (const char *msgfmt, va_list ap) const
 {
-	char *str = new char[200] ;
-	vsnprintf (str, 200, msgfmt, ap) ;
-	std::string retval (str) ;
-	delete[] str ;
-	return retval ;
+	std::vector<char> str (200) ;
+	vsnprintf (str.data(), 200, msgfmt, ap) ;
+	return std::string (str.data()) ;
 }
 
 void ProgressOutput::update (float rate)

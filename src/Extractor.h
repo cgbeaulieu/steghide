@@ -21,14 +21,17 @@
 #ifndef SH_EXTRACTOR_H
 #define SH_EXTRACTOR_H
 
+#include <memory>
 #include <string>
+
+class EmbData ;
 
 class Extractor {
 	public:
 	Extractor (std::string stgfn, std::string pp)
 		: StegoFileName(stgfn), Passphrase(pp) {} ;
 
-	EmbData* extract (void) ;
+	std::unique_ptr<EmbData> extract (void) ;
 
 	private:
 	std::string StegoFileName ;

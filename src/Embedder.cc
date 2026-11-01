@@ -264,6 +264,7 @@ void Embedder::embedExposedVertex (Vertex *v)
 		SampleValue *curold = v->getSampleValue(i) ;
 		SampleValue *curnew = v->getSampleValue(i)->getNearestTargetSampleValue(v->getTargetValue(i)) ;
 		if (curold->calcDistance (curnew) < mindistance) {
+			delete newsample ;	// the nearest one so far
 			samplepos = v->getSamplePos(i) ;
 			newsample = curnew ;
 			mindistance = curold->calcDistance (curnew) ;

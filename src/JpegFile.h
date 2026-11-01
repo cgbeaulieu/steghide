@@ -79,8 +79,12 @@ class JpegFile : public CvrStgFile {
 
 	struct jpeg_compress_struct CInfo ;
 	struct jpeg_decompress_struct DeCInfo ;
-	unsigned int* HeightInBlocks ;
-	unsigned int* WidthInBlocks ;
+	/// DeCInfo's error manager, which libjpeg uses for as long as DeCInfo exists
+	struct jpeg_error_mgr DeCErrMgr ;
+	/// true from jpeg_create_decompress until jpeg_destroy_decompress
+	bool DeCInfoCreated ;
+	std::vector<unsigned int> HeightInBlocks ;
+	std::vector<unsigned int> WidthInBlocks ;
 	jvirt_barray_ptr* DctCoeffs ;
 
 	std::vector<SWORD16> LinDctCoeffs ;
