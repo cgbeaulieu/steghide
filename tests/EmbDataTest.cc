@@ -83,7 +83,8 @@ void EmbDataTest::testExtracting ()
 		ok = (emb.getCompression() == 0) && ok ;
 		ok = (emb.getChecksum() == false) && ok ;
 		ok = (emb.getFileName() == "testfile") && ok ;
-		ok = (emb.getData().size() == 1 && emb.getData()[0] == 0xff) && ok ;
+		const std::vector<BYTE> data = emb.getData() ;
+		ok = (data.size() == 1 && data[0] == 0xff) && ok ;
 
 		addTestResult (ok) ;
 	}

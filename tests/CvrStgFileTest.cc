@@ -20,6 +20,7 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <filesystem>
 
 #include "CvrStgFileTest.h"
 #define private public
@@ -184,16 +185,13 @@ bool CvrStgFileTest::areEqual (const std::string& fn1, const std::string& fn2) c
 
 void CvrStgFileTest::removeFile (const std::string& fn) const
 {
-	char command[256] ;
-	sprintf (command, "%s %s", REMOVE, fn.c_str()) ;
-	system (command) ;
+	std::filesystem::remove (fn) ;
 }
 
+// throws if the copy fails, so the test does not go on with the old file
 void CvrStgFileTest::copyFile (const std::string& src, const std::string& dest) const
 {
-	char command[256] ;
-	sprintf (command, "%s %s %s", COPY, src.c_str(), dest.c_str()) ;
-	system (command) ;
+	std::filesystem::copy_file (src, dest, std::filesystem::copy_options::overwrite_existing) ;
 }
 
 void CvrStgFileTest::moveFile (const std::string& src, const std::string& dest) const
