@@ -1,0 +1,148 @@
+# Build and test every push and pull request: GCC and Clang, with and
+# without ASan and UBSan, and a short fuzzing run.
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  cmake:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: GCC
+            cc: gcc
+            cxx: g++
+          - name: Clang
+            cc: clang
+            cxx: clang++
+          - name: Clang, -O3
+            cc: clang
+            cxx: clang++
+            options: -DCMAKE_BUILD_TYPE=Release
+          - name: GCC, ASan and UBSan
+            cc: gcc
+            cxx: g++
+            options: -DSTEGHIDE_SANITIZE=address,undefined
+          - name: Clang, ASan and UBSan
+            cc: clang
+            cxx: clang++
+            options: -DSTEGHIDE_SANITIZE=address,undefined
+          - name: GCC, debug
+            cc: gcc
+            cxx: g++
+            options: -DSTEGHIDE_DEBUG=ON
+    steps:
+      - uses: actions/checkout@v7
+
+      # steghide is Ubuntu's 0.5.1: the compat test checks that it reads what
+      # this build writes. libclang-rt has Clang's sanitizers and libFuzzer,
+      # and llvm has llvm-symbolizer, which puts names in sanitizer reports.
+      - name: Install the dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends cmake make g++ clang \
+            libclang-rt-18-dev llvm libjpeg-dev zlib1g-dev gettext perl steghide
+
+      - name: Configure
+        run: |
+          cmake -B build -DCMAKE_C_COMPILER=${{ matrix.cc }} -DCMAKE_CXX_COMPILER=${{ matrix.cxx }} \
+            -DSTEGHIDE_COMPAT_REFERENCE=/usr/bin/steghide ${{ matrix.options }}
+
+      - name: Build
+        run: cmake --build build -j"$(nproc)" 2>&1 | tee build.log
+
+      # src/mcrypt/ is libmcrypt's code, kept as it was apart from its bugs
+      - name: Check for compiler warnings
+        run: |
+          if grep 'warning:' build.log | grep -v 'src/mcrypt/'; then
+            echo "::error::compiler warnings outside src/mcrypt/"
+            exit 1
+          fi
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+  fuzz:
+    name: Fuzzing
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install the dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends cmake make clang libclang-rt-18-dev \
+            llvm libjpeg-dev zlib1g-dev perl
+
+      - name: Build
+        run: |
+          cmake -B build -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ \
+            -DSTEGHIDE_FUZZ=ON -DSTEGHIDE_SANITIZE=address,undefined
+          cmake --build build -j"$(nproc)"
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+      # each run starts from the inputs earlier runs found
+      - uses: actions/cache@v6
+        with:
+          path: corpus
+          key: fuzz-corpus-${{ github.run_id }}
+          restore-keys: fuzz-corpus-
+
+      # two minutes per target on every core; fuzz/README.md has the options.
+      # Each job logs to fuzz-N.log, and libFuzzer copies those logs into its
+      # own output, so that goes to a file and only the summary is shown.
+      - name: Fuzz
+        id: fuzz
+        run: |
+          mkdir -p corpus/cover corpus/embdata crashes
+          n=$(nproc)
+          fuzz() {
+            local target=$1 status=0 ; shift
+            "build/$target" -jobs="$n" -workers="$n" -max_total_time=120 -malloc_limit_mb=1024 \
+              -rss_limit_mb=3072 -artifact_prefix=crashes/ "$@" > "$target.out" 2>&1 || status=$?
+            grep -E 'exited with exit code|DONE' "$target.out" || true
+            return "$status"
+          }
+          fuzz fuzz_cover corpus/cover tests/data tests/compat/fixtures
+          fuzz fuzz_embdata corpus/embdata fuzz/seeds/embdata
+
+      - name: Show what the fuzzers found
+        if: failure() && steps.fuzz.outcome == 'failure'
+        run: |
+          for log in fuzz-*.log; do
+            if grep -q 'ERROR' "$log"; then
+              echo "::group::$log"
+              tail -n 80 "$log"
+              echo "::endgroup::"
+            fi
+          done
+
+      - uses: actions/upload-artifact@v7
+        if: failure() && steps.fuzz.outcome == 'failure'
+        with:
+          name: fuzz-crashes
+          path: |
+            crashes/
+            fuzz-*.log
+          if-no-files-found: ignore

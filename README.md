@@ -7,6 +7,7 @@
 
 <br>
 
+[![CI](https://img.shields.io/github/actions/workflow/status/cgbeaulieu/steghide/ci.yml?branch=modernize%2Fphase2&style=for-the-badge&logo=githubactions&logoColor=white&label=CI)](https://github.com/cgbeaulieu/steghide/actions/workflows/ci.yml)
 ![steghide 0.5.1 compatible](https://img.shields.io/badge/steghide%200.5.1-compatible-1a7f37?style=for-the-badge)
 ![ASan, UBSan and LeakSanitizer clean](https://img.shields.io/badge/ASan%20%C2%B7%20UBSan%20%C2%B7%20LSan-clean-1a7f37?style=for-the-badge)
 ![no compiler warnings](https://img.shields.io/badge/compiler%20warnings-0-1a7f37?style=for-the-badge)
@@ -127,7 +128,7 @@ Using steghide hasn't changed. What changed is everything underneath it.
 | Memory leaks | ❌ yes | ✅ none |
 | Builds on today's compilers | ⚠️ needs distro patches | ✅ GCC and Clang, no warnings |
 | Build system | autotools | CMake |
-| Tests | unit and system tests | ➕ 0.5.1 compatibility, cipher test vectors, sanitizer and leak checks, fuzzing |
+| Tests | unit and system tests | ➕ 0.5.1 compatibility, cipher test vectors, sanitizer and leak checks, fuzzing, all on every push |
 
 <details>
 <summary><b>How it is tested</b></summary>
@@ -138,6 +139,7 @@ Using steghide hasn't changed. What changed is everything underneath it.
 - **`tests/vectors`** holds about 800 answers recorded from the real libmcrypt 2.5.8 and libmhash, for every algorithm, mode and key length. The built-in replacements must give the same answer to each one.
 - **Sanitizers.** Every test runs under AddressSanitizer, UndefinedBehaviorSanitizer and LeakSanitizer with GCC and Clang.
 - **Fuzzing.** The cover file parsers and the embedded data format are fuzzed with libFuzzer, and the tests replay an input for each bug it found ([`fuzz/`](fuzz/README.md)).
+- **CI.** Every push and pull request is built and tested on Ubuntu with GCC and Clang, with and without the sanitizers, against Ubuntu's own steghide 0.5.1. It fails on any compiler warning outside the libmcrypt code, and fuzzes each target for two minutes ([`ci.yml`](.github/workflows/ci.yml)).
 
 </details>
 
@@ -191,7 +193,7 @@ After changing messages, `cmake --build build --target update-po` updates `po/st
 | Phase | Status | What it covers |
 | --- | --- | --- |
 | **1. Baseline** | ✅ done | Debian and Fedora patches, compatibility test files from a real 0.5.1 |
-| **2. Modernize without changing the format** | 🚧 in progress | done: CMake, built-in ciphers, memory fixes, no leaks or warnings, fuzzing, a secure random source · next: CI |
+| **2. Modernize without changing the format** | ✅ done | CMake, built-in ciphers, memory fixes, no leaks or warnings, fuzzing, a secure random source, CI |
 | **3. A new, stronger format** | 📝 planned | modern key derivation and authenticated encryption, while still reading old files |
 | **4. Later** | 💭 ideas | PNG support, a library other programs can use |
 
