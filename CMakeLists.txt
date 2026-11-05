@@ -55,9 +55,6 @@ endif()
 set(DEBUG ${STEGHIDE_DEBUG})
 set(NORANDOM ${STEGHIDE_NORANDOM})
 check_include_file_cxx(termios.h HAVE_TERMIOS_H)
-if(EXISTS /dev/urandom)
-	set(HAVE_DEV_URANDOM 1)
-endif()
 if(CMAKE_SYSTEM_NAME MATCHES "Windows|CYGWIN")
 	set(WIN32 1)
 endif()
@@ -173,6 +170,7 @@ if(BUILD_TESTING)
 		tests/DummyFile.cc tests/DummySampleValue.cc tests/EdgeIteratorTest.cc tests/EmbDataTest.cc
 		tests/GraphTest.cc tests/JpegFileTest.cc tests/JpegSampleValueTest.cc tests/MCryptPPTest.cc
 		tests/MHashKeyGenTest.cc tests/MHashPPTest.cc tests/MatchingTest.cc tests/CryptoVectorTest.cc
+		tests/RandomSourceTest.cc
 		tests/SampleValueAdjacencyListTest.cc tests/SampleValueTest.cc tests/SelectorTest.cc
 		tests/TestSuite.cc tests/UnitTest.cc tests/WavFileTest.cc tests/WavPCMSampleValueTest.cc
 		tests/main.cc

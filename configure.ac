@@ -149,10 +149,6 @@ dnl check for perl
 AC_CHECK_PROG(ac_cv_prog_perl, "perl", yes, no)
 AM_CONDITIONAL(HAVE_PERL, test "$ac_cv_prog_perl" = yes)
 
-dnl Check for random sources	
-AC_CHECK_FILE(/dev/urandom, [AC_DEFINE(HAVE_DEV_URANDOM,1,/dev/urandom is available)])
-AC_CHECK_FILE(/dev/random, [AC_DEFINE(HAVE_DEV_RANDOM,1,/dev/random is available)])
-
 dnl Checks for library functions.
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS(tcgetattr tcsetattr strtoul)

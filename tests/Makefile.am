@@ -11,7 +11,7 @@ BmpRGBSampleValueTest.h BmpWinFileTest.h WKSConstructionHeuristicTest.h \
 BmpFileTest.h CvrStgFileTest.h DummyFile.h \
 DummySampleValue.h EdgeIteratorTest.h EmbDataTest.h GraphTest.h JpegFileTest.h \
 JpegSampleValueTest.h MCryptPPTest.h MHashKeyGenTest.h MHashPPTest.h \
-MatchingTest.h CryptoVectorTest.h SampleValueAdjacencyListTest.h SampleValueTest.h SelectorTest.h \
+MatchingTest.h CryptoVectorTest.h RandomSourceTest.h SampleValueAdjacencyListTest.h SampleValueTest.h SelectorTest.h \
 Test.h TestCategory.h TestCategoryCaller.h TestSuite.h UnitTest.h \
 WavFileTest.h WavPCMSampleValueTest.h utcommon.h
 unittests_SOURCES = \
@@ -21,7 +21,7 @@ BmpRGBSampleValueTest.cc BmpWinFileTest.cc WKSConstructionHeuristicTest.cc \
 BmpFileTest.cc CvrStgFileTest.cc \
 DummyFile.cc DummySampleValue.cc EdgeIteratorTest.cc EmbDataTest.cc \
 GraphTest.cc JpegFileTest.cc JpegSampleValueTest.cc MCryptPPTest.cc \
-MHashKeyGenTest.cc MHashPPTest.cc MatchingTest.cc CryptoVectorTest.cc \
+MHashKeyGenTest.cc MHashPPTest.cc MatchingTest.cc CryptoVectorTest.cc RandomSourceTest.cc \
 SampleValueAdjacencyListTest.cc SampleValueTest.cc SelectorTest.cc \
 TestSuite.cc UnitTest.cc WavFileTest.cc WavPCMSampleValueTest.cc main.cc
 unittests_LDADD = \

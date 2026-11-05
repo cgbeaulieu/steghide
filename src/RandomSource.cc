@@ -18,8 +18,12 @@
  *
  */
 
-#include <cstdlib>
-#include <ctime>
+#include <cerrno>
+#include <cstring>
+#include <unistd.h>
+#ifdef __APPLE__
+#include <sys/random.h>
+#endif
 
 #include "BitString.h"
 #include "common.h"
@@ -31,42 +35,22 @@
 RandomSource RndSrc ;
 
 RandomSource::RandomSource ()
+	: RandomBytePos(8), RandomByte(0), Buffer(), BufferPos(Buffer.size())
 {
-	RandomBytePos = 8 ;
-#ifdef HAVE_DEV_URANDOM
-	if ((RandomInput = fopen ("/dev/urandom", "r")) == NULL) {
-		Warning w (_("could not open /dev/urandom, using standard library random numbers instead.")) ;
-		w.printMessage() ;
-		RandomInput = NULL ;
-		srand ((unsigned int) time (NULL)) ;
-	}
-#else
-	RandomInput = NULL ;
-	srand ((unsigned int) time (NULL)) ;
-#endif
-}
-
-RandomSource::~RandomSource()
-{
-	// nothing was written to it, and a destructor cannot throw (it used to,
-	// which would have called std::terminate)
-	if (RandomInput != NULL) {
-		fclose (RandomInput) ;
-	}
 }
 
 BYTE RandomSource::getByte ()
 {
-	BYTE retval = 0 ;
+	if (BufferPos == Buffer.size()) {
+		// with NORANDOM, Buffer keeps the zeros it was initialized with
 #ifndef NORANDOM
-	if (RandomInput != NULL) {
-		retval = getc (RandomInput) ;
-	}
-	else {
-		retval = (BYTE) (256.0 * (rand() / (RAND_MAX + 1.0))) ;
-	}
+		if (getentropy (Buffer.data(), Buffer.size()) != 0) {
+			throw SteghideError (_("could not get random data from the operating system: %s."), strerror (errno)) ;
+		}
 #endif
-	return retval ;
+		BufferPos = 0 ;
+	}
+	return Buffer[BufferPos++] ;
 }
 
 std::vector<BYTE> RandomSource::getBytes (unsigned int n)

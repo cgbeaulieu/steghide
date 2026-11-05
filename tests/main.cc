@@ -45,6 +45,7 @@
 #include "CryptoVectorTest.h"
 #include "MHashKeyGenTest.h"
 #include "MHashPPTest.h"
+#include "RandomSourceTest.h"
 #include "SampleValueAdjacencyListTest.h"
 #include "SelectorTest.h"
 #include "WavFileTest.h"
@@ -84,6 +85,9 @@ int main (int argc, char *argv[])
 
 	BitStringTest bst (&ts) ;
 	ts.addUnitTest (&bst) ;
+
+	RandomSourceTest rst (&ts) ;
+	ts.addUnitTest (&rst) ;
 
 	SelectorTest st (&ts) ;
 	ts.addUnitTest (&st) ;

@@ -21,7 +21,8 @@
 #ifndef SH_RANDOMSOURCE_H
 #define SH_RANDOMSOURCE_H
 
-#include <cstdio>
+#include <array>
+#include <cstddef>
 #include <vector>
 
 class BitString ;
@@ -29,11 +30,15 @@ class BitString ;
 /**
  * \class RandomSource
  * \brief objects of this class are used as a source of random (non reproduceable) data
+ *
+ * The data comes from the operating system's cryptographically secure random
+ * number generator (getentropy). If that fails, getByte throws a SteghideError:
+ * the initialization vectors are made from this data, so there is no fallback
+ * to a weaker source.
  **/
 class RandomSource {
 	public:
 	RandomSource (void) ;
-	~RandomSource (void) ;
 
 	/**
 	 * get a random byte
@@ -71,11 +76,10 @@ class RandomSource {
 	private:
 	unsigned int RandomBytePos ;
 	BYTE RandomByte ;
-	/**
-	 * determines the random input - is either opened file pointer to
-	 * /dev/urandom or NULL (the rand() function is then used as random source)
-	 **/
-	FILE *RandomInput ;
+	/// random bytes from the operating system (getentropy returns at most 256 per call)
+	std::array<BYTE,256> Buffer ;
+	/// the next unused byte in Buffer, Buffer.size() if all of them have been used
+	std::size_t BufferPos ;
 } ;
 
 #endif // ndef SH_RANDOMSOURCE_H

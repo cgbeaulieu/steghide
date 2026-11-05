@@ -22,7 +22,6 @@
 #cmakedefine USE_LIBJPEG 1
 #cmakedefine USE_ZLIB 1
 #cmakedefine HAVE_TERMIOS_H 1
-#cmakedefine HAVE_DEV_URANDOM 1
 #cmakedefine WIN32 1
 
 #endif // ndef SH_CONFIG_H
