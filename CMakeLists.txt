@@ -24,8 +24,8 @@ option(STEGHIDE_FUZZ "Build the fuzz targets with libFuzzer (Clang only), see fu
 set(STEGHIDE_COMPAT_REFERENCE "" CACHE FILEPATH
 	"steghide 0.5.1 binary; when set, the compat test also checks that 0.5.1 reads what this build writes")
 
-# Dependencies. As in configure.ac, zlib and libjpeg are optional. The
-# ciphers and hashes steghide used from libmcrypt and libmhash are in-tree.
+# Dependencies. zlib and libjpeg are optional. The ciphers and hashes
+# steghide used from libmcrypt and libmhash are in-tree.
 
 find_package(ZLIB)
 if(ZLIB_FOUND)
@@ -101,7 +101,7 @@ if(ENABLE_NLS)
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-	# the hardening flags Debian's add-hardening.patch adds to the autotools build
+	# the hardening flags Debian's add-hardening.patch added to the autotools build
 	target_compile_options(steghide_core PUBLIC
 		-Wall -fstack-protector-strong -Wformat -Werror=format-security)
 	# the ciphers compare unsigned test vectors with strcmp in their self-tests
@@ -134,10 +134,11 @@ set_target_properties(steghide PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BIN
 
 # Translations
 
+file(STRINGS po/LINGUAS languages REGEX "^[^#]")
+string(REPLACE " " ";" languages "${languages}")
+
 find_package(Gettext)
 if(ENABLE_NLS AND GETTEXT_MSGFMT_EXECUTABLE)
-	file(STRINGS po/LINGUAS languages REGEX "^[^#]")
-	string(REPLACE " " ";" languages "${languages}")
 	file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/po)
 	foreach(lang IN LISTS languages)
 		set(mo ${PROJECT_BINARY_DIR}/po/${lang}.mo)
@@ -151,11 +152,40 @@ if(ENABLE_NLS AND GETTEXT_MSGFMT_EXECUTABLE)
 	add_custom_target(translations ALL DEPENDS ${mo_files})
 endif()
 
+# "cmake --build build --target update-po" extracts the messages from src/
+# into po/steghide.pot and merges them into each translation in po/.
+find_program(XGETTEXT_EXECUTABLE xgettext)
+if(XGETTEXT_EXECUTABLE AND GETTEXT_MSGMERGE_EXECUTABLE)
+	file(GLOB po_sources RELATIVE ${PROJECT_SOURCE_DIR} CONFIGURE_DEPENDS src/*.cc src/*.h)
+	list(SORT po_sources)
+	set(update_po
+		COMMAND ${XGETTEXT_EXECUTABLE} --keyword=_ --keyword=N_
+			--package-name=${PROJECT_NAME} --package-version=${PROJECT_VERSION}
+			"--copyright-holder=Stefan Hetzl"
+			--msgid-bugs-address=https://github.com/cgbeaulieu/steghide/issues
+			-o po/steghide.pot ${po_sources})
+	foreach(lang IN LISTS languages)
+		list(APPEND update_po
+			COMMAND ${GETTEXT_MSGMERGE_EXECUTABLE} --quiet --update --backup=none po/${lang}.po po/steghide.pot)
+	endforeach()
+	add_custom_target(update-po ${update_po} WORKING_DIRECTORY ${PROJECT_SOURCE_DIR} VERBATIM)
+endif()
+
+# "cmake --build build --target doxygen" writes the source documentation to
+# build/doxygen.
+find_package(Doxygen)
+if(DOXYGEN_FOUND)
+	configure_file(cmake/steghide.doxygen.in steghide.doxygen @ONLY)
+	add_custom_target(doxygen
+		COMMAND Doxygen::doxygen ${PROJECT_BINARY_DIR}/steghide.doxygen
+		WORKING_DIRECTORY ${PROJECT_BINARY_DIR} VERBATIM)
+endif()
+
 # Install
 
 install(TARGETS steghide)
 install(FILES doc/steghide.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)
-install(FILES ABOUT-NLS BUGS COPYING CREDITS HISTORY LEAME README TODO DESTINATION ${CMAKE_INSTALL_DOCDIR})
+install(FILES BUGS COPYING CREDITS HISTORY LEAME README TODO DESTINATION ${CMAKE_INSTALL_DOCDIR})
 
 # Tests
 

@@ -126,7 +126,7 @@ Using steghide hasn't changed. What changed is everything underneath it.
 | Memory errors found by ASan and UBSan | ❌ several | ✅ none |
 | Memory leaks | ❌ yes | ✅ none |
 | Builds on today's compilers | ⚠️ needs distro patches | ✅ GCC and Clang, no warnings |
-| Build system | autotools | CMake (autotools still works) |
+| Build system | autotools | CMake |
 | Tests | unit and system tests | ➕ 0.5.1 compatibility, cipher test vectors, sanitizer and leak checks, fuzzing |
 
 <details>
@@ -184,12 +184,14 @@ sudo cmake --install build
 | `STEGHIDE_DEBUG` | `ON` includes steghide's debugging commands |
 | `STEGHIDE_FUZZ` | `ON` builds the fuzz targets with libFuzzer (Clang only), see [`fuzz/README.md`](fuzz/README.md) |
 
+After changing messages, `cmake --build build --target update-po` updates `po/steghide.pot` and the translations. With Doxygen installed, `--target doxygen` writes the source documentation to `build/doxygen`.
+
 ## 🗺️ Roadmap
 
 | Phase | Status | What it covers |
 | --- | --- | --- |
 | **1. Baseline** | ✅ done | Debian and Fedora patches, compatibility test files from a real 0.5.1 |
-| **2. Modernize without changing the format** | 🚧 in progress | done: CMake, built-in ciphers, memory fixes, no leaks or warnings, fuzzing · next: CI, a secure random source |
+| **2. Modernize without changing the format** | 🚧 in progress | done: CMake, built-in ciphers, memory fixes, no leaks or warnings, fuzzing, a secure random source · next: CI |
 | **3. A new, stronger format** | 📝 planned | modern key derivation and authenticated encryption, while still reading old files |
 | **4. Later** | 💭 ideas | PNG support, a library other programs can use |
 

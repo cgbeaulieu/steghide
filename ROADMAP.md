@@ -26,7 +26,7 @@ State at the end of phase 1, built with GCC 16.2:
 ### Bugs found so far
 
 - **CVE-2021-27211**: `Selector.cc` folds MD5(passphrase) into a 32-bit seed for the embedding permutation, and `MCryptPP.cc` derives the key with MD5. This makes passphrase cracking fast (see stegseek) and lets an attacker detect steghide data by brute-forcing the seed. It is part of the file format, so only phase 3 can fix it.
-- `configure.ac` and `CMakeLists.txt` say 0.6.0 (bumped in `d4afe38`), but the code is 0.5.1 plus fixes.
+- `CMakeLists.txt` says 0.6.0 (bumped in `configure.ac` in `d4afe38`), but the code is 0.5.1 plus fixes.
 - Fixed in phase 2 (see `git log` for each):
   - a new-delete-type-mismatch in `AuFile::~AuFile` and a heap-use-after-free in `EdgeIterator::operator++`, found with ASan
   - undefined behaviour in seven of libmcrypt's ciphers, found with UBSan (see `src/mcrypt/README.md`)
@@ -52,7 +52,7 @@ Every step must keep `tests/compat/check.sh` at 100% in both directions.
 - [x] CMake build, C++20, with `STEGHIDE_SANITIZE` and the unit, system and compat tests in CTest
 - [x] Builds with Clang
 - [x] Replace libmcrypt and libmhash. The 18 ciphers libmcrypt 2.5.8 builds are its own code in `src/mcrypt/` (with its undefined behaviour fixed); the modes, the key setup, MD5, CRC32 and the key generation are reimplemented. Checked against vectors from the real libraries for every algorithm, mode and key length (`tests/vectors/`), and against the 0.5.1 fixtures in both directions.
-- [ ] Remove autotools and the generated files committed with it (kept for now; `make check` still passes)
+- [x] Remove autotools, the files it generated, and what gettextize copied in (`intl/`, `m4/`, most of `po/`). CMake took over the two things it still did: `update-po` regenerates `po/steghide.pot` and merges it into the translations, and `doxygen` builds the source documentation. The RPM spec and `make dist` are gone; distributions have their own spec, and `git archive` makes a tarball.
 - [ ] CI: GCC and Clang, ASan/UBSan, all CTest tests, and a short fuzzing run
 - [x] Fuzz the cover-file parsers (BMP, JPEG, WAV, AU) and the embedded data format with libFuzzer (`fuzz/`, `STEGHIDE_FUZZ`). CTest replays an input for each bug found in every build.
 - [x] Replace `hash_map`/`hash_set` with `std::unordered_*`; drop `binary_function`/`unary_function`; replace `sprintf` and variable-length arrays. Sample values are now labelled in first-seen order instead of hash-table order.
@@ -61,7 +61,7 @@ Every step must keep `tests/compat/check.sh` at 100% in both directions.
 - [x] Ownership: `src/` has no `new` or `delete` left. Owners hold `std::unique_ptr`s or containers (cover files their `BinaryIO` and contents, `Embedder` and `Extractor` their file, `Embedder` its graph and matching, `Graph` its vertices, sample values and adjacency lists, `Matching` its edges by value), factories return `std::unique_ptr`, and `Globs` only points to the current file and graph (they clear it when destroyed). The unit tests still use raw pointers for their fixtures, freed in `cleanup()`.
 - [x] Replace `srand(time(NULL))` in `RandomSource.cc` with the OS CSPRNG: `getentropy()`, 256 bytes at a time. The IVs come from it, so if it fails steghide stops with an error; 0.5.1 fell back to `rand()` seeded with the time when it could not open `/dev/urandom`, and always on Windows. A native Windows build would need `BCryptGenRandom` instead.
 
-State so far, with GCC 16.2, Clang 23.1 (-O2 and -O3), both compilers with ASan/UBSan and leak checks, and `STEGHIDE_DEBUG`: all six CTest tests pass (unit, system, compat in both directions against 0.5.1, `extract_name`, and the replays of both fuzz targets), with no warnings, and so does the autotools `make check`. With all fixes in, `fuzz_cover` ran 3.2 million inputs and `fuzz_embdata` 25 million, under ASan and UBSan, without a finding. The unit tests use their own harness in `tests/`, not cppunit. Translations build and install, but loading them has not been checked on a system with a matching locale.
+State so far, with GCC 16.2, Clang 23.1 (-O2 and -O3), both compilers with ASan/UBSan and leak checks, and `STEGHIDE_DEBUG`: all six CTest tests pass (unit, system, compat in both directions against 0.5.1, `extract_name`, and the replays of both fuzz targets), with no warnings. With all fixes in, `fuzz_cover` ran 3.2 million inputs and `fuzz_embdata` 25 million, under ASan and UBSan, without a finding. The unit tests use their own harness in `tests/`, not cppunit. Translations build and install, but loading them has not been checked on a system with a matching locale.
 
 ## Phase 3: v2 file format
 

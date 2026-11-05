@@ -76,17 +76,6 @@ sanitizers, and -DSTEGHIDE_COMPAT_REFERENCE=/path/to/steghide-0.5.1 to also
 check that steghide 0.5.1 can read what this build writes (see
 tests/compat/README.md).
 
-The autotools build still works for now:
-
-1) autoreconf -fi
-2) ./configure
-3) make
-4) make check
-5) make install (as root)
-
-For more information see the generic installation instructions in the file
-INSTALL that came with the distribution.
-
 If any of these commands fails, please send a mail to the steghide development
 mailing list (steghide-devel@lists.sourceforge.net) describing the error.
  

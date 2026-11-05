@@ -60,15 +60,12 @@ muchas de sus grandes habilidades.
 
 Linux / Unix :
 --------------
-Una vez desempaquetado la distribución fuente, ingresar los siguientes comandos:
+Con CMake 3.20 o posterior, ingresar los siguientes comandos:
 
-1) ./configure 
-2) make
-3) make check
-4) make install (como root)
-
-Para mas información, ver las instrucciones de instalación genéricas en el archivo 
-INSTALL que vino con la distribución.
+1) cmake -B build
+2) cmake --build build
+3) ctest --test-dir build
+4) cmake --install build (como root)
 
 Si falla alguno de estos comandos, por favor, enviarme un email a la lista de correo de steghide
 (steghide-devel@lists.sourceforge.net) describiendo el error.
